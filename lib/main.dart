@@ -26,26 +26,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Location location = new Location();
-  double latitude;
-  double longitude;
-  double accuracy;
-  double altitude;
-
-  _MyHomePageState() {
-    _updateLocation();
-  }
-
-  void _updateLocation() {
-    location.getLocation.then((Map<String, double> currentLocation) {
-      setState(() {
-        latitude = currentLocation["latitude"];
-        longitude = currentLocation["longitude"];
-        accuracy = currentLocation["accuracy"];
-        altitude = currentLocation["altitude"];
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,36 +34,82 @@ class _MyHomePageState extends State<MyHomePage> {
         title: new Text(widget.title),
       ),
       body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Text(
-              'Your location is:',
-            ),
-            new Text(
-              'Latitude: $latitude',
-              style: Theme.of(context).textTheme.display1,
-            ),
-            new Text(
-              'Longitude: $longitude',
-              style: Theme.of(context).textTheme.display1,
-            ),
-            new Text(
-              'Accuracy: $accuracy',
-              style: Theme.of(context).textTheme.display1,
-            ),
-            new Text(
-              'Altitude: $altitude',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
+        child: new LocationWidget()
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: _updateLocation,
-        tooltip: 'Update Location',
+        onPressed: null,
+        tooltip: 'This button does nothing',
         child: new Icon(Icons.update),
       ),
+    );
+  }
+}
+
+class LocationWidget extends StatefulWidget {
+  final Location location = new Location();
+
+  @override
+  _LocationWidgetState createState() => new _LocationWidgetState(location);
+}
+
+class _LocationWidgetState extends State<LocationWidget> {
+  Location location;
+  double latitude;
+  double longitude;
+  double accuracy;
+  double altitude;
+
+  _LocationWidgetState(this.location) {
+    _oneTimeRefreshLocation();
+    _initListener();
+  }
+
+  void _oneTimeRefreshLocation() {
+    location.getLocation.then((Map<String,double> currentLocation) {
+      _updateLocation(currentLocation);
+    });
+  }
+
+  void _initListener() {
+    location.onLocationChanged.listen((Map<String,double> currentLocation) {
+      _updateLocation(currentLocation);
+    });
+  }
+
+  void _updateLocation(Map<String,double> currentLocation) {
+    setState(() {
+      latitude = currentLocation["latitude"];
+      longitude = currentLocation["longitude"];
+      accuracy = currentLocation["accuracy"];
+      altitude = currentLocation["altitude"];
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        new Text(
+          'Your location is:',
+        ),
+        new Text(
+          'Latitude: $latitude',
+          style: Theme.of(context).textTheme.display1,
+        ),
+        new Text(
+          'Longitude: $longitude',
+          style: Theme.of(context).textTheme.display1,
+        ),
+        new Text(
+          'Accuracy: $accuracy',
+          style: Theme.of(context).textTheme.display1,
+        ),
+        new Text(
+          'Altitude: $altitude',
+          style: Theme.of(context).textTheme.display1,
+        ),
+      ],
     );
   }
 }
