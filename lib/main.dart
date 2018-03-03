@@ -17,39 +17,36 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Flutter Home Page'),
+      home: new MyProfilePage(), // TODO: remove big fat header.
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class MyProfilePage extends StatelessWidget {
+  MyProfilePage({Key key}) : super(key: key);
 
-  final String title;
 
-  @override
-  _MyHomePageState createState() => new _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
-      ),
-      body: new Center(
-          child: new RaisedButton(
-              onPressed: () {
-                Navigator.of(context).push(new MaterialPageRoute<Null>(
-                    builder: (BuildContext context) {
-                      return new FinderPage(targetLatitude, targetLongitude);
-                    }
-                ));
-              },
-              child: new Text("Find your fish!")
-          )
-      ),
+        body: new ListView(children: <Widget>[
+          new Image.network('http://www.emilyfortuna.com/wp-content/uploads/2013/12/MG_0587smaller-683x1024.jpg'),
+
+          new Text('Name: Emily'),
+          new Text('Favorite Music: Beethoven'),
+          new Center(
+              child: new RaisedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(new MaterialPageRoute<Null>(
+                        builder: (BuildContext context) {
+                          return new FinderPage(targetLatitude, targetLongitude);
+                        }
+                    ));
+                  },
+                  child: new Text("Find your fish!")
+              )
+          ),
+        ],)
     );
   }
 }
