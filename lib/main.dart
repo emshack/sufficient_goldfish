@@ -1,5 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+
+// TODO: Better populate these
+const double targetLatitude = 37.785844;
+const double targetLongitude = -122.406427;
 
 void main() => runApp(new MyApp());
 
@@ -11,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Flutter Demo Home Page'),
+      home: new MyHomePage(title: 'Flutter Home Page'),
     );
   }
 }
@@ -26,7 +32,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -34,46 +39,59 @@ class _MyHomePageState extends State<MyHomePage> {
         title: new Text(widget.title),
       ),
       body: new Center(
-        child: new LocationWidget()
-      ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: null,
-        tooltip: 'This button does nothing',
-        child: new Icon(Icons.update),
+          child: new RaisedButton(
+              onPressed: () {
+                Navigator.of(context).push(new MaterialPageRoute<Null>(
+                    builder: (BuildContext context) {
+                      return new FinderPage(targetLatitude, targetLongitude);
+                    }
+                ));
+              },
+              child: new Text("Find your fish!")
+          )
       ),
     );
   }
 }
 
-class LocationWidget extends StatefulWidget {
+typedef void LocationCallback(Map<String, double> location);
+
+class LocationTools {
   final Location location = new Location();
 
-  @override
-  _LocationWidgetState createState() => new _LocationWidgetState(location);
+  Future<Map<String, double>> getLocation() {
+    return location.getLocation;
+  }
+
+  void initListener(LocationCallback callback) {
+    location.onLocationChanged.listen((Map<String,double> currentLocation) {
+      callback(currentLocation);
+    });
+  }
 }
 
-class _LocationWidgetState extends State<LocationWidget> {
-  Location location;
-  double latitude;
-  double longitude;
-  double accuracy;
-  double altitude;
+class FinderPage extends StatefulWidget {
+  final double targetLatitude;
+  final double targetLongitude;
 
-  _LocationWidgetState(this.location) {
-    _oneTimeRefreshLocation();
-    _initListener();
-  }
+  FinderPage(this.targetLatitude, this.targetLongitude);
 
-  void _oneTimeRefreshLocation() {
-    location.getLocation.then((Map<String,double> currentLocation) {
+  @override
+  _FinderPageState createState() => new _FinderPageState();
+}
+
+class _FinderPageState extends State<FinderPage> {
+  LocationTools locationTools;
+  double latitude = 0.0;
+  double longitude = 0.0;
+  double accuracy = 0.0;
+
+  _FinderPageState() {
+    locationTools = new LocationTools();
+    locationTools.getLocation().then((Map<String, double> currentLocation) {
       _updateLocation(currentLocation);
     });
-  }
-
-  void _initListener() {
-    location.onLocationChanged.listen((Map<String,double> currentLocation) {
-      _updateLocation(currentLocation);
-    });
+    locationTools.initListener(_updateLocation);
   }
 
   void _updateLocation(Map<String,double> currentLocation) {
@@ -81,35 +99,41 @@ class _LocationWidgetState extends State<LocationWidget> {
       latitude = currentLocation["latitude"];
       longitude = currentLocation["longitude"];
       accuracy = currentLocation["accuracy"];
-      altitude = currentLocation["altitude"];
     });
+  }
+
+  Color _colorFromLocationDiff() {
+    int milesBetweenLines = 69;
+    int feetInMile = 5280;
+    int desiredFeetRange = 15;
+    double multiplier = 2 * milesBetweenLines * feetInMile / desiredFeetRange;
+    double latitudeDiff = (latitude - widget.targetLatitude).abs() * multiplier;
+    double longitudeDiff = (longitude - widget.targetLongitude).abs() * multiplier;
+    print(latitude);
+    print(longitude);
+    if (latitudeDiff > 1) {
+      latitudeDiff = 1.0;
+    }
+    if (longitudeDiff > 1) {
+      longitudeDiff = 1.0;
+    }
+    double totalDiff = (latitudeDiff + longitudeDiff) / 2;
+    return Color.lerp(Colors.red, Colors.blue, totalDiff);
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        new Text(
-          'Your location is:',
+    return new Scaffold(
+        appBar: new AppBar(
+          title: new Text("Find your fish!"),
         ),
-        new Text(
-          'Latitude: $latitude',
-          style: Theme.of(context).textTheme.display1,
-        ),
-        new Text(
-          'Longitude: $longitude',
-          style: Theme.of(context).textTheme.display1,
-        ),
-        new Text(
-          'Accuracy: $accuracy',
-          style: Theme.of(context).textTheme.display1,
-        ),
-        new Text(
-          'Altitude: $altitude',
-          style: Theme.of(context).textTheme.display1,
-        ),
-      ],
+        body: new Container(
+          color: _colorFromLocationDiff(),
+          child: new Center(
+            // TODO: Swap out this gif
+            child: new Image.network('https://media.giphy.com/media/LRp1xDyXBYGhG/giphy.gif'),
+          ),
+        )
     );
   }
 }
