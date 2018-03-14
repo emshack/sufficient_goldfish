@@ -127,8 +127,7 @@ class _FinderPageState extends State<FinderPage> {
         body: new Container(
           color: _colorFromLocationDiff(),
           child: new Center(
-            // TODO: Swap out this gif
-            child: new Image.network('https://media.giphy.com/media/LRp1xDyXBYGhG/giphy.gif'),
+            child: new Image.asset('assets/location_ping.gif'),
           ),
         )
     );
