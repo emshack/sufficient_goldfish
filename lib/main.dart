@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // TODO: Better populate these
 const double targetLatitude = 37.785844;
@@ -10,30 +11,50 @@ const double targetLongitude = -122.406427;
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Plenty of Goldfish',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyProfilePage(), // TODO: remove big fat header.
+      home: new MyProfilePage(_getProfileDoc),
     );
   }
+
+  DocumentReference get _getProfileDoc => Firestore.instance
+      .collection('profiles')
+      .document('Frank'); // TODO(efortuna): Could use google sign in and get "name" from that.
+}
+
+// TODO(efortuna): Potential Matches page to highlight the
+// StreamBuilder/QuerySnapshot thing for cloudFirestore?
+
+enum Field {
+  name, favoriteMusic, phValue
 }
 
 class MyProfilePage extends StatelessWidget {
-  MyProfilePage({Key key}) : super(key: key);
+  DocumentReference _profile;
 
+  MyProfilePage(this._profile);
+
+  Future<Null> _updateProfile(Field field, value) async {
+    _profile.updateData({field.toString() : value});
+  }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
         body: new ListView(children: <Widget>[
-          new Image.network('http://www.emilyfortuna.com/wp-content/uploads/2013/12/MG_0587smaller-683x1024.jpg'),
-
-          new Text('Name: Emily'),
-          new Text('Favorite Music: Beethoven'),
+          new Image.asset('assets/longhorn-cowfish.jpg'),
+          new Text('Name: Frank'),
+          new Text('Favorite Music: BlubStep'),
+          new TextFormField(decoration:
+            new InputDecoration(labelText: 'Favorite pH level'),
+            onFieldSubmitted: (submitted) => _updateProfile(Field.phValue, submitted),
+          ),
           new Center(
               child: new RaisedButton(
                   onPressed: () {
