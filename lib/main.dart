@@ -100,8 +100,6 @@ class FinderPage extends StatefulWidget {
   _FinderPageState createState() => new _FinderPageState();
 }
 
-enum PlayerState { stopped, playing }
-
 class _FinderPageState extends State<FinderPage> {
   LocationTools locationTools;
   double latitude = 0.0;
