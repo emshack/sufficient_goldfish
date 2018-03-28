@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "611138263249",
+    "firebase_url": "https://sufficientgoldfish.firebaseio.com",
+    "project_id": "sufficientgoldfish",
+    "storage_bucket": "sufficientgoldfish.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:611138263249:android:7024f16e9190b541",
+        "android_client_info": {
+          "package_name": "com.yourcompany.sufficientgoldfish"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "611138263249-hu6lv0l1ri2b84r1ejjb9simn8tvrhkm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yourcompany.sufficientgoldfish",
+            "certificate_hash": "33cc5feefee0caefa4ae5b6180cc710d3784ae25"
+          }
+        },
+        {
+          "client_id": "611138263249-1q7uukvbk89qtfnd54itjv8u0o70b3fr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCo8fd4EiLmdOYmElJOyNCkUEmn64Qomc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "611138263249-1q7uukvbk89qtfnd54itjv8u0o70b3fr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
