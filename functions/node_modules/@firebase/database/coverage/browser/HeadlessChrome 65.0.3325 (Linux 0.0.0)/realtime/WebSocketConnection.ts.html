@@ -1,0 +1,1364 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for realtime/WebSocketConnection.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">All files</a> / <a href="index.html">realtime</a> WebSocketConnection.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">77.98% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>131/168</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">46.75% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>36/77</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">88% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>22/25</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">78.05% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>128/164</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-yes">1411x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2438x</span>
+<span class="cline-any cline-yes">2438x</span>
+<span class="cline-any cline-yes">2438x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-yes">1027x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+&nbsp;
+import { RepoInfo } from '../core/RepoInfo';
+&nbsp;
+declare const MozWebSocket: any;
+&nbsp;
+import firebase from '@firebase/app';
+import { assert } from '@firebase/util';
+import { logWrapper, splitStringBySize } from '../core/util/util';
+import { StatsManager } from '../core/stats/StatsManager';
+import {
+  FORGE_DOMAIN,
+  FORGE_REF,
+  LAST_SESSION_PARAM,
+  PROTOCOL_VERSION,
+  REFERER_PARAM,
+  TRANSPORT_SESSION_PARAM,
+  VERSION_PARAM,
+  WEBSOCKET
+} from './Constants';
+import { CONSTANTS as ENV_CONSTANTS } from '@firebase/util';
+import { PersistentStorage } from '../core/storage/storage';
+import { jsonEval, stringify } from '@firebase/util';
+import { isNodeSdk } from '@firebase/util';
+import { Transport } from './Transport';
+import { StatsCollection } from '../core/stats/StatsCollection';
+&nbsp;
+const WEBSOCKET_MAX_FRAME_SIZE = 16384;
+const WEBSOCKET_KEEPALIVE_INTERVAL = 45000;
+&nbsp;
+let WebSocketImpl = null;
+<span class="missing-if-branch" title="if path not taken" >I</span>if (typeof MozWebSocket !== 'undefined') {
+<span class="cstat-no" title="statement not covered" >  WebSocketImpl = MozWebSocket;</span>
+} else <span class="missing-if-branch" title="else path not taken" >E</span>if (typeof WebSocket !== 'undefined') {
+  WebSocketImpl = WebSocket;
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >export function setWebSocketImpl(</span>impl) {
+<span class="cstat-no" title="statement not covered" >  WebSocketImpl = impl;</span>
+}
+&nbsp;
+/**
+ * Create a new websocket connection with the given callbacks.
+ * @constructor
+ * @implements {Transport}
+ */
+export class WebSocketConnection implements Transport {
+  keepaliveTimer: number | null = null;
+  frames: string[] | null = null;
+  totalFrames = 0;
+  bytesSent = 0;
+  bytesReceived = 0;
+  connURL: string;
+  onDisconnect: (a?: boolean) =&gt; void;
+  onMessage: (msg: Object) =&gt; void;
+  mySock: any | null;
+  private log_: (...a: any[]) =&gt; void;
+  private stats_: StatsCollection;
+  private everConnected_: boolean;
+  private isClosed_: boolean;
+&nbsp;
+  /**
+   * @param {string} connId identifier for this transport
+   * @param {RepoInfo} repoInfo The info for the websocket endpoint.
+   * @param {string=} transportSessionId Optional transportSessionId if this is connecting to an existing transport
+   *                                         session
+   * @param {string=} lastSessionId Optional lastSessionId if there was a previous connection
+   */
+  constructor(
+    public connId: string,
+    repoInfo: RepoInfo,
+    transportSessionId?: string,
+    lastSessionId?: string
+  ) {
+    this.log_ = logWrapper(this.connId);
+    this.stats_ = StatsManager.getCollection(repoInfo);
+    this.connURL = WebSocketConnection.connectionURL_(
+      repoInfo,
+      transportSessionId,
+      lastSessionId
+    );
+  }
+&nbsp;
+  /**
+   * @param {RepoInfo} repoInfo The info for the websocket endpoint.
+   * @param {string=} transportSessionId Optional transportSessionId if this is connecting to an existing transport
+   *                                         session
+   * @param {string=} lastSessionId Optional lastSessionId if there was a previous connection
+   * @return {string} connection url
+   * @private
+   */
+  private static connectionURL_(
+    repoInfo: RepoInfo,
+    transportSessionId?: string,
+    lastSessionId?: string
+  ): string {
+    const urlParams: { [k: string]: string } = {};
+    urlParams[VERSION_PARAM] = PROTOCOL_VERSION;
+&nbsp;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (
+      !isNodeSdk() &amp;&amp;
+      typeof location !== 'undefined' &amp;&amp;
+      location.href &amp;&amp;
+      location.href.indexOf(FORGE_DOMAIN) !== -1
+    ) {
+<span class="cstat-no" title="statement not covered" >      urlParams[REFERER_PARAM] = FORGE_REF;</span>
+    }
+    if (transportSessionId) {
+      urlParams[TRANSPORT_SESSION_PARAM] = transportSessionId;
+    }
+    if (lastSessionId) {
+      urlParams[LAST_SESSION_PARAM] = lastSessionId;
+    }
+    return repoInfo.connectionURL(WEBSOCKET, urlParams);
+  }
+&nbsp;
+  /**
+   *
+   * @param onMessage Callback when messages arrive
+   * @param onDisconnect Callback with connection lost.
+   */
+  open(onMessage: (msg: Object) =&gt; void, onDisconnect: (a?: boolean) =&gt; void) {
+    this.onDisconnect = onDisconnect;
+    this.onMessage = onMessage;
+&nbsp;
+    this.log_('Websocket connecting to ' + this.connURL);
+&nbsp;
+    this.everConnected_ = false;
+    // Assume failure until proven otherwise.
+    PersistentStorage.set('previous_websocket_failure', true);
+&nbsp;
+    try {
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (isNodeSdk()) {
+        const device = <span class="cstat-no" title="statement not covered" >ENV_CONSTANTS.NODE_ADMIN ? 'AdminNode' : 'Node';</span>
+        // UA Format: Firebase/&lt;wire_protocol&gt;/&lt;sdk_version&gt;/&lt;platform&gt;/&lt;device&gt;
+        const options: { [k: string]: object } = <span class="cstat-no" title="statement not covered" >{</span>
+          headers: {
+            'User-Agent': `Firebase/${PROTOCOL_VERSION}/${
+              firebase.SDK_VERSION
+            }/${process.platform}/${device}`
+          }
+        };
+&nbsp;
+        // Plumb appropriate http_proxy environment variable into faye-websocket if it exists.
+        const env = <span class="cstat-no" title="statement not covered" >process['env'];</span>
+        const proxy =
+<span class="cstat-no" title="statement not covered" >          this.connURL.indexOf('wss://') == 0</span>
+            ? env['HTTPS_PROXY'] || env['https_proxy']
+            : env['HTTP_PROXY'] || env['http_proxy'];
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if (proxy) {</span>
+<span class="cstat-no" title="statement not covered" >          options['proxy'] = { origin: proxy };</span>
+        }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        this.mySock = new WebSocketImpl(this.connURL, [], options);</span>
+      } else {
+        this.mySock = new WebSocketImpl(this.connURL);
+      }
+    } catch (e) {
+<span class="cstat-no" title="statement not covered" >      this.log_('Error instantiating WebSocket.');</span>
+      const error = <span class="cstat-no" title="statement not covered" >e.message || e.data;</span>
+<span class="cstat-no" title="statement not covered" >      if (error) {</span>
+<span class="cstat-no" title="statement not covered" >        this.log_(error);</span>
+      }
+<span class="cstat-no" title="statement not covered" >      this.onClosed_();</span>
+<span class="cstat-no" title="statement not covered" >      return;</span>
+    }
+&nbsp;
+    this.mySock.onopen = () =&gt; {
+      this.log_('Websocket connected.');
+      this.everConnected_ = true;
+    };
+&nbsp;
+    this.mySock.onclose = () =&gt; {
+      this.log_('Websocket connection was disconnected.');
+      this.mySock = null;
+      this.onClosed_();
+    };
+&nbsp;
+    this.mySock.onmessage = (m: object) =&gt; {
+      this.handleIncomingFrame(m);
+    };
+&nbsp;
+    this.mySock.onerror = (e: any) =&gt; {
+      this.log_('WebSocket error.  Closing connection.');
+      const error = e.message || e.data;
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (error) {
+<span class="cstat-no" title="statement not covered" >        this.log_(error);</span>
+      }
+      this.onClosed_();
+    };
+  }
+&nbsp;
+  /**
+   * No-op for websockets, we don't need to do anything once the connection is confirmed as open
+   */
+  start() {}
+&nbsp;
+  static forceDisallow_: Boolean;
+&nbsp;
+<span class="fstat-no" title="function not covered" >  static forceDisallow() {</span>
+<span class="cstat-no" title="statement not covered" >    WebSocketConnection.forceDisallow_ = true;</span>
+  }
+&nbsp;
+  static isAvailable(): boolean {
+    let isOldAndroid = false;
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (typeof navigator !== 'undefined' &amp;&amp; navigator.userAgent) {
+      const oldAndroidRegex = /Android ([0-9]{0,}\.[0-9]{0,})/;
+      const oldAndroidMatch = navigator.userAgent.match(oldAndroidRegex);
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (oldAndroidMatch &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >oldAndroidMatch.length &gt; 1)</span> {
+<span class="cstat-no" title="statement not covered" >        if (parseFloat(oldAndroidMatch[1]) &lt; 4.4) {</span>
+<span class="cstat-no" title="statement not covered" >          isOldAndroid = true;</span>
+        }
+      }
+    }
+&nbsp;
+    return (
+      !isOldAndroid &amp;&amp;
+      WebSocketImpl !== null &amp;&amp;
+      !WebSocketConnection.forceDisallow_
+    );
+  }
+&nbsp;
+  /**
+   * Number of response before we consider the connection "healthy."
+   * @type {number}
+   */
+  static responsesRequiredToBeHealthy = 2;
+&nbsp;
+  /**
+   * Time to wait for the connection te become healthy before giving up.
+   * @type {number}
+   */
+  static healthyTimeout = 30000;
+&nbsp;
+  /**
+   * Returns true if we previously failed to connect with this transport.
+   * @return {boolean}
+   */
+  static previouslyFailed(): boolean {
+    // If our persistent storage is actually only in-memory storage,
+    // we default to assuming that it previously failed to be safe.
+    return (
+      PersistentStorage.isInMemoryStorage ||
+      PersistentStorage.get('previous_websocket_failure') === true
+    );
+  }
+&nbsp;
+  markConnectionHealthy() {
+    PersistentStorage.remove('previous_websocket_failure');
+  }
+&nbsp;
+  private appendFrame_(data: string) {
+    this.frames.push(data);
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.frames.length == this.totalFrames) {
+      const fullMess = this.frames.join('');
+      this.frames = null;
+      const jsonMess = jsonEval(fullMess);
+&nbsp;
+      //handle the message
+      this.onMessage(jsonMess);
+    }
+  }
+&nbsp;
+  /**
+   * @param {number} frameCount The number of frames we are expecting from the server
+   * @private
+   */
+  private handleNewFrameCount_(frameCount: number) {
+    this.totalFrames = frameCount;
+    this.frames = [];
+  }
+&nbsp;
+  /**
+   * Attempts to parse a frame count out of some text. If it can't, assumes a value of 1
+   * @param {!String} data
+   * @return {?String} Any remaining data to be process, or null if there is none
+   * @private
+   */
+  private extractFrameCount_(data: string): string | null {
+    assert(this.frames === null, 'We already have a frame buffer');
+    // TODO: The server is only supposed to send up to 9999 frames (i.e. length &lt;= 4), but that isn't being enforced
+    // currently.  So allowing larger frame counts (length &lt;= 6).  See https://app.asana.com/0/search/8688598998380/8237608042508
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (data.length &lt;= 6) {
+      const frameCount = <span class="cstat-no" title="statement not covered" >Number(data);</span>
+<span class="cstat-no" title="statement not covered" >      if (!isNaN(frameCount)) {</span>
+<span class="cstat-no" title="statement not covered" >        this.handleNewFrameCount_(frameCount);</span>
+<span class="cstat-no" title="statement not covered" >        return null;</span>
+      }
+    }
+    this.handleNewFrameCount_(1);
+    return data;
+  }
+&nbsp;
+  /**
+   * Process a websocket frame that has arrived from the server.
+   * @param mess The frame data
+   */
+  handleIncomingFrame(mess: { [k: string]: any }) {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.mySock === null) <span class="cstat-no" title="statement not covered" >return; </span>// Chrome apparently delivers incoming packets even after we .close() the connection sometimes.
+    const data = mess['data'] as string;
+    this.bytesReceived += data.length;
+    this.stats_.incrementCounter('bytes_received', data.length);
+&nbsp;
+    this.resetKeepAlive();
+&nbsp;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.frames !== null) {
+      // we're buffering
+<span class="cstat-no" title="statement not covered" >      this.appendFrame_(data);</span>
+    } else {
+      // try to parse out a frame count, otherwise, assume 1 and process it
+      const remainingData = this.extractFrameCount_(data);
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (remainingData !== null) {
+        this.appendFrame_(remainingData);
+      }
+    }
+  }
+&nbsp;
+  /**
+   * Send a message to the server
+   * @param {Object} data The JSON object to transmit
+   */
+  send(data: Object) {
+    this.resetKeepAlive();
+&nbsp;
+    const dataStr = stringify(data);
+    this.bytesSent += dataStr.length;
+    this.stats_.incrementCounter('bytes_sent', dataStr.length);
+&nbsp;
+    //We can only fit a certain amount in each websocket frame, so we need to split this request
+    //up into multiple pieces if it doesn't fit in one request.
+&nbsp;
+    const dataSegs = splitStringBySize(dataStr, WEBSOCKET_MAX_FRAME_SIZE);
+&nbsp;
+    //Send the length header
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (dataSegs.length &gt; 1) {
+<span class="cstat-no" title="statement not covered" >      this.sendString_(String(dataSegs.length));</span>
+    }
+&nbsp;
+    //Send the actual data in segments.
+    for (let i = 0; i &lt; dataSegs.length; i++) {
+      this.sendString_(dataSegs[i]);
+    }
+  }
+&nbsp;
+  private shutdown_() {
+    this.isClosed_ = true;
+    if (this.keepaliveTimer) {
+      clearInterval(this.keepaliveTimer);
+      this.keepaliveTimer = null;
+    }
+&nbsp;
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.mySock) {
+      this.mySock.close();
+      this.mySock = null;
+    }
+  }
+&nbsp;
+  private onClosed_() {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.isClosed_) {
+<span class="cstat-no" title="statement not covered" >      this.log_('WebSocket is closing itself');</span>
+<span class="cstat-no" title="statement not covered" >      this.shutdown_();</span>
+&nbsp;
+      // since this is an internal close, trigger the close listener
+<span class="cstat-no" title="statement not covered" >      if (this.onDisconnect) {</span>
+<span class="cstat-no" title="statement not covered" >        this.onDisconnect(this.everConnected_);</span>
+<span class="cstat-no" title="statement not covered" >        this.onDisconnect = null;</span>
+      }
+    }
+  }
+&nbsp;
+  /**
+   * External-facing close handler.
+   * Close the websocket and kill the connection.
+   */
+  close() {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (!this.isClosed_) {
+      this.log_('WebSocket is being closed');
+      this.shutdown_();
+    }
+  }
+&nbsp;
+  /**
+   * Kill the current keepalive timer and start a new one, to ensure that it always fires N seconds after
+   * the last activity.
+   */
+  resetKeepAlive() {
+    clearInterval(this.keepaliveTimer);
+    this.keepaliveTimer = setInterval(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
+      //If there has been no websocket activity for a while, send a no-op
+<span class="cstat-no" title="statement not covered" >      if (this.mySock) {</span>
+<span class="cstat-no" title="statement not covered" >        this.sendString_('0');</span>
+      }
+<span class="cstat-no" title="statement not covered" >      this.resetKeepAlive();</span>
+    }, Math.floor(WEBSOCKET_KEEPALIVE_INTERVAL)) as any;
+  }
+&nbsp;
+  /**
+   * Send a string over the websocket.
+   *
+   * @param {string} str String to send.
+   * @private
+   */
+  private sendString_(str: string) {
+    // Firefox seems to sometimes throw exceptions (NS_ERROR_UNEXPECTED) from websocket .send()
+    // calls for some unknown reason.  We treat these as an error and disconnect.
+    // See https://app.asana.com/0/58926111402292/68021340250410
+    try {
+      this.mySock.send(str);
+    } catch (e) {
+<span class="cstat-no" title="statement not covered" >      this.log_(</span>
+        'Exception thrown from WebSocket.send():',
+        e.message || e.data,
+        'Closing connection.'
+      );
+<span class="cstat-no" title="statement not covered" >      setTimeout(this.onClosed_.bind(this), 0);</span>
+    }
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Mar 20 2018 11:09:37 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

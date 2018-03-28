@@ -1,0 +1,2474 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for core/WriteTree.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">All files</a> / <a href="index.html">core</a> WriteTree.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">91.71% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>188/205</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">81.9% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>86/105</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">91.18% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>31/34</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">91.58% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>185/202</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738
+739
+740
+741
+742
+743
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764
+765
+766
+767
+768
+769
+770
+771
+772
+773
+774
+775
+776
+777
+778
+779
+780
+781
+782
+783
+784
+785
+786
+787
+788
+789
+790
+791
+792
+793
+794
+795
+796
+797
+798
+799
+800
+801
+802
+803
+804</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">92x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">92x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">92x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">2192x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">524x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">524x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">524x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">524x</span>
+<span class="cline-any cline-yes">501x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">524x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-yes">558x</span>
+<span class="cline-any cline-yes">558x</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-yes">558x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-yes">2060x</span>
+<span class="cline-any cline-yes">2060x</span>
+<span class="cline-any cline-yes">2060x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">85x</span>
+<span class="cline-any cline-yes">1975x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">59x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2060x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">533x</span>
+<span class="cline-any cline-yes">108x</span>
+<span class="cline-any cline-yes">425x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">36x</span>
+<span class="cline-any cline-yes">36x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">389x</span>
+<span class="cline-any cline-yes">381x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">389x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">845x</span>
+<span class="cline-any cline-yes">534x</span>
+<span class="cline-any cline-yes">534x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">517x</span>
+<span class="cline-any cline-yes">517x</span>
+<span class="cline-any cline-yes">490x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">311x</span>
+<span class="cline-any cline-yes">311x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">311x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">311x</span>
+<span class="cline-any cline-yes">569x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">311x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">311x</span>
+<span class="cline-any cline-yes">311x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">583x</span>
+<span class="cline-any cline-yes">583x</span>
+<span class="cline-any cline-yes">583x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">583x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">583x</span>
+<span class="cline-any cline-yes">583x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">624x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">624x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">583x</span>
+<span class="cline-any cline-yes">120x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">583x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">76x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">76x</span>
+<span class="cline-any cline-yes">76x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">76x</span>
+<span class="cline-any cline-yes">76x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">71x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">49x</span>
+<span class="cline-any cline-yes">49x</span>
+<span class="cline-any cline-yes">49x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">33x</span>
+<span class="cline-any cline-yes">33x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1197x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">2057x</span>
+<span class="cline-any cline-yes">2030x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">47x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">36x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">36x</span>
+<span class="cline-any cline-yes">36x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">347x</span>
+<span class="cline-any cline-yes">347x</span>
+<span class="cline-any cline-yes">818x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">818x</span>
+<span class="cline-any cline-yes">307x</span>
+<span class="cline-any cline-yes">307x</span>
+<span class="cline-any cline-yes">307x</span>
+<span class="cline-any cline-yes">291x</span>
+<span class="cline-any cline-yes">286x</span>
+<span class="cline-any cline-yes">286x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">347x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3262x</span>
+<span class="cline-any cline-yes">3262x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">534x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">583x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">76x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1197x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">49x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1070x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+&nbsp;
+import { findKey, forEach, safeGet } from '@firebase/util';
+import { assert, assertionError } from '@firebase/util';
+import { Path } from './util/Path';
+import { CompoundWrite } from './CompoundWrite';
+import { PRIORITY_INDEX } from './snap/indexes/PriorityIndex';
+import { ChildrenNode } from './snap/ChildrenNode';
+import { NamedNode, Node } from './snap/Node';
+import { CacheNode } from './view/CacheNode';
+import { Index } from './snap/indexes/Index';
+&nbsp;
+/**
+ * Defines a single user-initiated write operation. May be the result of a set(), transaction(), or update() call. In
+ * the case of a set() or transaction, snap wil be non-null.  In the case of an update(), children will be non-null.
+ */
+export interface WriteRecord {
+  writeId: number;
+  path: Path;
+  snap?: Node | null;
+  children?: { [k: string]: Node } | null;
+  visible: boolean;
+}
+&nbsp;
+/**
+ * WriteTree tracks all pending user-initiated writes and has methods to calculate the result of merging them
+ * with underlying server data (to create "event cache" data).  Pending writes are added with addOverwrite()
+ * and addMerge(), and removed with removeWrite().
+ *
+ * @constructor
+ */
+export class WriteTree {
+  /**
+   * A tree tracking the result of applying all visible writes.  This does not include transactions with
+   * applyLocally=false or writes that are completely shadowed by other writes.
+   *
+   * @type {!CompoundWrite}
+   * @private
+   */
+  private visibleWrites_: CompoundWrite = CompoundWrite.Empty;
+&nbsp;
+  /**
+   * A list of all pending writes, regardless of visibility and shadowed-ness.  Used to calculate arbitrary
+   * sets of the changed data, such as hidden writes (from transactions) or changes with certain writes excluded (also
+   * used by transactions).
+   *
+   * @type {!Array.&lt;!WriteRecord&gt;}
+   * @private
+   */
+  private allWrites_: WriteRecord[] = [];
+&nbsp;
+  private lastWriteId_ = -1;
+&nbsp;
+  /**
+   * Create a new WriteTreeRef for the given path. For use with a new sync point at the given path.
+   *
+   * @param {!Path} path
+   * @return {!WriteTreeRef}
+   */
+  childWrites(path: Path): WriteTreeRef {
+    return new WriteTreeRef(path, this);
+  }
+&nbsp;
+  /**
+   * Record a new overwrite from user code.
+   *
+   * @param {!Path} path
+   * @param {!Node} snap
+   * @param {!number} writeId
+   * @param {boolean=} visible This is set to false by some transactions. It should be excluded from event caches
+   */
+  addOverwrite(path: Path, snap: Node, writeId: number, visible?: boolean) {
+    assert(
+      writeId &gt; this.lastWriteId_,
+      'Stacking an older write on top of newer ones'
+    );
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (visible === undefined) {
+<span class="cstat-no" title="statement not covered" >      visible = true;</span>
+    }
+    this.allWrites_.push({
+      path: path,
+      snap: snap,
+      writeId: writeId,
+      visible: visible
+    });
+&nbsp;
+    if (visible) {
+      this.visibleWrites_ = this.visibleWrites_.addWrite(path, snap);
+    }
+    this.lastWriteId_ = writeId;
+  }
+&nbsp;
+  /**
+   * Record a new merge from user code.
+   *
+   * @param {!Path} path
+   * @param {!Object.&lt;string, !Node&gt;} changedChildren
+   * @param {!number} writeId
+   */
+  addMerge(
+    path: Path,
+    changedChildren: { [k: string]: Node },
+    writeId: number
+  ) {
+    assert(
+      writeId &gt; this.lastWriteId_,
+      'Stacking an older merge on top of newer ones'
+    );
+    this.allWrites_.push({
+      path: path,
+      children: changedChildren,
+      writeId: writeId,
+      visible: true
+    });
+&nbsp;
+    this.visibleWrites_ = this.visibleWrites_.addWrites(path, changedChildren);
+    this.lastWriteId_ = writeId;
+  }
+&nbsp;
+  /**
+   * @param {!number} writeId
+   * @return {?WriteRecord}
+   */
+  getWrite(writeId: number): WriteRecord | null {
+    for (let i = 0; i &lt; this.allWrites_.length; i++) {
+      const record = this.allWrites_[i];
+      if (record.writeId === writeId) {
+        return record;
+      }
+    }
+<span class="cstat-no" title="statement not covered" >    return null;</span>
+  }
+&nbsp;
+  /**
+   * Remove a write (either an overwrite or merge) that has been successfully acknowledge by the server. Recalculates
+   * the tree if necessary.  We return true if it may have been visible, meaning views need to reevaluate.
+   *
+   * @param {!number} writeId
+   * @return {boolean} true if the write may have been visible (meaning we'll need to reevaluate / raise
+   * events as a result).
+   */
+  removeWrite(writeId: number): boolean {
+    // Note: disabling this check. It could be a transaction that preempted another transaction, and thus was applied
+    // out of order.
+    //const validClear = revert || this.allWrites_.length === 0 || writeId &lt;= this.allWrites_[0].writeId;
+    //assert(validClear, "Either we don't have this write, or it's the first one in the queue");
+&nbsp;
+    const idx = this.allWrites_.findIndex(function(s) {
+      return s.writeId === writeId;
+    });
+    assert(idx &gt;= 0, 'removeWrite called with nonexistent writeId.');
+    const writeToRemove = this.allWrites_[idx];
+    this.allWrites_.splice(idx, 1);
+&nbsp;
+    let removedWriteWasVisible = writeToRemove.visible;
+    let removedWriteOverlapsWithOtherWrites = false;
+&nbsp;
+    let i = this.allWrites_.length - 1;
+&nbsp;
+    while (removedWriteWasVisible &amp;&amp; i &gt;= 0) {
+      const currentWrite = this.allWrites_[i];
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (currentWrite.visible) {
+        if (
+          i &gt;= idx &amp;&amp;
+          this.recordContainsPath_(currentWrite, writeToRemove.path)
+        ) {
+          // The removed write was completely shadowed by a subsequent write.
+          removedWriteWasVisible = false;
+        } else if (writeToRemove.path.contains(currentWrite.path)) {
+          // Either we're covering some writes or they're covering part of us (depending on which came first).
+          removedWriteOverlapsWithOtherWrites = true;
+        }
+      }
+      i--;
+    }
+&nbsp;
+    if (!removedWriteWasVisible) {
+      return false;
+    } else if (removedWriteOverlapsWithOtherWrites) {
+      // There's some shadowing going on. Just rebuild the visible writes from scratch.
+      this.resetTree_();
+      return true;
+    } else {
+      // There's no shadowing.  We can safely just remove the write(s) from visibleWrites.
+      if (writeToRemove.snap) {
+        this.visibleWrites_ = this.visibleWrites_.removeWrite(
+          writeToRemove.path
+        );
+      } else {
+        const children = writeToRemove.children;
+        forEach(children, (childName: string) =&gt; {
+          this.visibleWrites_ = this.visibleWrites_.removeWrite(
+            writeToRemove.path.child(childName)
+          );
+        });
+      }
+      return true;
+    }
+  }
+&nbsp;
+  /**
+   * Return a complete snapshot for the given path if there's visible write data at that path, else null.
+   * No server data is considered.
+   *
+   * @param {!Path} path
+   * @return {?Node}
+   */
+<span class="fstat-no" title="function not covered" >  getCompleteWriteData(</span>path: Path): Node | null {
+<span class="cstat-no" title="statement not covered" >    return this.visibleWrites_.getCompleteNode(path);</span>
+  }
+&nbsp;
+  /**
+   * Given optional, underlying server data, and an optional set of constraints (exclude some sets, include hidden
+   * writes), attempt to calculate a complete snapshot for the given path
+   *
+   * @param {!Path} treePath
+   * @param {?Node} completeServerCache
+   * @param {Array.&lt;number&gt;=} writeIdsToExclude An optional set to be excluded
+   * @param {boolean=} includeHiddenWrites Defaults to false, whether or not to layer on writes with visible set to false
+   * @return {?Node}
+   */
+  calcCompleteEventCache(
+    treePath: Path,
+    completeServerCache: Node | null,
+    writeIdsToExclude?: number[],
+    includeHiddenWrites?: boolean
+  ): Node | null {
+    if (!writeIdsToExclude &amp;&amp; !includeHiddenWrites) {
+      const shadowingNode = this.visibleWrites_.getCompleteNode(treePath);
+      if (shadowingNode != null) {
+        return shadowingNode;
+      } else {
+        const subMerge = this.visibleWrites_.childCompoundWrite(treePath);
+        if (subMerge.isEmpty()) {
+          return completeServerCache;
+        } else if (
+          completeServerCache == null &amp;&amp;
+          !subMerge.hasCompleteWrite(Path.Empty)
+        ) {
+          // We wouldn't have a complete snapshot, since there's no underlying data and no complete shadow
+          return null;
+        } else {
+          const layeredCache = completeServerCache || <span class="branch-1 cbranch-no" title="branch not covered" >ChildrenNode.EMPTY_NODE;</span>
+          return subMerge.apply(layeredCache);
+        }
+      }
+    } else {
+      const merge = this.visibleWrites_.childCompoundWrite(treePath);
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (!includeHiddenWrites &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >merge.isEmpty())</span> {
+<span class="cstat-no" title="statement not covered" >        return completeServerCache;</span>
+      } else {
+        // If the server cache is null, and we don't have a complete cache, we need to return null
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (
+          !includeHiddenWrites &amp;&amp;
+<span class="branch-1 cbranch-no" title="branch not covered" >          completeServerCache == null </span>&amp;&amp;
+<span class="branch-2 cbranch-no" title="branch not covered" >          !merge.hasCompleteWrite(Path.Empty)</span>
+        ) {
+<span class="cstat-no" title="statement not covered" >          return null;</span>
+        } else {
+          const filter = function(write: WriteRecord) {
+            return (
+              (write.visible || includeHiddenWrites) &amp;&amp;
+              (!writeIdsToExclude ||
+                !~writeIdsToExclude.indexOf(write.writeId)) &amp;&amp;
+              (write.path.contains(treePath) || treePath.contains(write.path))
+            );
+          };
+          const mergeAtPath = WriteTree.layerTree_(
+            this.allWrites_,
+            filter,
+            treePath
+          );
+          const layeredCache = completeServerCache || ChildrenNode.EMPTY_NODE;
+          return mergeAtPath.apply(layeredCache);
+        }
+      }
+    }
+  }
+&nbsp;
+  /**
+   * With optional, underlying server data, attempt to return a children node of children that we have complete data for.
+   * Used when creating new views, to pre-fill their complete event children snapshot.
+   *
+   * @param {!Path} treePath
+   * @param {?ChildrenNode} completeServerChildren
+   * @return {!ChildrenNode}
+   */
+  calcCompleteEventChildren(
+    treePath: Path,
+    completeServerChildren: ChildrenNode | null
+  ) {
+    let completeChildren = ChildrenNode.EMPTY_NODE as Node;
+    const topLevelSet = this.visibleWrites_.getCompleteNode(treePath);
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (topLevelSet) {
+<span class="cstat-no" title="statement not covered" >      if (!topLevelSet.isLeafNode()) {</span>
+        // we're shadowing everything. Return the children.
+<span class="cstat-no" title="statement not covered" >        topLevelSet.forEachChild(PRIORITY_INDEX, <span class="fstat-no" title="function not covered" >function(</span></span>
+          childName,
+          childSnap
+        ) {
+<span class="cstat-no" title="statement not covered" >          completeChildren = completeChildren.updateImmediateChild(</span>
+            childName,
+            childSnap
+          );
+        });
+      }
+<span class="cstat-no" title="statement not covered" >      return completeChildren;</span>
+    } else <span class="missing-if-branch" title="else path not taken" >E</span>if (completeServerChildren) {
+      // Layer any children we have on top of this
+      // We know we don't have a top-level set, so just enumerate existing children
+      const merge = this.visibleWrites_.childCompoundWrite(treePath);
+      completeServerChildren.forEachChild(PRIORITY_INDEX, function(
+        childName,
+        childNode
+      ) {
+        const node = merge
+          .childCompoundWrite(new Path(childName))
+          .apply(childNode);
+        completeChildren = completeChildren.updateImmediateChild(
+          childName,
+          node
+        );
+      });
+      // Add any complete children we have from the set
+      merge.getCompleteChildren().forEach(function(namedNode) {
+        completeChildren = completeChildren.updateImmediateChild(
+          namedNode.name,
+          namedNode.node
+        );
+      });
+      return completeChildren;
+    } else {
+      // We don't have anything to layer on top of. Layer on any children we have
+      // Note that we can return an empty snap if we have a defined delete
+      const merge = <span class="cstat-no" title="statement not covered" >this.visibleWrites_.childCompoundWrite(treePath);</span>
+<span class="cstat-no" title="statement not covered" >      merge.getCompleteChildren().forEach(<span class="fstat-no" title="function not covered" >function(</span>namedNode) {</span>
+<span class="cstat-no" title="statement not covered" >        completeChildren = completeChildren.updateImmediateChild(</span>
+          namedNode.name,
+          namedNode.node
+        );
+      });
+<span class="cstat-no" title="statement not covered" >      return completeChildren;</span>
+    }
+  }
+&nbsp;
+  /**
+   * Given that the underlying server data has updated, determine what, if anything, needs to be
+   * applied to the event cache.
+   *
+   * Possibilities:
+   *
+   * 1. No writes are shadowing. Events should be raised, the snap to be applied comes from the server data
+   *
+   * 2. Some write is completely shadowing. No events to be raised
+   *
+   * 3. Is partially shadowed. Events
+   *
+   * Either existingEventSnap or existingServerSnap must exist
+   *
+   * @param {!Path} treePath
+   * @param {!Path} childPath
+   * @param {?Node} existingEventSnap
+   * @param {?Node} existingServerSnap
+   * @return {?Node}
+   */
+  calcEventCacheAfterServerOverwrite(
+    treePath: Path,
+    childPath: Path,
+    existingEventSnap: Node | null,
+    existingServerSnap: Node | null
+  ): Node | null {
+    assert(
+      existingEventSnap || <span class="branch-1 cbranch-no" title="branch not covered" >existingServerSnap,</span>
+      'Either existingEventSnap or existingServerSnap must exist'
+    );
+    const path = treePath.child(childPath);
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.visibleWrites_.hasCompleteWrite(path)) {
+      // At this point we can probably guarantee that we're in case 2, meaning no events
+      // May need to check visibility while doing the findRootMostValueAndPath call
+<span class="cstat-no" title="statement not covered" >      return null;</span>
+    } else {
+      // No complete shadowing. We're either partially shadowing or not shadowing at all.
+      const childMerge = this.visibleWrites_.childCompoundWrite(path);
+      if (childMerge.isEmpty()) {
+        // We're not shadowing at all. Case 1
+        return existingServerSnap.getChild(childPath);
+      } else {
+        // This could be more efficient if the serverNode + updates doesn't change the eventSnap
+        // However this is tricky to find out, since user updates don't necessary change the server
+        // snap, e.g. priority updates on empty nodes, or deep deletes. Another special case is if the server
+        // adds nodes, but doesn't change any existing writes. It is therefore not enough to
+        // only check if the updates change the serverNode.
+        // Maybe check if the merge tree contains these special cases and only do a full overwrite in that case?
+        return childMerge.apply(existingServerSnap.getChild(childPath));
+      }
+    }
+  }
+&nbsp;
+  /**
+   * Returns a complete child for a given server snap after applying all user writes or null if there is no
+   * complete child for this ChildKey.
+   *
+   * @param {!Path} treePath
+   * @param {!string} childKey
+   * @param {!CacheNode} existingServerSnap
+   * @return {?Node}
+   */
+  calcCompleteChild(
+    treePath: Path,
+    childKey: string,
+    existingServerSnap: CacheNode
+  ): Node | null {
+    const path = treePath.child(childKey);
+    const shadowingNode = this.visibleWrites_.getCompleteNode(path);
+    if (shadowingNode != null) {
+      return shadowingNode;
+    } else {
+      if (existingServerSnap.isCompleteForChild(childKey)) {
+        const childMerge = this.visibleWrites_.childCompoundWrite(path);
+        return childMerge.apply(
+          existingServerSnap.getNode().getImmediateChild(childKey)
+        );
+      } else {
+        return null;
+      }
+    }
+  }
+&nbsp;
+  /**
+   * Returns a node if there is a complete overwrite for this path. More specifically, if there is a write at
+   * a higher path, this will return the child of that write relative to the write and this path.
+   * Returns null if there is no write at this path.
+   *
+   * @param {!Path} path
+   * @return {?Node}
+   */
+  shadowingWrite(path: Path): Node | null {
+    return this.visibleWrites_.getCompleteNode(path);
+  }
+&nbsp;
+  /**
+   * This method is used when processing child remove events on a query. If we can, we pull in children that were outside
+   * the window, but may now be in the window.
+   *
+   * @param {!Path} treePath
+   * @param {?Node} completeServerData
+   * @param {!NamedNode} startPost
+   * @param {!number} count
+   * @param {boolean} reverse
+   * @param {!Index} index
+   * @return {!Array.&lt;!NamedNode&gt;}
+   */
+  calcIndexedSlice(
+    treePath: Path,
+    completeServerData: Node | null,
+    startPost: NamedNode,
+    count: number,
+    reverse: boolean,
+    index: Index
+  ): NamedNode[] {
+    let toIterate: Node;
+    const merge = this.visibleWrites_.childCompoundWrite(treePath);
+    const shadowingNode = merge.getCompleteNode(Path.Empty);
+    if (shadowingNode != null) {
+      toIterate = shadowingNode;
+    } else if (completeServerData != null) {
+      toIterate = merge.apply(completeServerData);
+    } else {
+      // no children to iterate on
+      return [];
+    }
+    toIterate = toIterate.withIndex(index);
+    if (!toIterate.isEmpty() &amp;&amp; !toIterate.isLeafNode()) {
+      const nodes = [];
+      const cmp = index.getCompare();
+      const iter = reverse
+        ? (toIterate as ChildrenNode).getReverseIteratorFrom(startPost, index)
+        : (toIterate as ChildrenNode).getIteratorFrom(startPost, index);
+      let next = iter.getNext();
+      while (next &amp;&amp; nodes.length &lt; count) {
+        if (cmp(next, startPost) !== 0) {
+          nodes.push(next);
+        }
+        next = iter.getNext();
+      }
+      return nodes;
+    } else {
+      return [];
+    }
+  }
+&nbsp;
+  /**
+   * @param {!WriteRecord} writeRecord
+   * @param {!Path} path
+   * @return {boolean}
+   * @private
+   */
+  private recordContainsPath_(writeRecord: WriteRecord, path: Path): boolean {
+    if (writeRecord.snap) {
+      return writeRecord.path.contains(path);
+    } else {
+      // findKey can return undefined, so use !! to coerce to boolean
+      return !!findKey(writeRecord.children, function(
+        childSnap: Node,
+        childName: string
+      ) {
+        return writeRecord.path.child(childName).contains(path);
+      });
+    }
+  }
+&nbsp;
+  /**
+   * Re-layer the writes and merges into a tree so we can efficiently calculate event snapshots
+   * @private
+   */
+  private resetTree_() {
+    this.visibleWrites_ = WriteTree.layerTree_(
+      this.allWrites_,
+      WriteTree.DefaultFilter_,
+      Path.Empty
+    );
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.allWrites_.length &gt; 0) {
+      this.lastWriteId_ = this.allWrites_[this.allWrites_.length - 1].writeId;
+    } else {
+<span class="cstat-no" title="statement not covered" >      this.lastWriteId_ = -1;</span>
+    }
+  }
+&nbsp;
+  /**
+   * The default filter used when constructing the tree. Keep everything that's visible.
+   *
+   * @param {!WriteRecord} write
+   * @return {boolean}
+   * @private
+   */
+  private static DefaultFilter_(write: WriteRecord) {
+    return write.visible;
+  }
+&nbsp;
+  /**
+   * Static method. Given an array of WriteRecords, a filter for which ones to include, and a path, construct the tree of
+   * event data at that path.
+   *
+   * @param {!Array.&lt;!WriteRecord&gt;} writes
+   * @param {!function(!WriteRecord):boolean} filter
+   * @param {!Path} treeRoot
+   * @return {!CompoundWrite}
+   * @private
+   */
+  private static layerTree_(
+    writes: WriteRecord[],
+    filter: (w: WriteRecord) =&gt; boolean,
+    treeRoot: Path
+  ): CompoundWrite {
+    let compoundWrite = CompoundWrite.Empty;
+    for (let i = 0; i &lt; writes.length; ++i) {
+      const write = writes[i];
+      // Theory, a later set will either:
+      // a) abort a relevant transaction, so no need to worry about excluding it from calculating that transaction
+      // b) not be relevant to a transaction (separate branch), so again will not affect the data for that transaction
+      if (filter(write)) {
+        const writePath = write.path;
+        let relativePath;
+        if (write.snap) {
+          if (treeRoot.contains(writePath)) {
+            relativePath = Path.relativePath(treeRoot, writePath);
+            compoundWrite = compoundWrite.addWrite(relativePath, write.snap);
+          } else <span class="missing-if-branch" title="else path not taken" >E</span>if (writePath.contains(treeRoot)) {
+            relativePath = Path.relativePath(writePath, treeRoot);
+            compoundWrite = compoundWrite.addWrite(
+              Path.Empty,
+              write.snap.getChild(relativePath)
+            );
+          } else {
+            // There is no overlap between root path and write path, ignore write
+          }
+        } else <span class="missing-if-branch" title="else path not taken" >E</span>if (write.children) {
+          if (treeRoot.contains(writePath)) {
+            relativePath = Path.relativePath(treeRoot, writePath);
+            compoundWrite = compoundWrite.addWrites(
+              relativePath,
+              write.children
+            );
+          } else <span class="missing-if-branch" title="else path not taken" >E</span>if (writePath.contains(treeRoot)) {
+            relativePath = Path.relativePath(writePath, treeRoot);
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (relativePath.isEmpty()) {
+<span class="cstat-no" title="statement not covered" >              compoundWrite = compoundWrite.addWrites(</span>
+                Path.Empty,
+                write.children
+              );
+            } else {
+              const child = safeGet(write.children, relativePath.getFront());
+              if (child) {
+                // There exists a child in this node that matches the root path
+                const deepNode = child.getChild(relativePath.popFront());
+                compoundWrite = compoundWrite.addWrite(Path.Empty, deepNode);
+              }
+            }
+          } else {
+            // There is no overlap between root path and write path, ignore write
+          }
+        } else {
+<span class="cstat-no" title="statement not covered" >          throw assertionError('WriteRecord should have .snap or .children');</span>
+        }
+      }
+    }
+    return compoundWrite;
+  }
+}
+&nbsp;
+/**
+ * A WriteTreeRef wraps a WriteTree and a path, for convenient access to a particular subtree.  All of the methods
+ * just proxy to the underlying WriteTree.
+ *
+ * @constructor
+ */
+export class WriteTreeRef {
+  /**
+   * The path to this particular write tree ref. Used for calling methods on writeTree_ while exposing a simpler
+   * interface to callers.
+   *
+   * @type {!Path}
+   * @private
+   * @const
+   */
+  private readonly treePath_: Path;
+&nbsp;
+  /**
+   * * A reference to the actual tree of write data. All methods are pass-through to the tree, but with the appropriate
+   * path prefixed.
+   *
+   * This lets us make cheap references to points in the tree for sync points without having to copy and maintain all of
+   * the data.
+   *
+   * @type {!WriteTree}
+   * @private
+   * @const
+   */
+  private readonly writeTree_: WriteTree;
+&nbsp;
+  /**
+   * @param {!Path} path
+   * @param {!WriteTree} writeTree
+   */
+  constructor(path: Path, writeTree: WriteTree) {
+    this.treePath_ = path;
+    this.writeTree_ = writeTree;
+  }
+&nbsp;
+  /**
+   * If possible, returns a complete event cache, using the underlying server data if possible. In addition, can be used
+   * to get a cache that includes hidden writes, and excludes arbitrary writes. Note that customizing the returned node
+   * can lead to a more expensive calculation.
+   *
+   * @param {?Node} completeServerCache
+   * @param {Array.&lt;number&gt;=} writeIdsToExclude Optional writes to exclude.
+   * @param {boolean=} includeHiddenWrites Defaults to false, whether or not to layer on writes with visible set to false
+   * @return {?Node}
+   */
+  calcCompleteEventCache(
+    completeServerCache: Node | null,
+    writeIdsToExclude?: number[],
+    includeHiddenWrites?: boolean
+  ): Node | null {
+    return this.writeTree_.calcCompleteEventCache(
+      this.treePath_,
+      completeServerCache,
+      writeIdsToExclude,
+      includeHiddenWrites
+    );
+  }
+&nbsp;
+  /**
+   * If possible, returns a children node containing all of the complete children we have data for. The returned data is a
+   * mix of the given server data and write data.
+   *
+   * @param {?ChildrenNode} completeServerChildren
+   * @return {!ChildrenNode}
+   */
+  calcCompleteEventChildren(
+    completeServerChildren: ChildrenNode | null
+  ): ChildrenNode {
+    return this.writeTree_.calcCompleteEventChildren(
+      this.treePath_,
+      completeServerChildren
+    ) as ChildrenNode;
+  }
+&nbsp;
+  /**
+   * Given that either the underlying server data has updated or the outstanding writes have updated, determine what,
+   * if anything, needs to be applied to the event cache.
+   *
+   * Possibilities:
+   *
+   * 1. No writes are shadowing. Events should be raised, the snap to be applied comes from the server data
+   *
+   * 2. Some write is completely shadowing. No events to be raised
+   *
+   * 3. Is partially shadowed. Events should be raised
+   *
+   * Either existingEventSnap or existingServerSnap must exist, this is validated via an assert
+   *
+   * @param {!Path} path
+   * @param {?Node} existingEventSnap
+   * @param {?Node} existingServerSnap
+   * @return {?Node}
+   */
+  calcEventCacheAfterServerOverwrite(
+    path: Path,
+    existingEventSnap: Node | null,
+    existingServerSnap: Node | null
+  ): Node | null {
+    return this.writeTree_.calcEventCacheAfterServerOverwrite(
+      this.treePath_,
+      path,
+      existingEventSnap,
+      existingServerSnap
+    );
+  }
+&nbsp;
+  /**
+   * Returns a node if there is a complete overwrite for this path. More specifically, if there is a write at
+   * a higher path, this will return the child of that write relative to the write and this path.
+   * Returns null if there is no write at this path.
+   *
+   * @param {!Path} path
+   * @return {?Node}
+   */
+  shadowingWrite(path: Path): Node | null {
+    return this.writeTree_.shadowingWrite(this.treePath_.child(path));
+  }
+&nbsp;
+  /**
+   * This method is used when processing child remove events on a query. If we can, we pull in children that were outside
+   * the window, but may now be in the window
+   *
+   * @param {?Node} completeServerData
+   * @param {!NamedNode} startPost
+   * @param {!number} count
+   * @param {boolean} reverse
+   * @param {!Index} index
+   * @return {!Array.&lt;!NamedNode&gt;}
+   */
+  calcIndexedSlice(
+    completeServerData: Node | null,
+    startPost: NamedNode,
+    count: number,
+    reverse: boolean,
+    index: Index
+  ): NamedNode[] {
+    return this.writeTree_.calcIndexedSlice(
+      this.treePath_,
+      completeServerData,
+      startPost,
+      count,
+      reverse,
+      index
+    );
+  }
+&nbsp;
+  /**
+   * Returns a complete child for a given server snap after applying all user writes or null if there is no
+   * complete child for this ChildKey.
+   *
+   * @param {!string} childKey
+   * @param {!CacheNode} existingServerCache
+   * @return {?Node}
+   */
+  calcCompleteChild(
+    childKey: string,
+    existingServerCache: CacheNode
+  ): Node | null {
+    return this.writeTree_.calcCompleteChild(
+      this.treePath_,
+      childKey,
+      existingServerCache
+    );
+  }
+&nbsp;
+  /**
+   * Return a WriteTreeRef for a child.
+   *
+   * @param {string} childName
+   * @return {!WriteTreeRef}
+   */
+  child(childName: string): WriteTreeRef {
+    return new WriteTreeRef(this.treePath_.child(childName), this.writeTree_);
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Mar 20 2018 11:09:37 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

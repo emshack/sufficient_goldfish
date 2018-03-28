@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for core/snap/nodeFromJSON.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">All files</a> / <a href="index.html">core/snap</a> nodeFromJSON.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>50/50</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">91.3% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>42/46</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>4/4</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>50/50</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12628x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6551x</span>
+<span class="cline-any cline-yes">3028x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3523x</span>
+<span class="cline-any cline-yes">538x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3523x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3523x</span>
+<span class="cline-any cline-yes">420x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3523x</span>
+<span class="cline-any cline-yes">2863x</span>
+<span class="cline-any cline-yes">2863x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">660x</span>
+<span class="cline-any cline-yes">656x</span>
+<span class="cline-any cline-yes">656x</span>
+<span class="cline-any cline-yes">656x</span>
+<span class="cline-any cline-yes">656x</span>
+<span class="cline-any cline-yes">1881x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1763x</span>
+<span class="cline-any cline-yes">1763x</span>
+<span class="cline-any cline-yes">1762x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1762x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">656x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">649x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1762x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">649x</span>
+<span class="cline-any cline-yes">119x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">119x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">530x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+&nbsp;
+import { ChildrenNode } from './ChildrenNode';
+import { LeafNode } from './LeafNode';
+import { NamedNode, Node } from './Node';
+import { forEach, contains } from '@firebase/util';
+import { assert } from '@firebase/util';
+import { buildChildSet } from './childSet';
+import { NAME_COMPARATOR, NAME_ONLY_COMPARATOR } from './comparators';
+import { IndexMap } from './IndexMap';
+import { PRIORITY_INDEX, setNodeFromJSON } from './indexes/PriorityIndex';
+import { SortedMap } from '../util/SortedMap';
+&nbsp;
+const USE_HINZE = true;
+&nbsp;
+/**
+ * Constructs a snapshot node representing the passed JSON and returns it.
+ * @param {*} json JSON to create a node for.
+ * @param {?string|?number=} priority Optional priority to use.  This will be ignored if the
+ * passed JSON contains a .priority property.
+ * @return {!Node}
+ */
+export function nodeFromJSON(
+  json: any | null,
+  priority: string | number | null = null
+): Node {
+  if (json === null) {
+    return ChildrenNode.EMPTY_NODE;
+  }
+&nbsp;
+  if (typeof json === 'object' &amp;&amp; '.priority' in json) {
+    priority = json['.priority'];
+  }
+&nbsp;
+  assert(
+    priority === null ||
+      typeof priority === 'string' ||
+      typeof priority === 'number' ||
+      (typeof priority === 'object' &amp;&amp; '.sv' in (priority as object)),
+    'Invalid priority type found: ' + typeof priority
+  );
+&nbsp;
+  if (typeof json === 'object' &amp;&amp; '.value' in json &amp;&amp; json['.value'] !== null) {
+    json = json['.value'];
+  }
+&nbsp;
+  // Valid leaf nodes include non-objects or server-value wrapper objects
+  if (typeof json !== 'object' || '.sv' in json) {
+    const jsonLeaf = json as string | number | boolean | object;
+    return new LeafNode(jsonLeaf, nodeFromJSON(priority));
+  }
+&nbsp;
+  if (!(json instanceof Array) &amp;&amp; USE_HINZE) {
+    const children: NamedNode[] = [];
+    let childrenHavePriority = false;
+    const hinzeJsonObj: { [k: string]: any } = json as object;
+    forEach(hinzeJsonObj, (key: string, child: any) =&gt; {
+      if (typeof key !== 'string' || key.substring(0, 1) !== '.') {
+        // Ignore metadata nodes
+        const childNode = nodeFromJSON(hinzeJsonObj[key]);
+        if (!childNode.isEmpty()) {
+          childrenHavePriority =
+            childrenHavePriority || !childNode.getPriority().isEmpty();
+          children.push(new NamedNode(key, childNode));
+        }
+      }
+    });
+&nbsp;
+    if (children.length == 0) {
+      return ChildrenNode.EMPTY_NODE;
+    }
+&nbsp;
+    const childSet = buildChildSet(
+      children,
+      NAME_ONLY_COMPARATOR,
+      namedNode =&gt; namedNode.name,
+      NAME_COMPARATOR
+    ) as SortedMap&lt;string, Node&gt;;
+    if (childrenHavePriority) {
+      const sortedChildSet = buildChildSet(
+        children,
+        PRIORITY_INDEX.getCompare()
+      );
+      return new ChildrenNode(
+        childSet,
+        nodeFromJSON(priority),
+        new IndexMap(
+          { '.priority': sortedChildSet },
+          { '.priority': PRIORITY_INDEX }
+        )
+      );
+    } else {
+      return new ChildrenNode(
+        childSet,
+        nodeFromJSON(priority),
+        IndexMap.Default
+      );
+    }
+  } else {
+    let node: Node = ChildrenNode.EMPTY_NODE;
+    const jsonObj = json as object;
+    forEach(jsonObj, (key: string, childData: any) =&gt; {
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (contains(jsonObj, key)) {
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (key.substring(0, 1) !== '.') {
+          // ignore metadata nodes.
+          const childNode = nodeFromJSON(childData);
+          <span class="missing-if-branch" title="else path not taken" >E</span>if (childNode.isLeafNode() || <span class="branch-1 cbranch-no" title="branch not covered" >!childNode.isEmpty())</span>
+            node = node.updateImmediateChild(key, childNode);
+        }
+      }
+    });
+&nbsp;
+    return node.updatePriority(nodeFromJSON(priority));
+  }
+}
+&nbsp;
+setNodeFromJSON(nodeFromJSON);
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Mar 20 2018 11:09:37 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

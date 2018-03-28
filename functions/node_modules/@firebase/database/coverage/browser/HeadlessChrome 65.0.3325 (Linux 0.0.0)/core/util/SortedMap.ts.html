@@ -1,0 +1,2483 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for core/util/SortedMap.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">All files</a> / <a href="index.html">core/util</a> SortedMap.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">96.73% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>237/245</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">95.08% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>116/122</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">94.55% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>52/55</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">96.55% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>224/232</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738
+739
+740
+741
+742
+743
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764
+765
+766
+767
+768
+769
+770
+771
+772
+773
+774
+775
+776
+777
+778
+779
+780
+781
+782
+783
+784
+785
+786
+787
+788
+789
+790
+791
+792
+793
+794
+795
+796
+797
+798
+799
+800
+801
+802
+803
+804
+805
+806
+807</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">660x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">660x</span>
+<span class="cline-any cline-yes">1322x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">660x</span>
+<span class="cline-any cline-yes">660x</span>
+<span class="cline-any cline-yes">741x</span>
+<span class="cline-any cline-yes">741x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">741x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">741x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">724x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">711x</span>
+<span class="cline-any cline-yes">711x</span>
+<span class="cline-any cline-yes">325x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">386x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">1297x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1005x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1005x</span>
+<span class="cline-any cline-yes">995x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1005x</span>
+<span class="cline-any cline-yes">558x</span>
+<span class="cline-any cline-yes">558x</span>
+<span class="cline-any cline-yes">228x</span>
+<span class="cline-any cline-yes">228x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">447x</span>
+<span class="cline-any cline-yes">447x</span>
+<span class="cline-any cline-yes">61x</span>
+<span class="cline-any cline-yes">61x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1005x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">1086x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">431x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">420x</span>
+<span class="cline-any cline-yes">420x</span>
+<span class="cline-any cline-yes">420x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27972x</span>
+<span class="cline-any cline-yes">27972x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27972x</span>
+<span class="cline-any cline-yes">27972x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27972x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22596x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">12080x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">45625x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">6269x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">432x</span>
+<span class="cline-any cline-yes">256x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">176x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">118x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5297x</span>
+<span class="cline-any cline-yes">5297x</span>
+<span class="cline-any cline-yes">5297x</span>
+<span class="cline-any cline-yes">923x</span>
+<span class="cline-any cline-yes">4374x</span>
+<span class="cline-any cline-yes">1013x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3361x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5297x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">200x</span>
+<span class="cline-any cline-yes">138x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3296x</span>
+<span class="cline-any cline-yes">3296x</span>
+<span class="cline-any cline-yes">1433x</span>
+<span class="cline-any cline-yes">447x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1433x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1863x</span>
+<span class="cline-any cline-yes">1863x</span>
+<span class="cline-any cline-yes">300x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1863x</span>
+<span class="cline-any cline-yes">1196x</span>
+<span class="cline-any cline-yes">1058x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">138x</span>
+<span class="cline-any cline-yes">138x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">805x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2238x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">53854x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">7597x</span>
+<span class="cline-any cline-yes">7597x</span>
+<span class="cline-any cline-yes">7597x</span>
+<span class="cline-any cline-yes">7597x</span>
+<span class="cline-any cline-yes">7597x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">462x</span>
+<span class="cline-any cline-yes">462x</span>
+<span class="cline-any cline-yes">54x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">54x</span>
+<span class="cline-any cline-yes">54x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">462x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">300x</span>
+<span class="cline-any cline-yes">300x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">300x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">1665x</span>
+<span class="cline-any cline-yes">1665x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">544x</span>
+<span class="cline-any cline-yes">544x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">1912x</span>
+<span class="cline-any cline-yes">1912x</span>
+<span class="cline-any cline-yes">1912x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">207x</span>
+<span class="cline-any cline-yes">207x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10244x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10244x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10244x</span>
+<span class="cline-any cline-yes">10244x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10244x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">461x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">2870x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">173x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">13138x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">38030x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">12337x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">10451x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">19678x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6081x</span>
+<span class="cline-any cline-yes">12227x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">3883x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">1231x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">24876x</span>
+<span class="cline-any cline-yes">24876x</span>
+<span class="cline-any cline-yes">32432x</span>
+<span class="cline-any cline-yes">32432x</span>
+<span class="cline-any cline-yes">13983x</span>
+<span class="cline-any cline-yes">18449x</span>
+<span class="cline-any cline-yes">6062x</span>
+<span class="cline-any cline-yes">12387x</span>
+<span class="cline-any cline-yes">12387x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10893x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">694x</span>
+<span class="cline-any cline-yes">694x</span>
+<span class="cline-any cline-yes">694x</span>
+<span class="cline-any cline-yes">1349x</span>
+<span class="cline-any cline-yes">1349x</span>
+<span class="cline-any cline-yes">694x</span>
+<span class="cline-any cline-yes">286x</span>
+<span class="cline-any cline-yes">286x</span>
+<span class="cline-any cline-yes">286x</span>
+<span class="cline-any cline-yes">408x</span>
+<span class="cline-any cline-yes">149x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">655x</span>
+<span class="cline-any cline-yes">415x</span>
+<span class="cline-any cline-yes">240x</span>
+<span class="cline-any cline-yes">240x</span>
+<span class="cline-any cline-yes">240x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">30132x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">849x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">118x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">6068x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">166x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">235x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+&nbsp;
+/**
+ * @fileoverview Implementation of an immutable SortedMap using a Left-leaning
+ * Red-Black Tree, adapted from the implementation in Mugs
+ * (http://mads379.github.com/mugs/) by Mads Hartmann Jensen
+ * (mads379@gmail.com).
+ *
+ * Original paper on Left-leaning Red-Black Trees:
+ *   http://www.cs.princeton.edu/~rs/talks/LLRB/LLRB.pdf
+ *
+ * Invariant 1: No red node has a red child
+ * Invariant 2: Every leaf path has the same number of black nodes
+ * Invariant 3: Only the left child can be red (left leaning)
+ */
+&nbsp;
+// TODO: There are some improvements I'd like to make to improve memory / perf:
+//  * Create two prototypes, LLRedNode and LLBlackNode, instead of storing a
+//    color property in every node.
+// TODO: It would also be good (and possibly necessary) to create a base
+// interface for LLRBNode and LLRBEmptyNode.
+&nbsp;
+export type Comparator&lt;K&gt; = (key1: K, key2: K) =&gt; number;
+&nbsp;
+/**
+ * An iterator over an LLRBNode.
+ */
+export class SortedMapIterator&lt;K, V, T&gt; {
+  /** @private
+   * @type {Array.&lt;!LLRBNode&gt;}
+   */
+  private nodeStack_: (LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt;)[] = [];
+&nbsp;
+  /**
+   * @template K, V, T
+   * @param {LLRBNode|LLRBEmptyNode} node Node to iterate.
+   * @param {?K} startKey
+   * @param {function(K, K): number} comparator
+   * @param {boolean} isReverse_ Whether or not to iterate in reverse
+   * @param {(function(K, V):T)=} resultGenerator_
+   */
+  constructor(
+    node: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt;,
+    startKey: K | null,
+    comparator: Comparator&lt;K&gt;,
+    private isReverse_: boolean,
+    private resultGenerator_: ((k: K, v: V) =&gt; T) | null = null
+  ) {
+    let cmp = 1;
+    while (!node.isEmpty()) {
+      node = node as LLRBNode&lt;K, V&gt;;
+      cmp = startKey ? comparator(node.key, startKey) : 1;
+      // flip the comparison if we're going in reverse
+      if (isReverse_) cmp *= -1;
+&nbsp;
+      if (cmp &lt; 0) {
+        // This node is less than our start key. ignore it
+        if (this.isReverse_) {
+          node = node.left;
+        } else {
+          node = node.right;
+        }
+      } else if (cmp === 0) {
+        // This node is exactly equal to our start key. Push it on the stack, but stop iterating;
+        this.nodeStack_.push(node);
+        break;
+      } else {
+        // This node is greater than our start key, add it to the stack and move to the next one
+        this.nodeStack_.push(node);
+        if (this.isReverse_) {
+          node = node.right;
+        } else {
+          node = node.left;
+        }
+      }
+    }
+  }
+&nbsp;
+  getNext(): T {
+    if (this.nodeStack_.length === 0) return null;
+&nbsp;
+    let node = this.nodeStack_.pop();
+    let result: T;
+    if (this.resultGenerator_)
+      result = this.resultGenerator_(node.key, node.value);
+    else result = { key: node.key, value: node.value } as any;
+&nbsp;
+    if (this.isReverse_) {
+      node = node.left;
+      while (!node.isEmpty()) {
+        this.nodeStack_.push(node);
+        node = node.right;
+      }
+    } else {
+      node = node.right;
+      while (!node.isEmpty()) {
+        this.nodeStack_.push(node);
+        node = node.left;
+      }
+    }
+&nbsp;
+    return result;
+  }
+&nbsp;
+  hasNext(): boolean {
+    return this.nodeStack_.length &gt; 0;
+  }
+&nbsp;
+  peek(): T {
+    if (this.nodeStack_.length === 0) return null;
+&nbsp;
+    const node = this.nodeStack_[this.nodeStack_.length - 1];
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.resultGenerator_) {
+      return this.resultGenerator_(node.key, node.value);
+    } else {
+<span class="cstat-no" title="statement not covered" >      return { key: node.key, value: node.value } as any;</span>
+    }
+  }
+}
+&nbsp;
+/**
+ * Represents a node in a Left-leaning Red-Black tree.
+ */
+export class LLRBNode&lt;K, V&gt; {
+  color: boolean;
+  left: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt;;
+  right: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt;;
+&nbsp;
+  /**
+   * @template K, V
+   * @param {!K} key Key associated with this node.
+   * @param {!V} value Value associated with this node.
+   * @param {?boolean} color Whether this node is red.
+   * @param {?(LLRBNode|LLRBEmptyNode)=} left Left child.
+   * @param {?(LLRBNode|LLRBEmptyNode)=} right Right child.
+   */
+  constructor(
+    public key: K,
+    public value: V,
+    color: boolean | null,
+    left?: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt; | null,
+    right?: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt; | null
+  ) {
+    this.color = color != null ? color : LLRBNode.RED;
+    this.left =
+      left != null ? left : (SortedMap.EMPTY_NODE as LLRBEmptyNode&lt;K, V&gt;);
+    this.right =
+      right != null ? right : (SortedMap.EMPTY_NODE as LLRBEmptyNode&lt;K, V&gt;);
+  }
+&nbsp;
+  static RED = true;
+  static BLACK = false;
+&nbsp;
+  /**
+   * Returns a copy of the current node, optionally replacing pieces of it.
+   *
+   * @param {?K} key New key for the node, or null.
+   * @param {?V} value New value for the node, or null.
+   * @param {?boolean} color New color for the node, or null.
+   * @param {?LLRBNode|LLRBEmptyNode} left New left child for the node, or null.
+   * @param {?LLRBNode|LLRBEmptyNode} right New right child for the node, or null.
+   * @return {!LLRBNode} The node copy.
+   */
+  copy(
+    key: K | null,
+    value: V | null,
+    color: boolean | null,
+    left: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt; | null,
+    right: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt; | null
+  ): LLRBNode&lt;K, V&gt; {
+    return new LLRBNode(
+      key != null ? key : this.key,
+      value != null ? value : this.value,
+      color != null ? color : this.color,
+      left != null ? left : this.left,
+      right != null ? right : this.right
+    );
+  }
+&nbsp;
+  /**
+   * @return {number} The total number of nodes in the tree.
+   */
+  count(): number {
+    return this.left.count() + 1 + this.right.count();
+  }
+&nbsp;
+  /**
+   * @return {boolean} True if the tree is empty.
+   */
+  isEmpty(): boolean {
+    return false;
+  }
+&nbsp;
+  /**
+   * Traverses the tree in key order and calls the specified action function
+   * for each node.
+   *
+   * @param {function(!K, !V):*} action Callback function to be called for each
+   *   node.  If it returns true, traversal is aborted.
+   * @return {*} The first truthy value returned by action, or the last falsey
+   *   value returned by action
+   */
+  inorderTraversal(action: (k: K, v: V) =&gt; any): boolean {
+    return (
+      this.left.inorderTraversal(action) ||
+      action(this.key, this.value) ||
+      this.right.inorderTraversal(action)
+    );
+  }
+&nbsp;
+  /**
+   * Traverses the tree in reverse key order and calls the specified action function
+   * for each node.
+   *
+   * @param {function(!Object, !Object)} action Callback function to be called for each
+   * node.  If it returns true, traversal is aborted.
+   * @return {*} True if traversal was aborted.
+   */
+  reverseTraversal(action: (k: K, v: V) =&gt; void): boolean {
+    return (
+      this.right.reverseTraversal(action) ||
+      action(this.key, this.value) ||
+      this.left.reverseTraversal(action)
+    );
+  }
+&nbsp;
+  /**
+   * @return {!Object} The minimum node in the tree.
+   * @private
+   */
+  private min_(): LLRBNode&lt;K, V&gt; {
+    if (this.left.isEmpty()) {
+      return this;
+    } else {
+      return (this.left as LLRBNode&lt;K, V&gt;).min_();
+    }
+  }
+&nbsp;
+  /**
+   * @return {!K} The maximum key in the tree.
+   */
+  minKey(): K {
+    return this.min_().key;
+  }
+&nbsp;
+  /**
+   * @return {!K} The maximum key in the tree.
+   */
+  maxKey(): K {
+    if (this.right.isEmpty()) {
+      return this.key;
+    } else {
+      return this.right.maxKey();
+    }
+  }
+&nbsp;
+  /**
+   *
+   * @param {!Object} key Key to insert.
+   * @param {!Object} value Value to insert.
+   * @param {Comparator} comparator Comparator.
+   * @return {!LLRBNode} New tree, with the key/value added.
+   */
+  insert(key: K, value: V, comparator: Comparator&lt;K&gt;): LLRBNode&lt;K, V&gt; {
+    let cmp, n;
+    n = this;
+    cmp = comparator(key, n.key);
+    if (cmp &lt; 0) {
+      n = n.copy(null, null, null, n.left.insert(key, value, comparator), null);
+    } else if (cmp === 0) {
+      n = n.copy(null, value, null, null, null);
+    } else {
+      n = n.copy(
+        null,
+        null,
+        null,
+        null,
+        n.right.insert(key, value, comparator)
+      );
+    }
+    return n.fixUp_();
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {!LLRBNode|LLRBEmptyNode} New tree, with the minimum key removed.
+   */
+  private removeMin_(): LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt; {
+    if (this.left.isEmpty()) {
+      return SortedMap.EMPTY_NODE as LLRBEmptyNode&lt;K, V&gt;;
+    }
+    let n: LLRBNode&lt;K, V&gt; = this;
+    if (!n.left.isRed_() &amp;&amp; !n.left.left.isRed_()) n = n.moveRedLeft_();
+    n = n.copy(null, null, null, (n.left as LLRBNode&lt;K, V&gt;).removeMin_(), null);
+    return n.fixUp_();
+  }
+&nbsp;
+  /**
+   * @param {!Object} key The key of the item to remove.
+   * @param {Comparator} comparator Comparator.
+   * @return {!LLRBNode|LLRBEmptyNode} New tree, with the specified item removed.
+   */
+  remove(
+    key: K,
+    comparator: Comparator&lt;K&gt;
+  ): LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt; {
+    let n, smallest;
+    n = this;
+    if (comparator(key, n.key) &lt; 0) {
+      if (!n.left.isEmpty() &amp;&amp; !n.left.isRed_() &amp;&amp; !n.left.left.isRed_()) {
+        n = n.moveRedLeft_();
+      }
+      n = n.copy(null, null, null, n.left.remove(key, comparator), null);
+    } else {
+      if (n.left.isRed_()) n = n.rotateRight_();
+      if (!n.right.isEmpty() &amp;&amp; !n.right.isRed_() &amp;&amp; !n.right.left.isRed_()) {
+        n = n.moveRedRight_();
+      }
+      if (comparator(key, n.key) === 0) {
+        if (n.right.isEmpty()) {
+          return SortedMap.EMPTY_NODE as LLRBEmptyNode&lt;K, V&gt;;
+        } else {
+          smallest = (n.right as LLRBNode&lt;K, V&gt;).min_();
+          n = n.copy(
+            smallest.key,
+            smallest.value,
+            null,
+            null,
+            (n.right as LLRBNode&lt;K, V&gt;).removeMin_()
+          );
+        }
+      }
+      n = n.copy(null, null, null, null, n.right.remove(key, comparator));
+    }
+    return n.fixUp_();
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {boolean} Whether this is a RED node.
+   */
+  isRed_(): boolean {
+    return this.color;
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {!LLRBNode} New tree after performing any needed rotations.
+   */
+  private fixUp_(): LLRBNode&lt;K, V&gt; {
+    let n = this as any;
+    if (n.right.isRed_() &amp;&amp; !n.left.isRed_()) n = n.rotateLeft_();
+    if (n.left.isRed_() &amp;&amp; n.left.left.isRed_()) n = n.rotateRight_();
+    if (n.left.isRed_() &amp;&amp; n.right.isRed_()) n = n.colorFlip_();
+    return n;
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {!LLRBNode} New tree, after moveRedLeft.
+   */
+  private moveRedLeft_(): LLRBNode&lt;K, V&gt; {
+    let n = this.colorFlip_();
+    if (n.right.left.isRed_()) {
+      n = n.copy(
+        null,
+        null,
+        null,
+        null,
+        (n.right as LLRBNode&lt;K, V&gt;).rotateRight_()
+      );
+      n = n.rotateLeft_();
+      n = n.colorFlip_();
+    }
+    return n;
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {!LLRBNode} New tree, after moveRedRight.
+   */
+  private moveRedRight_(): LLRBNode&lt;K, V&gt; {
+    let n = this.colorFlip_();
+    if (n.left.left.isRed_()) {
+      n = n.rotateRight_();
+      n = n.colorFlip_();
+    }
+    return n;
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {!LLRBNode} New tree, after rotateLeft.
+   */
+  private rotateLeft_(): LLRBNode&lt;K, V&gt; {
+    const nl = this.copy(null, null, LLRBNode.RED, null, this.right.left);
+    return this.right.copy(null, null, this.color, nl, null) as LLRBNode&lt;K, V&gt;;
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {!LLRBNode} New tree, after rotateRight.
+   */
+  private rotateRight_(): LLRBNode&lt;K, V&gt; {
+    const nr = this.copy(null, null, LLRBNode.RED, this.left.right, null);
+    return this.left.copy(null, null, this.color, null, nr) as LLRBNode&lt;K, V&gt;;
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {!LLRBNode} New tree, after colorFlip.
+   */
+  private colorFlip_(): LLRBNode&lt;K, V&gt; {
+    const left = this.left.copy(null, null, !this.left.color, null, null);
+    const right = this.right.copy(null, null, !this.right.color, null, null);
+    return this.copy(null, null, !this.color, left, right);
+  }
+&nbsp;
+  /**
+   * For testing.
+   *
+   * @private
+   * @return {boolean} True if all is well.
+   */
+  private checkMaxDepth_(): boolean {
+    const blackDepth = this.check_();
+    return Math.pow(2.0, blackDepth) &lt;= this.count() + 1;
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {number} Not sure what this returns exactly. :-).
+   */
+  check_(): number {
+    let blackDepth;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.isRed_() &amp;&amp; this.left.isRed_()) {
+<span class="cstat-no" title="statement not covered" >      throw new Error(</span>
+        'Red node has red child(' + this.key + ',' + this.value + ')'
+      );
+    }
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.right.isRed_()) {
+<span class="cstat-no" title="statement not covered" >      throw new Error(</span>
+        'Right child of (' + this.key + ',' + this.value + ') is red'
+      );
+    }
+    blackDepth = this.left.check_();
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (blackDepth !== this.right.check_()) {
+<span class="cstat-no" title="statement not covered" >      throw new Error('Black depths differ');</span>
+    } else {
+      return blackDepth + (this.isRed_() ? 0 : 1);
+    }
+  }
+}
+&nbsp;
+/**
+ * Represents an empty node (a leaf node in the Red-Black Tree).
+ */
+export class LLRBEmptyNode&lt;K, V&gt; {
+  key: K;
+  value: V;
+  left: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt;;
+  right: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt;;
+  color: boolean;
+&nbsp;
+  /**
+   * Returns a copy of the current node.
+   *
+   * @return {!LLRBEmptyNode} The node copy.
+   */
+  copy(
+    key: K | null,
+    value: V | null,
+    color: boolean | null,
+    left: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt; | null,
+    right: LLRBNode&lt;K, V&gt; | LLRBEmptyNode&lt;K, V&gt; | null
+  ): LLRBEmptyNode&lt;K, V&gt; {
+    return this;
+  }
+&nbsp;
+  /**
+   * Returns a copy of the tree, with the specified key/value added.
+   *
+   * @param {!K} key Key to be added.
+   * @param {!V} value Value to be added.
+   * @param {Comparator} comparator Comparator.
+   * @return {!LLRBNode} New tree, with item added.
+   */
+  insert(key: K, value: V, comparator: Comparator&lt;K&gt;): LLRBNode&lt;K, V&gt; {
+    return new LLRBNode(key, value, null);
+  }
+&nbsp;
+  /**
+   * Returns a copy of the tree, with the specified key removed.
+   *
+   * @param {!K} key The key to remove.
+   * @param {Comparator} comparator Comparator.
+   * @return {!LLRBEmptyNode} New tree, with item removed.
+   */
+  remove(key: K, comparator: Comparator&lt;K&gt;): LLRBEmptyNode&lt;K, V&gt; {
+    return this;
+  }
+&nbsp;
+  /**
+   * @return {number} The total number of nodes in the tree.
+   */
+  count(): number {
+    return 0;
+  }
+&nbsp;
+  /**
+   * @return {boolean} True if the tree is empty.
+   */
+  isEmpty(): boolean {
+    return true;
+  }
+&nbsp;
+  /**
+   * Traverses the tree in key order and calls the specified action function
+   * for each node.
+   *
+   * @param {function(!K, !V):*} action Callback function to be called for each
+   * node.  If it returns true, traversal is aborted.
+   * @return {boolean} True if traversal was aborted.
+   */
+  inorderTraversal(action: (k: K, v: V) =&gt; any): boolean {
+    return false;
+  }
+&nbsp;
+  /**
+   * Traverses the tree in reverse key order and calls the specified action function
+   * for each node.
+   *
+   * @param {function(!K, !V)} action Callback function to be called for each
+   * node.  If it returns true, traversal is aborted.
+   * @return {boolean} True if traversal was aborted.
+   */
+  reverseTraversal(action: (k: K, v: V) =&gt; void): boolean {
+    return false;
+  }
+&nbsp;
+  /**
+   * @return {null}
+   */
+<span class="fstat-no" title="function not covered" >  minKey(): null {</span>
+<span class="cstat-no" title="statement not covered" >    return null;</span>
+  }
+&nbsp;
+  /**
+   * @return {null}
+   */
+<span class="fstat-no" title="function not covered" >  maxKey(): null {</span>
+<span class="cstat-no" title="statement not covered" >    return null;</span>
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {number} Not sure what this returns exactly. :-).
+   */
+  check_(): number {
+    return 0;
+  }
+&nbsp;
+  /**
+   * @private
+   * @return {boolean} Whether this node is red.
+   */
+  isRed_() {
+    return false;
+  }
+}
+&nbsp;
+/**
+ * An immutable sorted map implementation, based on a Left-leaning Red-Black
+ * tree.
+ */
+export class SortedMap&lt;K, V&gt; {
+  /**
+   * Always use the same empty node, to reduce memory.
+   * @const
+   */
+  static EMPTY_NODE = new LLRBEmptyNode();
+&nbsp;
+  /**
+   * @template K, V
+   * @param {function(K, K):number} comparator_ Key comparator.
+   * @param {LLRBNode=} root_ (Optional) Root node for the map.
+   */
+  constructor(
+    private comparator_: Comparator&lt;K&gt;,
+    private root_:
+      | LLRBNode&lt;K, V&gt;
+      | LLRBEmptyNode&lt;K, V&gt; = SortedMap.EMPTY_NODE as LLRBEmptyNode&lt;K, V&gt;
+  ) {}
+&nbsp;
+  /**
+   * Returns a copy of the map, with the specified key/value added or replaced.
+   * (TODO: We should perhaps rename this method to 'put')
+   *
+   * @param {!K} key Key to be added.
+   * @param {!V} value Value to be added.
+   * @return {!SortedMap.&lt;K, V&gt;} New map, with item added.
+   */
+  insert(key: K, value: V): SortedMap&lt;K, V&gt; {
+    return new SortedMap(
+      this.comparator_,
+      this.root_
+        .insert(key, value, this.comparator_)
+        .copy(null, null, LLRBNode.BLACK, null, null)
+    );
+  }
+&nbsp;
+  /**
+   * Returns a copy of the map, with the specified key removed.
+   *
+   * @param {!K} key The key to remove.
+   * @return {!SortedMap.&lt;K, V&gt;} New map, with item removed.
+   */
+  remove(key: K): SortedMap&lt;K, V&gt; {
+    return new SortedMap(
+      this.comparator_,
+      this.root_
+        .remove(key, this.comparator_)
+        .copy(null, null, LLRBNode.BLACK, null, null)
+    );
+  }
+&nbsp;
+  /**
+   * Returns the value of the node with the given key, or null.
+   *
+   * @param {!K} key The key to look up.
+   * @return {?V} The value of the node with the given key, or null if the
+   * key doesn't exist.
+   */
+  get(key: K): V | null {
+    let cmp;
+    let node = this.root_;
+    while (!node.isEmpty()) {
+      cmp = this.comparator_(key, node.key);
+      if (cmp === 0) {
+        return node.value;
+      } else if (cmp &lt; 0) {
+        node = node.left;
+      } else <span class="missing-if-branch" title="else path not taken" >E</span>if (cmp &gt; 0) {
+        node = node.right;
+      }
+    }
+    return null;
+  }
+&nbsp;
+  /**
+   * Returns the key of the item *before* the specified key, or null if key is the first item.
+   * @param {K} key The key to find the predecessor of
+   * @return {?K} The predecessor key.
+   */
+  getPredecessorKey(key: K): K | null {
+    let cmp,
+      node = this.root_,
+      rightParent = null;
+    while (!node.isEmpty()) {
+      cmp = this.comparator_(key, node.key);
+      if (cmp === 0) {
+        if (!node.left.isEmpty()) {
+          node = node.left;
+          while (!node.right.isEmpty()) node = node.right;
+          return node.key;
+        } else if (rightParent) {
+          return rightParent.key;
+        } else {
+          return null; // first item.
+        }
+      } else if (cmp &lt; 0) {
+        node = node.left;
+      } else <span class="missing-if-branch" title="else path not taken" >E</span>if (cmp &gt; 0) {
+        rightParent = node;
+        node = node.right;
+      }
+    }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    throw new Error(</span>
+      'Attempted to find predecessor key for a nonexistent key.  What gives?'
+    );
+  }
+&nbsp;
+  /**
+   * @return {boolean} True if the map is empty.
+   */
+  isEmpty(): boolean {
+    return this.root_.isEmpty();
+  }
+&nbsp;
+  /**
+   * @return {number} The total number of nodes in the map.
+   */
+  count(): number {
+    return this.root_.count();
+  }
+&nbsp;
+  /**
+   * @return {?K} The minimum key in the map.
+   */
+  minKey(): K | null {
+    return this.root_.minKey();
+  }
+&nbsp;
+  /**
+   * @return {?K} The maximum key in the map.
+   */
+  maxKey(): K | null {
+    return this.root_.maxKey();
+  }
+&nbsp;
+  /**
+   * Traverses the map in key order and calls the specified action function
+   * for each key/value pair.
+   *
+   * @param {function(!K, !V):*} action Callback function to be called
+   * for each key/value pair.  If action returns true, traversal is aborted.
+   * @return {*} The first truthy value returned by action, or the last falsey
+   *   value returned by action
+   */
+  inorderTraversal(action: (k: K, v: V) =&gt; any): boolean {
+    return this.root_.inorderTraversal(action);
+  }
+&nbsp;
+  /**
+   * Traverses the map in reverse key order and calls the specified action function
+   * for each key/value pair.
+   *
+   * @param {function(!Object, !Object)} action Callback function to be called
+   * for each key/value pair.  If action returns true, traversal is aborted.
+   * @return {*} True if the traversal was aborted.
+   */
+  reverseTraversal(action: (k: K, v: V) =&gt; void): boolean {
+    return this.root_.reverseTraversal(action);
+  }
+&nbsp;
+  /**
+   * Returns an iterator over the SortedMap.
+   * @template T
+   * @param {(function(K, V):T)=} resultGenerator
+   * @return {SortedMapIterator.&lt;K, V, T&gt;} The iterator.
+   */
+  getIterator&lt;T&gt;(
+    resultGenerator?: (k: K, v: V) =&gt; T
+  ): SortedMapIterator&lt;K, V, T&gt; {
+    return new SortedMapIterator(
+      this.root_,
+      null,
+      this.comparator_,
+      false,
+      resultGenerator
+    );
+  }
+&nbsp;
+  getIteratorFrom&lt;T&gt;(
+    key: K,
+    resultGenerator?: (k: K, v: V) =&gt; T
+  ): SortedMapIterator&lt;K, V, T&gt; {
+    return new SortedMapIterator(
+      this.root_,
+      key,
+      this.comparator_,
+      false,
+      resultGenerator
+    );
+  }
+&nbsp;
+  getReverseIteratorFrom&lt;T&gt;(
+    key: K,
+    resultGenerator?: (k: K, v: V) =&gt; T
+  ): SortedMapIterator&lt;K, V, T&gt; {
+    return new SortedMapIterator(
+      this.root_,
+      key,
+      this.comparator_,
+      true,
+      resultGenerator
+    );
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  getReverseIterator&lt;T&gt;(</span>
+    resultGenerator?: (k: K, v: V) =&gt; T
+  ): SortedMapIterator&lt;K, V, T&gt; {
+<span class="cstat-no" title="statement not covered" >    return new SortedMapIterator(</span>
+      this.root_,
+      null,
+      this.comparator_,
+      true,
+      resultGenerator
+    );
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Mar 20 2018 11:09:37 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

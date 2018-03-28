@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for core/snap/childSet.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">All files</a> / <a href="index.html">core/snap</a> childSet.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>62/62</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>16/16</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>10/10</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>61/61</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1311x</span>
+<span class="cline-any cline-yes">1311x</span>
+<span class="cline-any cline-yes">1311x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1989x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1989x</span>
+<span class="cline-any cline-yes">1288x</span>
+<span class="cline-any cline-yes">701x</span>
+<span class="cline-any cline-yes">604x</span>
+<span class="cline-any cline-yes">604x</span>
+<span class="cline-any cline-yes">604x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">97x</span>
+<span class="cline-any cline-yes">97x</span>
+<span class="cline-any cline-yes">97x</span>
+<span class="cline-any cline-yes">97x</span>
+<span class="cline-any cline-yes">97x</span>
+<span class="cline-any cline-yes">97x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">1795x</span>
+<span class="cline-any cline-yes">1795x</span>
+<span class="cline-any cline-yes">1795x</span>
+<span class="cline-any cline-yes">1795x</span>
+<span class="cline-any cline-yes">1795x</span>
+<span class="cline-any cline-yes">1795x</span>
+<span class="cline-any cline-yes">1795x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">1795x</span>
+<span class="cline-any cline-yes">893x</span>
+<span class="cline-any cline-yes">893x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">1311x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1311x</span>
+<span class="cline-any cline-yes">1311x</span>
+<span class="cline-any cline-yes">827x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">484x</span>
+<span class="cline-any cline-yes">484x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">902x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+&nbsp;
+import { LLRBNode } from '../util/SortedMap';
+import { SortedMap } from '../util/SortedMap';
+import { NamedNode } from './Node';
+&nbsp;
+const LOG_2 = Math.log(2);
+&nbsp;
+/**
+ * @constructor
+ */
+class Base12Num {
+  count: number;
+  private current_: number;
+  private bits_: number;
+&nbsp;
+  /**
+   * @param {number} length
+   */
+  constructor(length: number) {
+    const logBase2 = (num: number) =&gt;
+      parseInt((Math.log(num) / LOG_2) as any, 10);
+    const bitMask = (bits: number) =&gt; parseInt(Array(bits + 1).join('1'), 2);
+    this.count = logBase2(length + 1);
+    this.current_ = this.count - 1;
+    const mask = bitMask(this.count);
+    this.bits_ = (length + 1) &amp; mask;
+  }
+&nbsp;
+  /**
+   * @return {boolean}
+   */
+  nextBitIsOne(): boolean {
+    //noinspection JSBitwiseOperatorUsage
+    const result = !(this.bits_ &amp; (0x1 &lt;&lt; this.current_));
+    this.current_--;
+    return result;
+  }
+}
+&nbsp;
+/**
+ * Takes a list of child nodes and constructs a SortedSet using the given comparison
+ * function
+ *
+ * Uses the algorithm described in the paper linked here:
+ * http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.46.1458
+ *
+ * @template K, V
+ * @param {Array.&lt;!NamedNode&gt;} childList Unsorted list of children
+ * @param {function(!NamedNode, !NamedNode):number} cmp The comparison method to be used
+ * @param {(function(NamedNode):K)=} keyFn An optional function to extract K from a node wrapper, if K's
+ *                                                        type is not NamedNode
+ * @param {(function(K, K):number)=} mapSortFn An optional override for comparator used by the generated sorted map
+ * @return {SortedMap.&lt;K, V&gt;}
+ */
+export const buildChildSet = function&lt;K, V&gt;(
+  childList: NamedNode[],
+  cmp: (a: NamedNode, b: NamedNode) =&gt; number,
+  keyFn?: (a: NamedNode) =&gt; K,
+  mapSortFn?: (a: K, b: K) =&gt; number
+): SortedMap&lt;K, V&gt; {
+  childList.sort(cmp);
+&nbsp;
+  const buildBalancedTree = function(
+    low: number,
+    high: number
+  ): LLRBNode&lt;K, V&gt; | null {
+    const length = high - low;
+    let namedNode: NamedNode;
+    let key: K;
+    if (length == 0) {
+      return null;
+    } else if (length == 1) {
+      namedNode = childList[low];
+      key = keyFn ? keyFn(namedNode) : ((namedNode as any) as K);
+      return new LLRBNode(
+        key,
+        (namedNode.node as any) as V,
+        LLRBNode.BLACK,
+        null,
+        null
+      );
+    } else {
+      const middle = parseInt((length / 2) as any, 10) + low;
+      const left = buildBalancedTree(low, middle);
+      const right = buildBalancedTree(middle + 1, high);
+      namedNode = childList[middle];
+      key = keyFn ? keyFn(namedNode) : ((namedNode as any) as K);
+      return new LLRBNode(
+        key,
+        (namedNode.node as any) as V,
+        LLRBNode.BLACK,
+        left,
+        right
+      );
+    }
+  };
+&nbsp;
+  const buildFrom12Array = function(base12: Base12Num): LLRBNode&lt;K, V&gt; {
+    let node: LLRBNode&lt;K, V&gt; = null;
+    let root = null;
+    let index = childList.length;
+&nbsp;
+    const buildPennant = function(chunkSize: number, color: boolean) {
+      const low = index - chunkSize;
+      const high = index;
+      index -= chunkSize;
+      const childTree = buildBalancedTree(low + 1, high);
+      const namedNode = childList[low];
+      const key: K = keyFn ? keyFn(namedNode) : ((namedNode as any) as K);
+      attachPennant(
+        new LLRBNode(key, (namedNode.node as any) as V, color, null, childTree)
+      );
+    };
+&nbsp;
+    const attachPennant = function(pennant: LLRBNode&lt;K, V&gt;) {
+      if (node) {
+        node.left = pennant;
+        node = pennant;
+      } else {
+        root = pennant;
+        node = pennant;
+      }
+    };
+&nbsp;
+    for (let i = 0; i &lt; base12.count; ++i) {
+      const isOne = base12.nextBitIsOne();
+      // The number of nodes taken in each slice is 2^(arr.length - (i + 1))
+      const chunkSize = Math.pow(2, base12.count - (i + 1));
+      if (isOne) {
+        buildPennant(chunkSize, LLRBNode.BLACK);
+      } else {
+        // current == 2
+        buildPennant(chunkSize, LLRBNode.BLACK);
+        buildPennant(chunkSize, LLRBNode.RED);
+      }
+    }
+    return root;
+  };
+&nbsp;
+  const base12 = new Base12Num(childList.length);
+  const root = buildFrom12Array(base12);
+&nbsp;
+  return new SortedMap&lt;K, V&gt;(mapSortFn || (cmp as any), root);
+};
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Mar 20 2018 11:09:37 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

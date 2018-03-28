@@ -1,0 +1,1424 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for firebaseApp.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="prettify.css" />
+    <link rel="stylesheet" href="base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="index.html">All files</a> firebaseApp.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">85.6% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>107/125</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">85.42% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>41/48</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">70.27% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>26/37</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">85.59% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>101/118</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">46x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">37x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">44x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">30x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+&nbsp;
+import {
+  FirebaseApp,
+  FirebaseOptions,
+  FirebaseNamespace
+} from '@firebase/app-types';
+import {
+  _FirebaseApp,
+  _FirebaseNamespace,
+  FirebaseService,
+  FirebaseServiceFactory,
+  FirebaseServiceNamespace,
+  AppHook
+} from '@firebase/app-types/private';
+import {
+  createSubscribe,
+  deepCopy,
+  deepExtend,
+  ErrorFactory,
+  FirebaseError,
+  Observer,
+  patchProperty,
+  Subscribe
+} from '@firebase/util';
+&nbsp;
+const contains = function(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+};
+&nbsp;
+const DEFAULT_ENTRY_NAME = '[DEFAULT]';
+&nbsp;
+// An array to capture listeners before the true auth functions
+// exist
+let tokenListeners = [];
+&nbsp;
+/**
+ * Global context object for a collection of services using
+ * a shared authentication state.
+ */
+class FirebaseAppImpl implements FirebaseApp {
+  private options_: FirebaseOptions;
+  private name_: string;
+  private isDeleted_ = false;
+  private services_: {
+    [name: string]: {
+      [serviceName: string]: FirebaseService;
+    };
+  } = {};
+&nbsp;
+  public INTERNAL;
+&nbsp;
+  constructor(
+    options: FirebaseOptions,
+    name: string,
+    private firebase_: FirebaseNamespace
+  ) {
+    this.name_ = name;
+    this.options_ = deepCopy&lt;FirebaseOptions&gt;(options);
+    this.INTERNAL = {
+      getUid: <span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" ></span>null,</span>
+      getToken: <span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" ></span>Promise.resolve(null),</span>
+      addAuthTokenListener: <span class="fstat-no" title="function not covered" >(</span>callback: (token: string | null) =&gt; void) =&gt; {
+<span class="cstat-no" title="statement not covered" >        tokenListeners.push(callback);</span>
+        // Make sure callback is called, asynchronously, in the absence of the auth module
+<span class="cstat-no" title="statement not covered" >        setTimeout(<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" ></span>callback(null),</span> 0);</span>
+      },
+      removeAuthTokenListener: <span class="fstat-no" title="function not covered" >callback =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        tokenListeners = tokenListeners.filter(</span>
+<span class="fstat-no" title="function not covered" >          listener =&gt; <span class="cstat-no" title="statement not covered" >listener !== callback</span></span>
+        );
+      }
+    };
+  }
+&nbsp;
+  get name(): string {
+    this.checkDestroyed_();
+    return this.name_;
+  }
+&nbsp;
+  get options(): FirebaseOptions {
+    this.checkDestroyed_();
+    return this.options_;
+  }
+&nbsp;
+  delete(): Promise&lt;void&gt; {
+    return new Promise(resolve =&gt; {
+      this.checkDestroyed_();
+      resolve();
+    })
+      .then(() =&gt; {
+        (this.firebase_ as _FirebaseNamespace).INTERNAL.removeApp(this.name_);
+        let services: FirebaseService[] = [];
+        Object.keys(this.services_).forEach(<span class="fstat-no" title="function not covered" >serviceKey =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >          Object.keys(this.services_[serviceKey]).forEach(<span class="fstat-no" title="function not covered" >instanceKey =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >            services.push(this.services_[serviceKey][instanceKey]);</span>
+          });
+        });
+        return Promise.all(
+          services.map(<span class="fstat-no" title="function not covered" >service =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            return service.INTERNAL!.delete();</span>
+          })
+        );
+      })
+      .then((): void =&gt; {
+        this.isDeleted_ = true;
+        this.services_ = {};
+      });
+  }
+&nbsp;
+  /**
+   * Return a service instance associated with this app (creating it
+   * on demand), identified by the passed instanceIdentifier.
+   *
+   * NOTE: Currently storage is the only one that is leveraging this
+   * functionality. They invoke it by calling:
+   *
+   * ```javascript
+   * firebase.app().storage('STORAGE BUCKET ID')
+   * ```
+   *
+   * The service name is passed to this already
+   * @internal
+   */
+  _getService(
+    name: string,
+    instanceIdentifier: string = DEFAULT_ENTRY_NAME
+  ): FirebaseService {
+    this.checkDestroyed_();
+&nbsp;
+    if (!this.services_[name]) {
+      this.services_[name] = {};
+    }
+&nbsp;
+    if (!this.services_[name][instanceIdentifier]) {
+      /**
+       * If a custom instance has been defined (i.e. not '[DEFAULT]')
+       * then we will pass that instance on, otherwise we pass `null`
+       */
+      const instanceSpecifier =
+        instanceIdentifier !== DEFAULT_ENTRY_NAME
+          ? instanceIdentifier
+          : undefined;
+      const service = (this.firebase_ as _FirebaseNamespace).INTERNAL.factories[
+        name
+      ](this, this.extendApp.bind(this), instanceSpecifier);
+      this.services_[name][instanceIdentifier] = service;
+    }
+&nbsp;
+    return this.services_[name][instanceIdentifier];
+  }
+&nbsp;
+  /**
+   * Callback function used to extend an App instance at the time
+   * of service instance creation.
+   */
+  private extendApp(props: { [name: string]: any }): void {
+    // Copy the object onto the FirebaseAppImpl prototype
+    deepExtend(this, props);
+&nbsp;
+    /**
+     * If the app has overwritten the addAuthTokenListener stub, forward
+     * the active token listeners on to the true fxn.
+     *
+     * TODO: This function is required due to our current module
+     * structure. Once we are able to rely strictly upon a single module
+     * implementation, this code should be refactored and Auth should
+     * provide these stubs and the upgrade logic
+     */
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (props.INTERNAL &amp;&amp; props.INTERNAL.addAuthTokenListener) {
+<span class="cstat-no" title="statement not covered" >      tokenListeners.forEach(<span class="fstat-no" title="function not covered" >listener =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >        this.INTERNAL.addAuthTokenListener(listener);</span>
+      });
+<span class="cstat-no" title="statement not covered" >      tokenListeners = [];</span>
+    }
+  }
+&nbsp;
+  /**
+   * This function will throw an Error if the App has already been deleted -
+   * use before performing API actions on the App.
+   */
+  private checkDestroyed_(): void {
+    if (this.isDeleted_) {
+      error('app-deleted', { name: this.name_ });
+    }
+  }
+}
+&nbsp;
+// Prevent dead-code elimination of these methods w/o invalid property
+// copying.
+(FirebaseAppImpl.prototype.name &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >FirebaseAppImpl.prototype.options)</span> ||
+  FirebaseAppImpl.prototype.delete ||
+<span class="branch-3 cbranch-no" title="branch not covered" >  console.log('dc');</span>
+&nbsp;
+/**
+ * Return a firebase namespace object.
+ *
+ * In production, this will be called exactly once and the result
+ * assigned to the 'firebase' global.  It may be called multiple times
+ * in unit tests.
+ */
+export function createFirebaseNamespace(): FirebaseNamespace {
+  let apps_: { [name: string]: FirebaseApp } = {};
+  let factories: { [service: string]: FirebaseServiceFactory } = {};
+  let appHooks: { [service: string]: AppHook } = {};
+&nbsp;
+  // A namespace is a plain JavaScript Object.
+  let namespace = {
+    // Hack to prevent Babel from modifying the object returned
+    // as the firebase namespace.
+    __esModule: true,
+    initializeApp: initializeApp,
+    app: app as any,
+    apps: null as any,
+    Promise: Promise,
+    SDK_VERSION: '${JSCORE_VERSION}',
+    INTERNAL: {
+      registerService: registerService,
+      createFirebaseNamespace: createFirebaseNamespace,
+      extendNamespace: extendNamespace,
+      createSubscribe: createSubscribe,
+      ErrorFactory: ErrorFactory,
+      removeApp: removeApp,
+      factories: factories,
+      useAsService: useAsService,
+      Promise: Promise,
+      deepExtend: deepExtend
+    }
+  };
+&nbsp;
+  // Inject a circular default export to allow Babel users who were previously
+  // using:
+  //
+  //   import firebase from 'firebase';
+  //   which becomes: var firebase = require('firebase').default;
+  //
+  // instead of
+  //
+  //   import * as firebase from 'firebase';
+  //   which becomes: var firebase = require('firebase');
+  patchProperty(namespace, 'default', namespace);
+&nbsp;
+  // firebase.apps is a read-only getter.
+  Object.defineProperty(namespace, 'apps', {
+    get: getApps
+  });
+&nbsp;
+  /**
+   * Called by App.delete() - but before any services associated with the App
+   * are deleted.
+   */
+  function removeApp(name: string): void {
+    let app = apps_[name];
+    callAppHooks(app, 'delete');
+    delete apps_[name];
+  }
+&nbsp;
+  /**
+   * Get the App object for a given name (or DEFAULT).
+   */
+  function app(name?: string): FirebaseApp {
+    name = name || DEFAULT_ENTRY_NAME;
+    if (!contains(apps_, name)) {
+      error('no-app', { name: name });
+    }
+    return apps_[name];
+  }
+&nbsp;
+  patchProperty(app, 'App', FirebaseAppImpl);
+&nbsp;
+  /**
+   * Create a new App instance (name must be unique).
+   */
+  function initializeApp(options: FirebaseOptions, name?: string): FirebaseApp {
+    if (name === undefined) {
+      name = DEFAULT_ENTRY_NAME;
+    } else {
+      if (typeof name !== 'string' || name === '') {
+        error('bad-app-name', { name: name + '' });
+      }
+    }
+    if (contains(apps_, name)) {
+      error('duplicate-app', { name: name });
+    }
+&nbsp;
+    let app = new FirebaseAppImpl(
+      options,
+      name!,
+      namespace as FirebaseNamespace
+    );
+&nbsp;
+    apps_[name!] = app;
+    callAppHooks(app, 'create');
+&nbsp;
+    return app;
+  }
+&nbsp;
+  /*
+   * Return an array of all the non-deleted FirebaseApps.
+   */
+  function getApps(): FirebaseApp[] {
+    // Make a copy so caller cannot mutate the apps list.
+    return Object.keys(apps_).map(name =&gt; apps_[name]);
+  }
+&nbsp;
+  /*
+   * Register a Firebase Service.
+   *
+   * firebase.INTERNAL.registerService()
+   *
+   * TODO: Implement serviceProperties.
+   */
+  function registerService(
+    name: string,
+    createService: FirebaseServiceFactory,
+    serviceProperties?: { [prop: string]: any },
+    appHook?: AppHook,
+    allowMultipleInstances?: boolean
+  ): FirebaseServiceNamespace&lt;FirebaseService&gt; {
+    // Cannot re-register a service that already exists
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (factories[name]) {
+<span class="cstat-no" title="statement not covered" >      error('duplicate-service', { name: name });</span>
+    }
+&nbsp;
+    // Capture the service factory for later service instantiation
+    factories[name] = createService;
+&nbsp;
+    // Capture the appHook, if passed
+    if (appHook) {
+      appHooks[name] = appHook;
+&nbsp;
+      // Run the **new** app hook on all existing apps
+      getApps().forEach(app =&gt; {
+        appHook('create', app);
+      });
+    }
+&nbsp;
+    // The Service namespace is an accessor function ...
+    const serviceNamespace = (appArg: FirebaseApp = app()) =&gt; {
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof (appArg as any)[name] !== 'function') {
+        // Invalid argument.
+        // This happens in the following case: firebase.storage('gs:/')
+<span class="cstat-no" title="statement not covered" >        error('invalid-app-argument', { name: name });</span>
+      }
+&nbsp;
+      // Forward service instance lookup to the FirebaseApp.
+      return (appArg as any)[name]();
+    };
+&nbsp;
+    // ... and a container for service-level properties.
+    if (serviceProperties !== undefined) {
+      deepExtend(serviceNamespace, serviceProperties);
+    }
+&nbsp;
+    // Monkey-patch the serviceNamespace onto the firebase namespace
+    (namespace as any)[name] = serviceNamespace;
+&nbsp;
+    // Patch the FirebaseAppImpl prototype
+    FirebaseAppImpl.prototype[name] = function(...args) {
+      const serviceFxn = this._getService.bind(this, name);
+      return serviceFxn.apply(this, allowMultipleInstances ? args : []);
+    };
+&nbsp;
+    return serviceNamespace;
+  }
+&nbsp;
+  /**
+   * Patch the top-level firebase namespace with additional properties.
+   *
+   * firebase.INTERNAL.extendNamespace()
+   */
+<span class="fstat-no" title="function not covered" >  function extendNamespace(</span>props: { [prop: string]: any }): void {
+<span class="cstat-no" title="statement not covered" >    deepExtend(namespace, props);</span>
+  }
+&nbsp;
+  function callAppHooks(app: FirebaseApp, eventName: string) {
+    Object.keys(factories).forEach(serviceName =&gt; {
+      // Ignore virtual services
+      let factoryName = useAsService(app, serviceName);
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (factoryName === null) {
+<span class="cstat-no" title="statement not covered" >        return;</span>
+      }
+&nbsp;
+      if (appHooks[factoryName]) {
+        appHooks[factoryName](eventName, app);
+      }
+    });
+  }
+&nbsp;
+  // Map the requested service to a registered service name
+  // (used to map auth to serverAuth service when needed).
+  function useAsService(app: FirebaseApp, name: string): string | null {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (name === 'serverAuth') {
+<span class="cstat-no" title="statement not covered" >      return null;</span>
+    }
+&nbsp;
+    let useService = name;
+    let options = app.options;
+&nbsp;
+    return useService;
+  }
+&nbsp;
+  return (namespace as any) as FirebaseNamespace;
+}
+&nbsp;
+type AppError =
+  | 'no-app'
+  | 'bad-app-name'
+  | 'duplicate-app'
+  | 'app-deleted'
+  | 'duplicate-service'
+  | 'sa-not-supported'
+  | 'invalid-app-argument';
+&nbsp;
+function error(code: AppError, args?: { [name: string]: any }) {
+  throw appErrors.create(code, args);
+}
+&nbsp;
+// TypeScript does not support non-string indexes!
+// let errors: {[code: AppError: string} = {
+let errors: { [code: string]: string } = {
+  'no-app':
+    "No Firebase App '{$name}' has been created - " +
+    'call Firebase App.initializeApp()',
+  'bad-app-name': "Illegal App name: '{$name}",
+  'duplicate-app': "Firebase App named '{$name}' already exists",
+  'app-deleted': "Firebase App named '{$name}' already deleted",
+  'duplicate-service': "Firebase service named '{$name}' already registered",
+  'sa-not-supported':
+    'Initializing the Firebase SDK with a service ' +
+    'account is only allowed in a Node.js environment. On client ' +
+    'devices, you should instead initialize the SDK with an api key and ' +
+    'auth domain',
+  'invalid-app-argument':
+    'firebase.{$name}() takes either no argument or a ' +
+    'Firebase App instance.'
+};
+&nbsp;
+let appErrors = new ErrorFactory&lt;AppError&gt;('app', 'Firebase', errors);
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Thu Feb 22 2018 14:16:47 GMT-0800 (PST)
+</div>
+</div>
+<script src="prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="sorter.js"></script>
+</body>
+</html>

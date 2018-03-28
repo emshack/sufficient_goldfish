@@ -1,0 +1,2396 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for core/Repo_transaction.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">All files</a> / <a href="index.html">core</a> Repo_transaction.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">99.23% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>258/260</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">90.79% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>69/76</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">96.43% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>27/28</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">99.22% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>253/255</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738
+739
+740
+741
+742
+743
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764
+765
+766
+767
+768
+769
+770
+771
+772
+773
+774
+775
+776
+777
+778</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">46x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">67x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">67x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">244x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">724x</span>
+<span class="cline-any cline-yes">932x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">724x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">724x</span>
+<span class="cline-any cline-yes">330x</span>
+<span class="cline-any cline-yes">330x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">330x</span>
+<span class="cline-any cline-yes">335x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">330x</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">394x</span>
+<span class="cline-any cline-yes">348x</span>
+<span class="cline-any cline-yes">516x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">114x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-yes">110x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">59x</span>
+<span class="cline-any cline-yes">59x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">59x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">59x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">59x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">59x</span>
+<span class="cline-any cline-yes">62x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">51x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-yes">51x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">49x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">51x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">662x</span>
+<span class="cline-any cline-yes">662x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">662x</span>
+<span class="cline-any cline-yes">662x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">662x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">662x</span>
+<span class="cline-any cline-yes">587x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-yes">57x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">81x</span>
+<span class="cline-any cline-yes">57x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">56x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">56x</span>
+<span class="cline-any cline-yes">56x</span>
+<span class="cline-any cline-yes">56x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">47x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-yes">84x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1089x</span>
+<span class="cline-any cline-yes">1089x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1835x</span>
+<span class="cline-any cline-yes">1835x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1089x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">992x</span>
+<span class="cline-any cline-yes">992x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">992x</span>
+<span class="cline-any cline-yes">107x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">992x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1009x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1009x</span>
+<span class="cline-any cline-yes">1009x</span>
+<span class="cline-any cline-yes">419x</span>
+<span class="cline-any cline-yes">509x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1009x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">348x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">348x</span>
+<span class="cline-any cline-yes">348x</span>
+<span class="cline-any cline-yes">204x</span>
+<span class="cline-any cline-yes">204x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">178x</span>
+<span class="cline-any cline-yes">178x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">204x</span>
+<span class="cline-any cline-yes">204x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">348x</span>
+<span class="cline-any cline-yes">214x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">427x</span>
+<span class="cline-any cline-yes">427x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">427x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">427x</span>
+<span class="cline-any cline-yes">766x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">427x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">427x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">427x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1193x</span>
+<span class="cline-any cline-yes">1193x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+&nbsp;
+import { assert } from '@firebase/util';
+import { Reference } from '../api/Reference';
+import { DataSnapshot } from '../api/DataSnapshot';
+import { Path } from './util/Path';
+import { Tree } from './util/Tree';
+import { PRIORITY_INDEX } from './snap/indexes/PriorityIndex';
+import { Node } from './snap/Node';
+import { LUIDGenerator, warn, exceptionGuard } from './util/util';
+import { resolveDeferredValueSnapshot } from './util/ServerValues';
+import { isValidPriority, validateFirebaseData } from './util/validation';
+import { contains, safeGet } from '@firebase/util';
+import { nodeFromJSON } from './snap/nodeFromJSON';
+import { ChildrenNode } from './snap/ChildrenNode';
+import { Repo } from './Repo';
+import { Event } from './view/Event';
+&nbsp;
+// TODO: This is pretty messy.  Ideally, a lot of this would move into FirebaseData, or a transaction-specific
+// component used by FirebaseData, but it has ties to user callbacks (transaction update and onComplete) as well
+// as the realtime connection (to send transactions to the server).  So that all needs to be decoupled first.
+// For now it's part of Repo, but in its own file.
+&nbsp;
+/**
+ * @enum {number}
+ */
+export enum TransactionStatus {
+  // We've run the transaction and updated transactionResultData_ with the result, but it isn't currently sent to the
+  // server. A transaction will go from RUN -&gt; SENT -&gt; RUN if it comes back from the server as rejected due to
+  // mismatched hash.
+  RUN,
+&nbsp;
+  // We've run the transaction and sent it to the server and it's currently outstanding (hasn't come back as accepted
+  // or rejected yet).
+  SENT,
+&nbsp;
+  // Temporary state used to mark completed transactions (whether successful or aborted).  The transaction will be
+  // removed when we get a chance to prune completed ones.
+  COMPLETED,
+&nbsp;
+  // Used when an already-sent transaction needs to be aborted (e.g. due to a conflicting set() call that was made).
+  // If it comes back as unsuccessful, we'll abort it.
+  SENT_NEEDS_ABORT,
+&nbsp;
+  // Temporary state used to mark transactions that need to be aborted.
+  NEEDS_ABORT
+}
+&nbsp;
+/**
+ * If a transaction does not succeed after 25 retries, we abort it.  Among other things this ensure that if there's
+ * ever a bug causing a mismatch between client / server hashes for some data, we won't retry indefinitely.
+ * @type {number}
+ * @const
+ * @private
+ */
+(Repo as any).MAX_TRANSACTION_RETRIES_ = 25;
+&nbsp;
+/**
+ * @typedef {{
+ *   path: !Path,
+ *   update: function(*):*,
+ *   onComplete: ?function(?Error, boolean, ?DataSnapshot),
+ *   status: ?TransactionStatus,
+ *   order: !number,
+ *   applyLocally: boolean,
+ *   retryCount: !number,
+ *   unwatcher: function(),
+ *   abortReason: ?string,
+ *   currentWriteId: !number,
+ *   currentInputSnapshot: ?Node,
+ *   currentOutputSnapshotRaw: ?Node,
+ *   currentOutputSnapshotResolved: ?Node
+ * }}
+ */
+type Transaction = {
+  path: Path;
+  update: (a: any) =&gt; any;
+  onComplete: (a: Error | null, b: boolean, c: DataSnapshot | null) =&gt; void;
+  status: TransactionStatus;
+  order: number;
+  applyLocally: boolean;
+  retryCount: number;
+  unwatcher: () =&gt; void;
+  abortReason: string | null;
+  currentWriteId: number;
+  currentInputSnapshot: Node | null;
+  currentOutputSnapshotRaw: Node | null;
+  currentOutputSnapshotResolved: Node | null;
+};
+&nbsp;
+/**
+ * Setup the transaction data structures
+ * @private
+ */
+(Repo.prototype as any).transactions_init_ = function() {
+  /**
+   * Stores queues of outstanding transactions for Firebase locations.
+   *
+   * @type {!Tree.&lt;Array.&lt;!Transaction&gt;&gt;}
+   * @private
+   */
+  this.transactionQueueTree_ = new Tree&lt;Transaction[]&gt;();
+};
+&nbsp;
+declare module './Repo' {
+  interface Repo {
+    startTransaction(
+      path: Path,
+      transactionUpdate: (a: any) =&gt; void,
+      onComplete: ((a: Error, b: boolean, c: DataSnapshot) =&gt; void) | null,
+      applyLocally: boolean
+    ): void;
+  }
+}
+&nbsp;
+/**
+ * Creates a new transaction, adds it to the transactions we're tracking, and sends it to the server if possible.
+ *
+ * @param {!Path} path Path at which to do transaction.
+ * @param {function(*):*} transactionUpdate Update callback.
+ * @param {?function(?Error, boolean, ?DataSnapshot)} onComplete Completion callback.
+ * @param {boolean} applyLocally Whether or not to make intermediate results visible
+ */
+Repo.prototype.startTransaction = function(
+  path: Path,
+  transactionUpdate: (a: any) =&gt; any,
+  onComplete: ((a: Error, b: boolean, c: DataSnapshot) =&gt; void) | null,
+  applyLocally: boolean
+) {
+  this.log_('transaction on ' + path);
+&nbsp;
+  // Add a watch to make sure we get server updates.
+  const valueCallback = function() {};
+  const watchRef = new Reference(this, path);
+  watchRef.on('value', valueCallback);
+  const unwatcher = function() {
+    watchRef.off('value', valueCallback);
+  };
+&nbsp;
+  // Initialize transaction.
+  const transaction: Transaction = {
+    path,
+    update: transactionUpdate,
+    onComplete,
+&nbsp;
+    // One of TransactionStatus enums.
+    status: null,
+&nbsp;
+    // Used when combining transactions at different locations to figure out which one goes first.
+    order: LUIDGenerator(),
+&nbsp;
+    // Whether to raise local events for this transaction.
+    applyLocally: applyLocally,
+&nbsp;
+    // Count of how many times we've retried the transaction.
+    retryCount: 0,
+&nbsp;
+    // Function to call to clean up our .on() listener.
+    unwatcher,
+&nbsp;
+    // Stores why a transaction was aborted.
+    abortReason: null,
+&nbsp;
+    currentWriteId: null,
+&nbsp;
+    currentInputSnapshot: null,
+&nbsp;
+    currentOutputSnapshotRaw: null,
+&nbsp;
+    currentOutputSnapshotResolved: null
+  };
+&nbsp;
+  // Run transaction initially.
+  const currentState = this.getLatestState_(path);
+  transaction.currentInputSnapshot = currentState;
+  const newVal = transaction.update(currentState.val());
+  if (newVal === undefined) {
+    // Abort transaction.
+    transaction.unwatcher();
+    transaction.currentOutputSnapshotRaw = null;
+    transaction.currentOutputSnapshotResolved = null;
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (transaction.onComplete) {
+      // We just set the input snapshot, so this cast should be safe
+      const snapshot = new DataSnapshot(
+        transaction.currentInputSnapshot,
+        new Reference(this, transaction.path),
+        PRIORITY_INDEX
+      );
+      transaction.onComplete(null, false, snapshot);
+    }
+  } else {
+    validateFirebaseData(
+      'transaction failed: Data returned ',
+      newVal,
+      transaction.path
+    );
+&nbsp;
+    // Mark as run and add to our queue.
+    transaction.status = TransactionStatus.RUN;
+    const queueNode = this.transactionQueueTree_.subTree(path);
+    const nodeQueue = queueNode.getValue() || [];
+    nodeQueue.push(transaction);
+&nbsp;
+    queueNode.setValue(nodeQueue);
+&nbsp;
+    // Update visibleData and raise events
+    // Note: We intentionally raise events after updating all of our transaction state, since the user could
+    // start new transactions from the event callbacks.
+    let priorityForNode;
+    if (
+      typeof newVal === 'object' &amp;&amp;
+      newVal !== null &amp;&amp;
+      contains(newVal, '.priority')
+    ) {
+      priorityForNode = safeGet(newVal, '.priority');
+      assert(
+        isValidPriority(priorityForNode),
+        'Invalid priority returned by transaction. ' +
+          'Priority must be a valid string, finite number, server value, or null.'
+      );
+    } else {
+      const currentNode =
+        this.serverSyncTree_.calcCompleteEventCache(path) ||
+<span class="branch-1 cbranch-no" title="branch not covered" >        ChildrenNode.EMPTY_NODE;</span>
+      priorityForNode = currentNode.getPriority().val();
+    }
+    priorityForNode /** @type {null|number|string} */ = priorityForNode;
+&nbsp;
+    const serverValues = this.generateServerValues();
+    const newNodeUnresolved = nodeFromJSON(newVal, priorityForNode);
+    const newNode = resolveDeferredValueSnapshot(
+      newNodeUnresolved,
+      serverValues
+    );
+    transaction.currentOutputSnapshotRaw = newNodeUnresolved;
+    transaction.currentOutputSnapshotResolved = newNode;
+    transaction.currentWriteId = this.getNextWriteId_();
+&nbsp;
+    const events = this.serverSyncTree_.applyUserOverwrite(
+      path,
+      newNode,
+      transaction.currentWriteId,
+      transaction.applyLocally
+    );
+    this.eventQueue_.raiseEventsForChangedPath(path, events);
+&nbsp;
+    this.sendReadyTransactions_();
+  }
+};
+&nbsp;
+/**
+ * @param {!Path} path
+ * @param {Array.&lt;number&gt;=} excludeSets A specific set to exclude
+ * @return {Node}
+ * @private
+ */
+(Repo.prototype as any).getLatestState_ = function(
+  path: Path,
+  excludeSets?: number[]
+): Node {
+  return (
+    this.serverSyncTree_.calcCompleteEventCache(path, excludeSets) ||
+<span class="branch-1 cbranch-no" title="branch not covered" >    ChildrenNode.EMPTY_NODE</span>
+  );
+};
+&nbsp;
+/**
+ * Sends any already-run transactions that aren't waiting for outstanding transactions to
+ * complete.
+ *
+ * Externally it's called with no arguments, but it calls itself recursively with a particular
+ * transactionQueueTree node to recurse through the tree.
+ *
+ * @param {Tree.&lt;Array.&lt;Transaction&gt;&gt;=} node  transactionQueueTree node to start at.
+ * @private
+ */
+(Repo.prototype as any).sendReadyTransactions_ = function(
+  node: Tree&lt;Transaction[]&gt; = this.transactionQueueTree_
+) {
+  // Before recursing, make sure any completed transactions are removed.
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!node) {
+<span class="cstat-no" title="statement not covered" >    this.pruneCompletedTransactionsBelowNode_(node);</span>
+  }
+&nbsp;
+  if (node.getValue() !== null) {
+    const queue = this.buildTransactionQueue_(node);
+    assert(queue.length &gt; 0, 'Sending zero length transaction queue');
+&nbsp;
+    const allRun = queue.every(
+      (transaction: Transaction) =&gt; transaction.status === TransactionStatus.RUN
+    );
+&nbsp;
+    // If they're all run (and not sent), we can send them.  Else, we must wait.
+    if (allRun) {
+      this.sendTransactionQueue_(node.path(), queue);
+    }
+  } else if (node.hasChildren()) {
+    node.forEachChild(childNode =&gt; {
+      this.sendReadyTransactions_(childNode);
+    });
+  }
+};
+&nbsp;
+/**
+ * Given a list of run transactions, send them to the server and then handle the result (success or failure).
+ *
+ * @param {!Path} path The location of the queue.
+ * @param {!Array.&lt;Transaction&gt;} queue Queue of transactions under the specified location.
+ * @private
+ */
+(Repo.prototype as any).sendTransactionQueue_ = function(
+  path: Path,
+  queue: Array&lt;Transaction&gt;
+) {
+  // Mark transactions as sent and increment retry count!
+  const setsToIgnore = queue.map(function(txn) {
+    return txn.currentWriteId;
+  });
+  const latestState = this.getLatestState_(path, setsToIgnore);
+  let snapToSend = latestState;
+  const latestHash = latestState.hash();
+  for (let i = 0; i &lt; queue.length; i++) {
+    const txn = queue[i];
+    assert(
+      txn.status === TransactionStatus.RUN,
+      'tryToSendTransactionQueue_: items in queue should all be run.'
+    );
+    txn.status = TransactionStatus.SENT;
+    txn.retryCount++;
+    const relativePath = Path.relativePath(path, txn.path);
+    // If we've gotten to this point, the output snapshot must be defined.
+    snapToSend = snapToSend.updateChild(
+      relativePath /**@type {!Node} */,
+      txn.currentOutputSnapshotRaw
+    );
+  }
+&nbsp;
+  const dataToSend = snapToSend.val(true);
+  const pathToSend = path;
+&nbsp;
+  // Send the put.
+  this.server_.put(
+    pathToSend.toString(),
+    dataToSend,
+    (status: string) =&gt; {
+      this.log_('transaction put response', {
+        path: pathToSend.toString(),
+        status
+      });
+&nbsp;
+      let events: Event[] = [];
+      if (status === 'ok') {
+        // Queue up the callbacks and fire them after cleaning up all of our transaction state, since
+        // the callback could trigger more transactions or sets.
+        const callbacks = [];
+        for (let i = 0; i &lt; queue.length; i++) {
+          queue[i].status = TransactionStatus.COMPLETED;
+          events = events.concat(
+            this.serverSyncTree_.ackUserWrite(queue[i].currentWriteId)
+          );
+          <span class="missing-if-branch" title="else path not taken" >E</span>if (queue[i].onComplete) {
+            // We never unset the output snapshot, and given that this transaction is complete, it should be set
+            const node = queue[i].currentOutputSnapshotResolved as Node;
+            const ref = new Reference(this, queue[i].path);
+            const snapshot = new DataSnapshot(node, ref, PRIORITY_INDEX);
+            callbacks.push(
+              queue[i].onComplete.bind(null, null, true, snapshot)
+            );
+          }
+          queue[i].unwatcher();
+        }
+&nbsp;
+        // Now remove the completed transactions.
+        this.pruneCompletedTransactionsBelowNode_(
+          this.transactionQueueTree_.subTree(path)
+        );
+        // There may be pending transactions that we can now send.
+        this.sendReadyTransactions_();
+&nbsp;
+        this.eventQueue_.raiseEventsForChangedPath(path, events);
+&nbsp;
+        // Finally, trigger onComplete callbacks.
+        for (let i = 0; i &lt; callbacks.length; i++) {
+          exceptionGuard(callbacks[i]);
+        }
+      } else {
+        // transactions are no longer sent.  Update their status appropriately.
+        if (status === 'datastale') {
+          for (let i = 0; i &lt; queue.length; i++) {
+            if (queue[i].status === TransactionStatus.SENT_NEEDS_ABORT)
+              queue[i].status = TransactionStatus.NEEDS_ABORT;
+            else queue[i].status = TransactionStatus.RUN;
+          }
+        } else {
+          warn(
+            'transaction at ' + pathToSend.toString() + ' failed: ' + status
+          );
+          for (let i = 0; i &lt; queue.length; i++) {
+            queue[i].status = TransactionStatus.NEEDS_ABORT;
+            queue[i].abortReason = status;
+          }
+        }
+&nbsp;
+        this.rerunTransactions_(path);
+      }
+    },
+    latestHash
+  );
+};
+&nbsp;
+/**
+ * Finds all transactions dependent on the data at changedPath and reruns them.
+ *
+ * Should be called any time cached data changes.
+ *
+ * Return the highest path that was affected by rerunning transactions.  This is the path at which events need to
+ * be raised for.
+ *
+ * @param {!Path} changedPath The path in mergedData that changed.
+ * @return {!Path} The rootmost path that was affected by rerunning transactions.
+ * @private
+ */
+(Repo.prototype as any).rerunTransactions_ = function(changedPath: Path): Path {
+  const rootMostTransactionNode = this.getAncestorTransactionNode_(changedPath);
+  const path = rootMostTransactionNode.path();
+&nbsp;
+  const queue = this.buildTransactionQueue_(rootMostTransactionNode);
+  this.rerunTransactionQueue_(queue, path);
+&nbsp;
+  return path;
+};
+&nbsp;
+/**
+ * Does all the work of rerunning transactions (as well as cleans up aborted transactions and whatnot).
+ *
+ * @param {Array.&lt;Transaction&gt;} queue The queue of transactions to run.
+ * @param {!Path} path The path the queue is for.
+ * @private
+ */
+(Repo.prototype as any).rerunTransactionQueue_ = function(
+  queue: Array&lt;Transaction&gt;,
+  path: Path
+) {
+  if (queue.length === 0) {
+    return; // Nothing to do!
+  }
+&nbsp;
+  // Queue up the callbacks and fire them after cleaning up all of our transaction state, since
+  // the callback could trigger more transactions or sets.
+  const callbacks = [];
+  let events: Event[] = [];
+  // Ignore all of the sets we're going to re-run.
+  const txnsToRerun = queue.filter(function(q) {
+    return q.status === TransactionStatus.RUN;
+  });
+  const setsToIgnore = txnsToRerun.map(function(q) {
+    return q.currentWriteId;
+  });
+  for (let i = 0; i &lt; queue.length; i++) {
+    const transaction = queue[i];
+    const relativePath = Path.relativePath(path, transaction.path);
+    let abortTransaction = false,
+      abortReason;
+    assert(
+      relativePath !== null,
+      'rerunTransactionsUnderNode_: relativePath should not be null.'
+    );
+&nbsp;
+    if (transaction.status === TransactionStatus.NEEDS_ABORT) {
+      abortTransaction = true;
+      abortReason = transaction.abortReason;
+      events = events.concat(
+        this.serverSyncTree_.ackUserWrite(transaction.currentWriteId, true)
+      );
+    } else if (transaction.status === TransactionStatus.RUN) {
+      if (transaction.retryCount &gt;= (Repo as any).MAX_TRANSACTION_RETRIES_) {
+        abortTransaction = true;
+        abortReason = 'maxretry';
+        events = events.concat(
+          this.serverSyncTree_.ackUserWrite(transaction.currentWriteId, true)
+        );
+      } else {
+        // This code reruns a transaction
+        const currentNode = this.getLatestState_(
+          transaction.path,
+          setsToIgnore
+        );
+        transaction.currentInputSnapshot = currentNode;
+        const newData = queue[i].update(currentNode.val());
+        if (newData !== undefined) {
+          validateFirebaseData(
+            'transaction failed: Data returned ',
+            newData,
+            transaction.path
+          );
+          let newDataNode = nodeFromJSON(newData);
+          const hasExplicitPriority =
+            typeof newData === 'object' &amp;&amp;
+            newData != null &amp;&amp;
+            contains(newData, '.priority');
+          if (!hasExplicitPriority) {
+            // Keep the old priority if there wasn't a priority explicitly specified.
+            newDataNode = newDataNode.updatePriority(currentNode.getPriority());
+          }
+&nbsp;
+          const oldWriteId = transaction.currentWriteId;
+          const serverValues = this.generateServerValues();
+          const newNodeResolved = resolveDeferredValueSnapshot(
+            newDataNode,
+            serverValues
+          );
+&nbsp;
+          transaction.currentOutputSnapshotRaw = newDataNode;
+          transaction.currentOutputSnapshotResolved = newNodeResolved;
+          transaction.currentWriteId = this.getNextWriteId_();
+          // Mutates setsToIgnore in place
+          setsToIgnore.splice(setsToIgnore.indexOf(oldWriteId), 1);
+          events = events.concat(
+            this.serverSyncTree_.applyUserOverwrite(
+              transaction.path,
+              newNodeResolved,
+              transaction.currentWriteId,
+              transaction.applyLocally
+            )
+          );
+          events = events.concat(
+            this.serverSyncTree_.ackUserWrite(oldWriteId, true)
+          );
+        } else {
+          abortTransaction = true;
+          abortReason = 'nodata';
+          events = events.concat(
+            this.serverSyncTree_.ackUserWrite(transaction.currentWriteId, true)
+          );
+        }
+      }
+    }
+    this.eventQueue_.raiseEventsForChangedPath(path, events);
+    events = [];
+    if (abortTransaction) {
+      // Abort.
+      queue[i].status = TransactionStatus.COMPLETED;
+&nbsp;
+      // Removing a listener can trigger pruning which can muck with mergedData/visibleData (as it prunes data).
+      // So defer the unwatcher until we're done.
+      (function(unwatcher) {
+        setTimeout(unwatcher, Math.floor(0));
+      })(queue[i].unwatcher);
+&nbsp;
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (queue[i].onComplete) {
+        if (abortReason === 'nodata') {
+          const ref = new Reference(this, queue[i].path);
+          // We set this field immediately, so it's safe to cast to an actual snapshot
+          const lastInput /** @type {!Node} */ = queue[i].currentInputSnapshot;
+          const snapshot = new DataSnapshot(lastInput, ref, PRIORITY_INDEX);
+          callbacks.push(queue[i].onComplete.bind(null, null, false, snapshot));
+        } else {
+          callbacks.push(
+            queue[i].onComplete.bind(null, new Error(abortReason), false, null)
+          );
+        }
+      }
+    }
+  }
+&nbsp;
+  // Clean up completed transactions.
+  this.pruneCompletedTransactionsBelowNode_(this.transactionQueueTree_);
+&nbsp;
+  // Now fire callbacks, now that we're in a good, known state.
+  for (let i = 0; i &lt; callbacks.length; i++) {
+    exceptionGuard(callbacks[i]);
+  }
+&nbsp;
+  // Try to send the transaction result to the server.
+  this.sendReadyTransactions_();
+};
+&nbsp;
+/**
+ * Returns the rootmost ancestor node of the specified path that has a pending transaction on it, or just returns
+ * the node for the given path if there are no pending transactions on any ancestor.
+ *
+ * @param {!Path} path The location to start at.
+ * @return {!Tree.&lt;Array.&lt;!Transaction&gt;&gt;} The rootmost node with a transaction.
+ * @private
+ */
+(Repo.prototype as any).getAncestorTransactionNode_ = function(
+  path: Path
+): Tree&lt;Transaction[]&gt; {
+  let front;
+&nbsp;
+  // Start at the root and walk deeper into the tree towards path until we find a node with pending transactions.
+  let transactionNode = this.transactionQueueTree_;
+  while (
+    (front = path.getFront()) !== null &amp;&amp;
+    transactionNode.getValue() === null
+  ) {
+    transactionNode = transactionNode.subTree(front);
+    path = path.popFront();
+  }
+&nbsp;
+  return transactionNode;
+};
+&nbsp;
+/**
+ * Builds the queue of all transactions at or below the specified transactionNode.
+ *
+ * @param {!Tree.&lt;Array.&lt;Transaction&gt;&gt;} transactionNode
+ * @return {Array.&lt;Transaction&gt;} The generated queue.
+ * @private
+ */
+(Repo.prototype as any).buildTransactionQueue_ = function(
+  transactionNode: Tree&lt;Transaction[]&gt;
+): Array&lt;Transaction&gt; {
+  // Walk any child transaction queues and aggregate them into a single queue.
+  const transactionQueue: Transaction[] = [];
+  this.aggregateTransactionQueuesForNode_(transactionNode, transactionQueue);
+&nbsp;
+  // Sort them by the order the transactions were created.
+  transactionQueue.sort(function(a, b) {
+    return a.order - b.order;
+  });
+&nbsp;
+  return transactionQueue;
+};
+&nbsp;
+/**
+ * @param {!Tree.&lt;Array.&lt;Transaction&gt;&gt;} node
+ * @param {Array.&lt;Transaction&gt;} queue
+ * @private
+ */
+(Repo.prototype as any).aggregateTransactionQueuesForNode_ = function(
+  node: Tree&lt;Transaction[]&gt;,
+  queue: Array&lt;Transaction&gt;
+) {
+  const nodeQueue = node.getValue();
+  if (nodeQueue !== null) {
+    for (let i = 0; i &lt; nodeQueue.length; i++) {
+      queue.push(nodeQueue[i]);
+    }
+  }
+&nbsp;
+  node.forEachChild(child =&gt; {
+    this.aggregateTransactionQueuesForNode_(child, queue);
+  });
+};
+&nbsp;
+/**
+ * Remove COMPLETED transactions at or below this node in the transactionQueueTree_.
+ *
+ * @param {!Tree.&lt;Array.&lt;!Transaction&gt;&gt;} node
+ * @private
+ */
+(Repo.prototype as any).pruneCompletedTransactionsBelowNode_ = function(
+  node: Tree&lt;Transaction[]&gt;
+) {
+  const queue = node.getValue();
+  if (queue) {
+    let to = 0;
+    for (let from = 0; from &lt; queue.length; from++) {
+      if (queue[from].status !== TransactionStatus.COMPLETED) {
+        queue[to] = queue[from];
+        to++;
+      }
+    }
+    queue.length = to;
+    node.setValue(queue.length &gt; 0 ? queue : null);
+  }
+&nbsp;
+  node.forEachChild(childNode =&gt; {
+    this.pruneCompletedTransactionsBelowNode_(childNode);
+  });
+};
+&nbsp;
+/**
+ * Aborts all transactions on ancestors or descendants of the specified path.  Called when doing a set() or update()
+ * since we consider them incompatible with transactions.
+ *
+ * @param {!Path} path Path for which we want to abort related transactions.
+ * @return {!Path}
+ * @private
+ */
+(Repo.prototype as any).abortTransactions_ = function(path: Path): Path {
+  const affectedPath = this.getAncestorTransactionNode_(path).path();
+&nbsp;
+  const transactionNode = this.transactionQueueTree_.subTree(path);
+&nbsp;
+  transactionNode.forEachAncestor((node: Tree&lt;Transaction[]&gt;) =&gt; {
+    this.abortTransactionsOnNode_(node);
+  });
+&nbsp;
+  this.abortTransactionsOnNode_(transactionNode);
+&nbsp;
+  transactionNode.forEachDescendant(<span class="fstat-no" title="function not covered" >(</span>node: Tree&lt;Transaction[]&gt;) =&gt; {
+<span class="cstat-no" title="statement not covered" >    this.abortTransactionsOnNode_(node);</span>
+  });
+&nbsp;
+  return affectedPath;
+};
+&nbsp;
+/**
+ * Abort transactions stored in this transaction queue node.
+ *
+ * @param {!Tree.&lt;Array.&lt;Transaction&gt;&gt;} node Node to abort transactions for.
+ * @private
+ */
+(Repo.prototype as any).abortTransactionsOnNode_ = function(
+  node: Tree&lt;Transaction[]&gt;
+) {
+  const queue = node.getValue();
+  if (queue !== null) {
+    // Queue up the callbacks and fire them after cleaning up all of our transaction state, since
+    // the callback could trigger more transactions or sets.
+    const callbacks = [];
+&nbsp;
+    // Go through queue.  Any already-sent transactions must be marked for abort, while the unsent ones
+    // can be immediately aborted and removed.
+    let events: Event[] = [];
+    let lastSent = -1;
+    for (let i = 0; i &lt; queue.length; i++) {
+      if (queue[i].status === TransactionStatus.SENT_NEEDS_ABORT) {
+        // Already marked.  No action needed.
+      } else if (queue[i].status === TransactionStatus.SENT) {
+        assert(
+          lastSent === i - 1,
+          'All SENT items should be at beginning of queue.'
+        );
+        lastSent = i;
+        // Mark transaction for abort when it comes back.
+        queue[i].status = TransactionStatus.SENT_NEEDS_ABORT;
+        queue[i].abortReason = 'set';
+      } else {
+        assert(
+          queue[i].status === TransactionStatus.RUN,
+          'Unexpected transaction status in abort'
+        );
+        // We can abort it immediately.
+        queue[i].unwatcher();
+        events = events.concat(
+          this.serverSyncTree_.ackUserWrite(queue[i].currentWriteId, true)
+        );
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (queue[i].onComplete) {
+          const snapshot: DataSnapshot | null = null;
+          callbacks.push(
+            queue[i].onComplete.bind(null, new Error('set'), false, snapshot)
+          );
+        }
+      }
+    }
+    if (lastSent === -1) {
+      // We're not waiting for any sent transactions.  We can clear the queue.
+      node.setValue(null);
+    } else {
+      // Remove the transactions we aborted.
+      queue.length = lastSent + 1;
+    }
+&nbsp;
+    // Now fire the callbacks.
+    this.eventQueue_.raiseEventsForChangedPath(node.path(), events);
+    for (let i = 0; i &lt; callbacks.length; i++) {
+      exceptionGuard(callbacks[i]);
+    }
+  }
+};
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Mar 20 2018 11:09:37 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

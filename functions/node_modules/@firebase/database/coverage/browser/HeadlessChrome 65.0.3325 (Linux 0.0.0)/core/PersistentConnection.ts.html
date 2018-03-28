@@ -1,0 +1,3080 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for core/PersistentConnection.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">All files</a> / <a href="index.html">core</a> PersistentConnection.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">73.58% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>312/424</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">48.72% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>95/195</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">70.91% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>39/55</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">73.35% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>300/409</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738
+739
+740
+741
+742
+743
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764
+765
+766
+767
+768
+769
+770
+771
+772
+773
+774
+775
+776
+777
+778
+779
+780
+781
+782
+783
+784
+785
+786
+787
+788
+789
+790
+791
+792
+793
+794
+795
+796
+797
+798
+799
+800
+801
+802
+803
+804
+805
+806
+807
+808
+809
+810
+811
+812
+813
+814
+815
+816
+817
+818
+819
+820
+821
+822
+823
+824
+825
+826
+827
+828
+829
+830
+831
+832
+833
+834
+835
+836
+837
+838
+839
+840
+841
+842
+843
+844
+845
+846
+847
+848
+849
+850
+851
+852
+853
+854
+855
+856
+857
+858
+859
+860
+861
+862
+863
+864
+865
+866
+867
+868
+869
+870
+871
+872
+873
+874
+875
+876
+877
+878
+879
+880
+881
+882
+883
+884
+885
+886
+887
+888
+889
+890
+891
+892
+893
+894
+895
+896
+897
+898
+899
+900
+901
+902
+903
+904
+905
+906
+907
+908
+909
+910
+911
+912
+913
+914
+915
+916
+917
+918
+919
+920
+921
+922
+923
+924
+925
+926
+927
+928
+929
+930
+931
+932
+933
+934
+935
+936
+937
+938
+939
+940
+941
+942
+943
+944
+945
+946
+947
+948
+949
+950
+951
+952
+953
+954
+955
+956
+957
+958
+959
+960
+961
+962
+963
+964
+965
+966
+967
+968
+969
+970
+971
+972
+973
+974
+975
+976
+977
+978
+979
+980
+981
+982
+983
+984
+985
+986
+987
+988
+989
+990
+991
+992
+993
+994
+995
+996
+997
+998
+999
+1000
+1001
+1002
+1003
+1004
+1005
+1006</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-yes">926x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">282x</span>
+<span class="cline-any cline-yes">282x</span>
+<span class="cline-any cline-yes">282x</span>
+<span class="cline-any cline-yes">282x</span>
+<span class="cline-any cline-yes">282x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">282x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">282x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">282x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">282x</span>
+<span class="cline-any cline-yes">258x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">234x</span>
+<span class="cline-any cline-yes">234x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">393x</span>
+<span class="cline-any cline-yes">393x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">393x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">393x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">393x</span>
+<span class="cline-any cline-yes">338x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">338x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">338x</span>
+<span class="cline-any cline-yes">338x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">393x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-yes">106x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">106x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">106x</span>
+<span class="cline-any cline-yes">106x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">106x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">106x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">508x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-yes">474x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">45x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">519x</span>
+<span class="cline-any cline-yes">518x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">518x</span>
+<span class="cline-any cline-yes">518x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">518x</span>
+<span class="cline-any cline-yes">222x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">518x</span>
+<span class="cline-any cline-yes">518x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1404x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1025x</span>
+<span class="cline-any cline-yes">1025x</span>
+<span class="cline-any cline-yes">1025x</span>
+<span class="cline-any cline-yes">1025x</span>
+<span class="cline-any cline-yes">921x</span>
+<span class="cline-any cline-yes">921x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">379x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">379x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">379x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">379x</span>
+<span class="cline-any cline-yes">379x</span>
+<span class="cline-any cline-yes">368x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">73x</span>
+<span class="cline-any cline-yes">73x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">73x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">73x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-yes">112x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">116x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">101x</span>
+<span class="cline-any cline-yes">138x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">45x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+&nbsp;
+import firebase from '@firebase/app';
+import { forEach, contains, isEmpty, getCount, safeGet } from '@firebase/util';
+import { stringify } from '@firebase/util';
+import { assert } from '@firebase/util';
+import { error, log, logWrapper, warn, ObjectToUniqueKey } from './util/util';
+import { Path } from './util/Path';
+import { VisibilityMonitor } from './util/VisibilityMonitor';
+import { OnlineMonitor } from './util/OnlineMonitor';
+import { isAdmin, isValidFormat } from '@firebase/util';
+import { Connection } from '../realtime/Connection';
+import { CONSTANTS } from '@firebase/util';
+import { isMobileCordova, isReactNative, isNodeSdk } from '@firebase/util';
+import { ServerActions } from './ServerActions';
+import { AuthTokenProvider } from './AuthTokenProvider';
+import { RepoInfo } from './RepoInfo';
+import { Query } from '../api/Query';
+&nbsp;
+const RECONNECT_MIN_DELAY = 1000;
+const RECONNECT_MAX_DELAY_DEFAULT = 60 * 5 * 1000; // 5 minutes in milliseconds (Case: 1858)
+const RECONNECT_MAX_DELAY_FOR_ADMINS = 30 * 1000; // 30 seconds for admin clients (likely to be a backend server)
+const RECONNECT_DELAY_MULTIPLIER = 1.3;
+const RECONNECT_DELAY_RESET_TIMEOUT = 30000; // Reset delay back to MIN_DELAY after being connected for 30sec.
+const SERVER_KILL_INTERRUPT_REASON = 'server_kill';
+&nbsp;
+// If auth fails repeatedly, we'll assume something is wrong and log a warning / back off.
+const INVALID_AUTH_TOKEN_THRESHOLD = 3;
+&nbsp;
+interface ListenSpec {
+  onComplete(s: string, p?: any): void;
+&nbsp;
+  hashFn(): string;
+&nbsp;
+  query: Query;
+  tag: number | null;
+}
+&nbsp;
+interface OnDisconnectRequest {
+  pathString: string;
+  action: string;
+  data: any;
+  onComplete?: (a: string, b: string) =&gt; void;
+}
+&nbsp;
+interface OutstandingPut {
+  action: string;
+  request: Object;
+  queued?: boolean;
+  onComplete: (a: string, b?: string) =&gt; void;
+}
+&nbsp;
+/**
+ * Firebase connection.  Abstracts wire protocol and handles reconnecting.
+ *
+ * NOTE: All JSON objects sent to the realtime connection must have property names enclosed
+ * in quotes to make sure the closure compiler does not minify them.
+ */
+export class PersistentConnection extends ServerActions {
+  // Used for diagnostic logging.
+  id = PersistentConnection.nextPersistentConnectionId_++;
+  private log_ = logWrapper('p:' + this.id + ':');
+&nbsp;
+  /** @private {Object} */
+  private interruptReasons_: { [reason: string]: boolean } = {};
+  private listens_: { [path: string]: { [queryId: string]: ListenSpec } } = {};
+  private outstandingPuts_: OutstandingPut[] = [];
+  private outstandingPutCount_ = 0;
+  private onDisconnectRequestQueue_: OnDisconnectRequest[] = [];
+  private connected_ = false;
+  private reconnectDelay_ = RECONNECT_MIN_DELAY;
+  private maxReconnectDelay_ = RECONNECT_MAX_DELAY_DEFAULT;
+  private securityDebugCallback_: ((a: Object) =&gt; void) | null = null;
+  lastSessionId: string | null = null;
+&nbsp;
+  /** @private {number|null} */
+  private establishConnectionTimer_: number | null = null;
+&nbsp;
+  /** @private {boolean} */
+  private visible_: boolean = false;
+&nbsp;
+  // Before we get connected, we keep a queue of pending messages to send.
+  private requestCBHash_: { [k: number]: (a: any) =&gt; void } = {};
+  private requestNumber_ = 0;
+&nbsp;
+  /** @private {?{
+   *   sendRequest(Object),
+   *   close()
+   * }} */
+  private realtime_: {
+    sendRequest(a: Object): void;
+    close(): void;
+  } | null = null;
+&nbsp;
+  /** @private {string|null} */
+  private authToken_: string | null = null;
+  private forceTokenRefresh_ = false;
+  private invalidAuthTokenCount_ = 0;
+&nbsp;
+  private firstConnection_ = true;
+  private lastConnectionAttemptTime_: number | null = null;
+  private lastConnectionEstablishedTime_: number | null = null;
+&nbsp;
+  /**
+   * @private
+   */
+  private static nextPersistentConnectionId_ = 0;
+&nbsp;
+  /**
+   * Counter for number of connections created. Mainly used for tagging in the logs
+   * @type {number}
+   * @private
+   */
+  private static nextConnectionId_ = 0;
+&nbsp;
+  /**
+   * @implements {ServerActions}
+   * @param {!RepoInfo} repoInfo_ Data about the namespace we are connecting to
+   * @param {function(string, *, boolean, ?number)} onDataUpdate_ A callback for new data from the server
+   * @param onConnectStatus_
+   * @param onServerInfoUpdate_
+   * @param authTokenProvider_
+   * @param authOverride_
+   */
+  constructor(
+    private repoInfo_: RepoInfo,
+    private onDataUpdate_: (
+      a: string,
+      b: any,
+      c: boolean,
+      d: number | null
+    ) =&gt; void,
+    private onConnectStatus_: (a: boolean) =&gt; void,
+    private onServerInfoUpdate_: (a: any) =&gt; void,
+    private authTokenProvider_: AuthTokenProvider,
+    private authOverride_?: Object | null
+  ) {
+    super();
+&nbsp;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (authOverride_ &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >!isNodeSdk())</span> {
+<span class="cstat-no" title="statement not covered" >      throw new Error(</span>
+        'Auth override specified in options, but not supported on non Node.js platforms'
+      );
+    }
+    this.scheduleConnect_(0);
+&nbsp;
+    VisibilityMonitor.getInstance().on('visible', this.onVisible_, this);
+&nbsp;
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (repoInfo_.host.indexOf('fblocal') === -1) {
+      OnlineMonitor.getInstance().on('online', this.onOnline_, this);
+    }
+  }
+&nbsp;
+  /**
+   * @param {!string} action
+   * @param {*} body
+   * @param {function(*)=} onResponse
+   * @protected
+   */
+  protected sendRequest(
+    action: string,
+    body: any,
+    onResponse?: (a: any) =&gt; void
+  ) {
+    const curReqNum = ++this.requestNumber_;
+&nbsp;
+    const msg = { r: curReqNum, a: action, b: body };
+    this.log_(stringify(msg));
+    assert(
+      this.connected_,
+      "sendRequest call when we're not connected not allowed."
+    );
+    this.realtime_.sendRequest(msg);
+    if (onResponse) {
+      this.requestCBHash_[curReqNum] = onResponse;
+    }
+  }
+&nbsp;
+  /**
+   * @inheritDoc
+   */
+  listen(
+    query: Query,
+    currentHashFn: () =&gt; string,
+    tag: number | null,
+    onComplete: (a: string, b: any) =&gt; void
+  ) {
+    const queryId = query.queryIdentifier();
+    const pathString = query.path.toString();
+    this.log_('Listen called for ' + pathString + ' ' + queryId);
+    this.listens_[pathString] = this.listens_[pathString] || {};
+    assert(
+      query.getQueryParams().isDefault() ||
+        !query.getQueryParams().loadsAllData(),
+      'listen() called for non-default but complete query'
+    );
+    assert(
+      !this.listens_[pathString][queryId],
+      'listen() called twice for same path/queryId.'
+    );
+    const listenSpec: ListenSpec = {
+      onComplete: onComplete,
+      hashFn: currentHashFn,
+      query: query,
+      tag: tag
+    };
+    this.listens_[pathString][queryId] = listenSpec;
+&nbsp;
+    if (this.connected_) {
+      this.sendListen_(listenSpec);
+    }
+  }
+&nbsp;
+  /**
+   * @param {!{onComplete(),
+   *           hashFn():!string,
+   *           query: !Query,
+   *           tag: ?number}} listenSpec
+   * @private
+   */
+  private sendListen_(listenSpec: ListenSpec) {
+    const query = listenSpec.query;
+    const pathString = query.path.toString();
+    const queryId = query.queryIdentifier();
+    this.log_('Listen on ' + pathString + ' for ' + queryId);
+    const req: { [k: string]: any } = { /*path*/ p: pathString };
+&nbsp;
+    const action = 'q';
+&nbsp;
+    // Only bother to send query if it's non-default.
+    if (listenSpec.tag) {
+      req['q'] = query.queryObject();
+      req['t'] = listenSpec.tag;
+    }
+&nbsp;
+    req[/*hash*/ 'h'] = listenSpec.hashFn();
+&nbsp;
+    this.sendRequest(action, req, (message: { [k: string]: any }) =&gt; {
+      const payload: any = message[/*data*/ 'd'];
+      const status: string = message[/*status*/ 's'];
+&nbsp;
+      // print warnings in any case...
+      PersistentConnection.warnOnListenWarnings_(payload, query);
+&nbsp;
+      const currentListenSpec =
+        this.listens_[pathString] &amp;&amp; this.listens_[pathString][queryId];
+      // only trigger actions if the listen hasn't been removed and readded
+      if (currentListenSpec === listenSpec) {
+        this.log_('listen response', message);
+&nbsp;
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (status !== 'ok') {
+<span class="cstat-no" title="statement not covered" >          this.removeListen_(pathString, queryId);</span>
+        }
+&nbsp;
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (listenSpec.onComplete) {
+          listenSpec.onComplete(status, payload);
+        }
+      }
+    });
+  }
+&nbsp;
+  /**
+   * @param {*} payload
+   * @param {!Query} query
+   * @private
+   */
+  private static warnOnListenWarnings_(payload: any, query: Query) {
+    if (payload &amp;&amp; typeof payload === 'object' &amp;&amp; contains(payload, 'w')) {
+      const warnings = safeGet(payload, 'w');
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (Array.isArray(warnings) &amp;&amp; ~warnings.indexOf('no_index')) {
+        const indexSpec =
+          '".indexOn": "' +
+          query
+            .getQueryParams()
+            .getIndex()
+            .toString() +
+          '"';
+        const indexPath = query.path.toString();
+        warn(
+          `Using an unspecified index. Your data will be downloaded and ` +
+            `filtered on the client. Consider adding ${indexSpec} at ` +
+            `${indexPath} to your security rules for better performance.`
+        );
+      }
+    }
+  }
+&nbsp;
+  /**
+   * @inheritDoc
+   */
+<span class="fstat-no" title="function not covered" >  refreshAuthToken(</span>token: string) {
+<span class="cstat-no" title="statement not covered" >    this.authToken_ = token;</span>
+<span class="cstat-no" title="statement not covered" >    this.log_('Auth token refreshed');</span>
+<span class="cstat-no" title="statement not covered" >    if (this.authToken_) {</span>
+<span class="cstat-no" title="statement not covered" >      this.tryAuth();</span>
+    } else {
+      //If we're connected we want to let the server know to unauthenticate us. If we're not connected, simply delete
+      //the credential so we dont become authenticated next time we connect.
+<span class="cstat-no" title="statement not covered" >      if (this.connected_) {</span>
+<span class="cstat-no" title="statement not covered" >        this.sendRequest('unauth', {}, <span class="fstat-no" title="function not covered" >() =&gt; {</span>});</span>
+      }
+    }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    this.reduceReconnectDelayIfAdminCredential_(token);</span>
+  }
+&nbsp;
+  /**
+   * @param {!string} credential
+   * @private
+   */
+<span class="fstat-no" title="function not covered" >  private reduceReconnectDelayIfAdminCredential_(</span>credential: string) {
+    // NOTE: This isn't intended to be bulletproof (a malicious developer can always just modify the client).
+    // Additionally, we don't bother resetting the max delay back to the default if auth fails / expires.
+    const isFirebaseSecret = <span class="cstat-no" title="statement not covered" >credential &amp;&amp; credential.length === 40;</span>
+<span class="cstat-no" title="statement not covered" >    if (isFirebaseSecret || isAdmin(credential)) {</span>
+<span class="cstat-no" title="statement not covered" >      this.log_(</span>
+        'Admin auth credential detected.  Reducing max reconnect time.'
+      );
+<span class="cstat-no" title="statement not covered" >      this.maxReconnectDelay_ = RECONNECT_MAX_DELAY_FOR_ADMINS;</span>
+    }
+  }
+&nbsp;
+  /**
+   * Attempts to authenticate with the given credentials. If the authentication attempt fails, it's triggered like
+   * a auth revoked (the connection is closed).
+   */
+  tryAuth() {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.connected_ &amp;&amp; this.authToken_) {
+      const token = <span class="cstat-no" title="statement not covered" >this.authToken_;</span>
+      const authMethod = <span class="cstat-no" title="statement not covered" >isValidFormat(token) ? 'auth' : 'gauth';</span>
+      const requestData: { [k: string]: any } = <span class="cstat-no" title="statement not covered" >{ cred: token };</span>
+<span class="cstat-no" title="statement not covered" >      if (this.authOverride_ === null) {</span>
+<span class="cstat-no" title="statement not covered" >        requestData['noauth'] = true;</span>
+      } else <span class="cstat-no" title="statement not covered" >if (typeof this.authOverride_ === 'object') {</span>
+<span class="cstat-no" title="statement not covered" >        requestData['authvar'] = this.authOverride_;</span>
+      }
+<span class="cstat-no" title="statement not covered" >      this.sendRequest(authMethod, requestData, <span class="fstat-no" title="function not covered" >(</span>res: { [k: string]: any }) =&gt; {</span>
+        const status: string = <span class="cstat-no" title="statement not covered" >res[/*status*/ 's'];</span>
+        const data: string = <span class="cstat-no" title="statement not covered" >res[/*data*/ 'd'] || 'error';</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if (this.authToken_ === token) {</span>
+<span class="cstat-no" title="statement not covered" >          if (status === 'ok') {</span>
+<span class="cstat-no" title="statement not covered" >            this.invalidAuthTokenCount_ = 0;</span>
+          } else {
+            // Triggers reconnect and force refresh for auth token
+<span class="cstat-no" title="statement not covered" >            this.onAuthRevoked_(status, data);</span>
+          }
+        }
+      });
+    }
+  }
+&nbsp;
+  /**
+   * @inheritDoc
+   */
+  unlisten(query: Query, tag: number | null) {
+    const pathString = query.path.toString();
+    const queryId = query.queryIdentifier();
+&nbsp;
+    this.log_('Unlisten called for ' + pathString + ' ' + queryId);
+&nbsp;
+    assert(
+      query.getQueryParams().isDefault() ||
+        !query.getQueryParams().loadsAllData(),
+      'unlisten() called for non-default but complete query'
+    );
+    const listen = this.removeListen_(pathString, queryId);
+    if (listen &amp;&amp; this.connected_) {
+      this.sendUnlisten_(pathString, queryId, query.queryObject(), tag);
+    }
+  }
+&nbsp;
+  private sendUnlisten_(
+    pathString: string,
+    queryId: string,
+    queryObj: Object,
+    tag: number | null
+  ) {
+    this.log_('Unlisten on ' + pathString + ' for ' + queryId);
+&nbsp;
+    const req: { [k: string]: any } = { /*path*/ p: pathString };
+    const action = 'n';
+    // Only bother sending queryId if it's non-default.
+    if (tag) {
+      req['q'] = queryObj;
+      req['t'] = tag;
+    }
+&nbsp;
+    this.sendRequest(action, req);
+  }
+&nbsp;
+  /**
+   * @inheritDoc
+   */
+<span class="fstat-no" title="function not covered" >  onDisconnectPut(</span>
+    pathString: string,
+    data: any,
+    onComplete?: (a: string, b: string) =&gt; void
+  ) {
+<span class="cstat-no" title="statement not covered" >    if (this.connected_) {</span>
+<span class="cstat-no" title="statement not covered" >      this.sendOnDisconnect_('o', pathString, data, onComplete);</span>
+    } else {
+<span class="cstat-no" title="statement not covered" >      this.onDisconnectRequestQueue_.push({</span>
+        pathString,
+        action: 'o',
+        data,
+        onComplete
+      });
+    }
+  }
+&nbsp;
+  /**
+   * @inheritDoc
+   */
+<span class="fstat-no" title="function not covered" >  onDisconnectMerge(</span>
+    pathString: string,
+    data: any,
+    onComplete?: (a: string, b: string) =&gt; void
+  ) {
+<span class="cstat-no" title="statement not covered" >    if (this.connected_) {</span>
+<span class="cstat-no" title="statement not covered" >      this.sendOnDisconnect_('om', pathString, data, onComplete);</span>
+    } else {
+<span class="cstat-no" title="statement not covered" >      this.onDisconnectRequestQueue_.push({</span>
+        pathString,
+        action: 'om',
+        data,
+        onComplete
+      });
+    }
+  }
+&nbsp;
+  /**
+   * @inheritDoc
+   */
+<span class="fstat-no" title="function not covered" >  onDisconnectCancel(</span>
+    pathString: string,
+    onComplete?: (a: string, b: string) =&gt; void
+  ) {
+<span class="cstat-no" title="statement not covered" >    if (this.connected_) {</span>
+<span class="cstat-no" title="statement not covered" >      this.sendOnDisconnect_('oc', pathString, null, onComplete);</span>
+    } else {
+<span class="cstat-no" title="statement not covered" >      this.onDisconnectRequestQueue_.push({</span>
+        pathString,
+        action: 'oc',
+        data: null,
+        onComplete
+      });
+    }
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  private sendOnDisconnect_(</span>
+    action: string,
+    pathString: string,
+    data: any,
+    onComplete: (a: string, b: string) =&gt; void
+  ) {
+    const request = <span class="cstat-no" title="statement not covered" >{ /*path*/ p: pathString, /*data*/ d: data };</span>
+<span class="cstat-no" title="statement not covered" >    this.log_('onDisconnect ' + action, request);</span>
+<span class="cstat-no" title="statement not covered" >    this.sendRequest(action, request, <span class="fstat-no" title="function not covered" >(</span>response: { [k: string]: any }) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      if (onComplete) {</span>
+<span class="cstat-no" title="statement not covered" >        setTimeout(<span class="fstat-no" title="function not covered" >function() {</span></span>
+<span class="cstat-no" title="statement not covered" >          onComplete(response[/*status*/ 's'], response[/* data */ 'd']);</span>
+        }, Math.floor(0));
+      }
+    });
+  }
+&nbsp;
+  /**
+   * @inheritDoc
+   */
+  put(
+    pathString: string,
+    data: any,
+    onComplete?: (a: string, b: string) =&gt; void,
+    hash?: string
+  ) {
+    this.putInternal('p', pathString, data, onComplete, hash);
+  }
+&nbsp;
+  /**
+   * @inheritDoc
+   */
+  merge(
+    pathString: string,
+    data: any,
+    onComplete: (a: string, b: string | null) =&gt; void,
+    hash?: string
+  ) {
+    this.putInternal('m', pathString, data, onComplete, hash);
+  }
+&nbsp;
+  putInternal(
+    action: string,
+    pathString: string,
+    data: any,
+    onComplete: (a: string, b: string | null) =&gt; void,
+    hash?: string
+  ) {
+    const request: { [k: string]: any } = {
+      /*path*/ p: pathString,
+      /*data*/ d: data
+    };
+&nbsp;
+    if (hash !== undefined) request[/*hash*/ 'h'] = hash;
+&nbsp;
+    // TODO: Only keep track of the most recent put for a given path?
+    this.outstandingPuts_.push({
+      action,
+      request,
+      onComplete
+    });
+&nbsp;
+    this.outstandingPutCount_++;
+    const index = this.outstandingPuts_.length - 1;
+&nbsp;
+    if (this.connected_) {
+      this.sendPut_(index);
+    } else {
+      this.log_('Buffering put: ' + pathString);
+    }
+  }
+&nbsp;
+  private sendPut_(index: number) {
+    const action = this.outstandingPuts_[index].action;
+    const request = this.outstandingPuts_[index].request;
+    const onComplete = this.outstandingPuts_[index].onComplete;
+    this.outstandingPuts_[index].queued = this.connected_;
+&nbsp;
+    this.sendRequest(action, request, (message: { [k: string]: any }) =&gt; {
+      this.log_(action + ' response', message);
+&nbsp;
+      delete this.outstandingPuts_[index];
+      this.outstandingPutCount_--;
+&nbsp;
+      // Clean up array occasionally.
+      if (this.outstandingPutCount_ === 0) {
+        this.outstandingPuts_ = [];
+      }
+&nbsp;
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (onComplete)
+        onComplete(message[/*status*/ 's'], message[/* data */ 'd']);
+    });
+  }
+&nbsp;
+  /**
+   * @inheritDoc
+   */
+  reportStats(stats: { [k: string]: any }) {
+    // If we're not connected, we just drop the stats.
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.connected_) {
+      const request = { /*counters*/ c: stats };
+      this.log_('reportStats', request);
+&nbsp;
+      this.sendRequest(/*stats*/ 's', request, result =&gt; {
+        const status = result[/*status*/ 's'];
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (status !== 'ok') {
+          const errorReason = <span class="cstat-no" title="statement not covered" >result[/* data */ 'd'];</span>
+<span class="cstat-no" title="statement not covered" >          this.log_('reportStats', 'Error sending stats: ' + errorReason);</span>
+        }
+      });
+    }
+  }
+&nbsp;
+  /**
+   * @param {*} message
+   * @private
+   */
+  private onDataMessage_(message: { [k: string]: any }) {
+    if ('r' in message) {
+      // this is a response
+      this.log_('from server: ' + stringify(message));
+      const reqNum = message['r'];
+      const onResponse = this.requestCBHash_[reqNum];
+      if (onResponse) {
+        delete this.requestCBHash_[reqNum];
+        onResponse(message[/*body*/ 'b']);
+      }
+    } else <span class="missing-if-branch" title="if path not taken" >I</span>if ('error' in message) {
+<span class="cstat-no" title="statement not covered" >      throw 'A server-side error has occurred: ' + message['error'];</span>
+    } else <span class="missing-if-branch" title="else path not taken" >E</span>if ('a' in message) {
+      // a and b are action and body, respectively
+      this.onDataPush_(message['a'], message['b']);
+    }
+  }
+&nbsp;
+  private onDataPush_(action: string, body: { [k: string]: any }) {
+    this.log_('handleServerMessage', action, body);
+    if (action === 'd')
+      this.onDataUpdate_(
+        body[/*path*/ 'p'],
+        body[/*data*/ 'd'],
+        /*isMerge*/ false,
+        body['t']
+      );
+    else <span class="missing-if-branch" title="else path not taken" >E</span>if (action === 'm')
+      this.onDataUpdate_(
+        body[/*path*/ 'p'],
+        body[/*data*/ 'd'],
+        /*isMerge=*/ true,
+        body['t']
+      );
+    else <span class="cstat-no" title="statement not covered" >if (action === 'c')</span>
+<span class="cstat-no" title="statement not covered" >      this.onListenRevoked_(body[/*path*/ 'p'], body[/*query*/ 'q']);</span>
+    else <span class="cstat-no" title="statement not covered" >if (action === 'ac')</span>
+<span class="cstat-no" title="statement not covered" >      this.onAuthRevoked_(</span>
+        body[/*status code*/ 's'],
+        body[/* explanation */ 'd']
+      );
+    else <span class="cstat-no" title="statement not covered" >if (action === 'sd') <span class="cstat-no" title="statement not covered" >this.onSecurityDebugPacket_(body);</span></span>
+    else
+<span class="cstat-no" title="statement not covered" >      error(</span>
+        'Unrecognized action received from server: ' +
+          stringify(action) +
+          '\nAre you using the latest client?'
+      );
+  }
+&nbsp;
+  private onReady_(timestamp: number, sessionId: string) {
+    this.log_('connection ready');
+    this.connected_ = true;
+    this.lastConnectionEstablishedTime_ = new Date().getTime();
+    this.handleTimestamp_(timestamp);
+    this.lastSessionId = sessionId;
+    if (this.firstConnection_) {
+      this.sendConnectStats_();
+    }
+    this.restoreState_();
+    this.firstConnection_ = false;
+    this.onConnectStatus_(true);
+  }
+&nbsp;
+  private scheduleConnect_(timeout: number) {
+    assert(
+      !this.realtime_,
+      "Scheduling a connect when we're already connected/ing?"
+    );
+&nbsp;
+    if (this.establishConnectionTimer_) {
+      clearTimeout(this.establishConnectionTimer_);
+    }
+&nbsp;
+    // NOTE: Even when timeout is 0, it's important to do a setTimeout to work around an infuriating "Security Error" in
+    // Firefox when trying to write to our long-polling iframe in some scenarios (e.g. Forge or our unit tests).
+&nbsp;
+    this.establishConnectionTimer_ = setTimeout(() =&gt; {
+      this.establishConnectionTimer_ = null;
+      this.establishConnection_();
+    }, Math.floor(timeout)) as any;
+  }
+&nbsp;
+  /**
+   * @param {boolean} visible
+   * @private
+   */
+  private onVisible_(visible: boolean) {
+    // NOTE: Tabbing away and back to a window will defeat our reconnect backoff, but I think that's fine.
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (
+      visible &amp;&amp;
+      !this.visible_ &amp;&amp;
+      this.reconnectDelay_ === this.maxReconnectDelay_
+    ) {
+<span class="cstat-no" title="statement not covered" >      this.log_('Window became visible.  Reducing delay.');</span>
+<span class="cstat-no" title="statement not covered" >      this.reconnectDelay_ = RECONNECT_MIN_DELAY;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >      if (!this.realtime_) {</span>
+<span class="cstat-no" title="statement not covered" >        this.scheduleConnect_(0);</span>
+      }
+    }
+    this.visible_ = visible;
+  }
+&nbsp;
+  private onOnline_(online: boolean) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (online) {
+      this.log_('Browser went online.');
+      this.reconnectDelay_ = RECONNECT_MIN_DELAY;
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (!this.realtime_) {
+        this.scheduleConnect_(0);
+      }
+    } else {
+<span class="cstat-no" title="statement not covered" >      this.log_('Browser went offline.  Killing connection.');</span>
+<span class="cstat-no" title="statement not covered" >      if (this.realtime_) {</span>
+<span class="cstat-no" title="statement not covered" >        this.realtime_.close();</span>
+      }
+    }
+  }
+&nbsp;
+  private onRealtimeDisconnect_() {
+    this.log_('data client disconnected');
+    this.connected_ = false;
+    this.realtime_ = null;
+&nbsp;
+    // Since we don't know if our sent transactions succeeded or not, we need to cancel them.
+    this.cancelSentTransactions_();
+&nbsp;
+    // Clear out the pending requests.
+    this.requestCBHash_ = {};
+&nbsp;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.shouldReconnect_()) {
+<span class="cstat-no" title="statement not covered" >      if (!this.visible_) {</span>
+<span class="cstat-no" title="statement not covered" >        this.log_("Window isn't visible.  Delaying reconnect.");</span>
+<span class="cstat-no" title="statement not covered" >        this.reconnectDelay_ = this.maxReconnectDelay_;</span>
+<span class="cstat-no" title="statement not covered" >        this.lastConnectionAttemptTime_ = new Date().getTime();</span>
+      } else <span class="cstat-no" title="statement not covered" >if (this.lastConnectionEstablishedTime_) {</span>
+        // If we've been connected long enough, reset reconnect delay to minimum.
+        const timeSinceLastConnectSucceeded =
+<span class="cstat-no" title="statement not covered" >          new Date().getTime() - this.lastConnectionEstablishedTime_;</span>
+<span class="cstat-no" title="statement not covered" >        if (timeSinceLastConnectSucceeded &gt; RECONNECT_DELAY_RESET_TIMEOUT)</span>
+<span class="cstat-no" title="statement not covered" >          this.reconnectDelay_ = RECONNECT_MIN_DELAY;</span>
+<span class="cstat-no" title="statement not covered" >        this.lastConnectionEstablishedTime_ = null;</span>
+      }
+&nbsp;
+      const timeSinceLastConnectAttempt =
+<span class="cstat-no" title="statement not covered" >        new Date().getTime() - this.lastConnectionAttemptTime_;</span>
+      let reconnectDelay = <span class="cstat-no" title="statement not covered" >Math.max(</span>
+        0,
+        this.reconnectDelay_ - timeSinceLastConnectAttempt
+      );
+<span class="cstat-no" title="statement not covered" >      reconnectDelay = Math.random() * reconnectDelay;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >      this.log_('Trying to reconnect in ' + reconnectDelay + 'ms');</span>
+<span class="cstat-no" title="statement not covered" >      this.scheduleConnect_(reconnectDelay);</span>
+&nbsp;
+      // Adjust reconnect delay for next time.
+<span class="cstat-no" title="statement not covered" >      this.reconnectDelay_ = Math.min(</span>
+        this.maxReconnectDelay_,
+        this.reconnectDelay_ * RECONNECT_DELAY_MULTIPLIER
+      );
+    }
+    this.onConnectStatus_(false);
+  }
+&nbsp;
+  private establishConnection_() {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.shouldReconnect_()) {
+      this.log_('Making a connection attempt');
+      this.lastConnectionAttemptTime_ = new Date().getTime();
+      this.lastConnectionEstablishedTime_ = null;
+      const onDataMessage = this.onDataMessage_.bind(this);
+      const onReady = this.onReady_.bind(this);
+      const onDisconnect = this.onRealtimeDisconnect_.bind(this);
+      const connId = this.id + ':' + PersistentConnection.nextConnectionId_++;
+      const self = this;
+      const lastSessionId = this.lastSessionId;
+      let canceled = false;
+      let connection: Connection | null = null;
+      const closeFn = function() {
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (connection) {
+          connection.close();
+        } else {
+<span class="cstat-no" title="statement not covered" >          canceled = true;</span>
+<span class="cstat-no" title="statement not covered" >          onDisconnect();</span>
+        }
+      };
+      const sendRequestFn = function(msg: Object) {
+        assert(
+          connection,
+          "sendRequest call when we're not connected not allowed."
+        );
+        connection.sendRequest(msg);
+      };
+&nbsp;
+      this.realtime_ = {
+        close: closeFn,
+        sendRequest: sendRequestFn
+      };
+&nbsp;
+      const forceRefresh = this.forceTokenRefresh_;
+      this.forceTokenRefresh_ = false;
+&nbsp;
+      // First fetch auth token, and establish connection after fetching the token was successful
+      this.authTokenProvider_
+        .getToken(forceRefresh)
+        .then(function(result) {
+          <span class="missing-if-branch" title="else path not taken" >E</span>if (!canceled) {
+            log('getToken() completed. Creating connection.');
+            self.authToken_ = result &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >result.accessToken;</span>
+            connection = new Connection(
+              connId,
+              self.repoInfo_,
+              onDataMessage,
+              onReady,
+              onDisconnect,
+              /* onKill= */ <span class="fstat-no" title="function not covered" >function(</span>reason) {
+<span class="cstat-no" title="statement not covered" >                warn(reason + ' (' + self.repoInfo_.toString() + ')');</span>
+<span class="cstat-no" title="statement not covered" >                self.interrupt(SERVER_KILL_INTERRUPT_REASON);</span>
+              },
+              lastSessionId
+            );
+          } else {
+<span class="cstat-no" title="statement not covered" >            log('getToken() completed but was canceled');</span>
+          }
+        })
+        .then(null, <span class="fstat-no" title="function not covered" >function(</span>error) {
+<span class="cstat-no" title="statement not covered" >          self.log_('Failed to get token: ' + error);</span>
+<span class="cstat-no" title="statement not covered" >          if (!canceled) {</span>
+<span class="cstat-no" title="statement not covered" >            if (CONSTANTS.NODE_ADMIN) {</span>
+              // This may be a critical error for the Admin Node.js SDK, so log a warning.
+              // But getToken() may also just have temporarily failed, so we still want to
+              // continue retrying.
+<span class="cstat-no" title="statement not covered" >              warn(error);</span>
+            }
+<span class="cstat-no" title="statement not covered" >            closeFn();</span>
+          }
+        });
+    }
+  }
+&nbsp;
+  /**
+   * @param {string} reason
+   */
+  interrupt(reason: string) {
+    log('Interrupting connection for reason: ' + reason);
+    this.interruptReasons_[reason] = true;
+    if (this.realtime_) {
+      this.realtime_.close();
+    } else {
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (this.establishConnectionTimer_) {
+        clearTimeout(this.establishConnectionTimer_);
+        this.establishConnectionTimer_ = null;
+      }
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.connected_) {
+<span class="cstat-no" title="statement not covered" >        this.onRealtimeDisconnect_();</span>
+      }
+    }
+  }
+&nbsp;
+  /**
+   * @param {string} reason
+   */
+  resume(reason: string) {
+    log('Resuming connection for reason: ' + reason);
+    delete this.interruptReasons_[reason];
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (isEmpty(this.interruptReasons_)) {
+      this.reconnectDelay_ = RECONNECT_MIN_DELAY;
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (!this.realtime_) {
+        this.scheduleConnect_(0);
+      }
+    }
+  }
+&nbsp;
+  private handleTimestamp_(timestamp: number) {
+    const delta = timestamp - new Date().getTime();
+    this.onServerInfoUpdate_({ serverTimeOffset: delta });
+  }
+&nbsp;
+  private cancelSentTransactions_() {
+    for (let i = 0; i &lt; this.outstandingPuts_.length; i++) {
+      const put = this.outstandingPuts_[i];
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (put &amp;&amp; /*hash*/ 'h' in put.request &amp;&amp; put.queued) {
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (put.onComplete) put.onComplete('disconnect');
+&nbsp;
+        delete this.outstandingPuts_[i];
+        this.outstandingPutCount_--;
+      }
+    }
+&nbsp;
+    // Clean up array occasionally.
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.outstandingPutCount_ === 0) this.outstandingPuts_ = [];
+  }
+&nbsp;
+  /**
+   * @param {!string} pathString
+   * @param {Array.&lt;*&gt;=} query
+   * @private
+   */
+<span class="fstat-no" title="function not covered" >  private onListenRevoked_(</span>pathString: string, query?: any[]) {
+    // Remove the listen and manufacture a "permission_denied" error for the failed listen.
+    let queryId;
+<span class="cstat-no" title="statement not covered" >    if (!query) {</span>
+<span class="cstat-no" title="statement not covered" >      queryId = 'default';</span>
+    } else {
+<span class="cstat-no" title="statement not covered" >      queryId = query.map(<span class="fstat-no" title="function not covered" >q =&gt; <span class="cstat-no" title="statement not covered" >ObjectToUniqueKey(q))</span>.join('$');</span></span>
+    }
+    const listen = <span class="cstat-no" title="statement not covered" >this.removeListen_(pathString, queryId);</span>
+<span class="cstat-no" title="statement not covered" >    if (listen &amp;&amp; listen.onComplete) <span class="cstat-no" title="statement not covered" >listen.onComplete('permission_denied');</span></span>
+  }
+&nbsp;
+  /**
+   * @param {!string} pathString
+   * @param {!string} queryId
+   * @return {{queries:Array.&lt;Query&gt;, onComplete:function(string)}}
+   * @private
+   */
+  private removeListen_(pathString: string, queryId: string): ListenSpec {
+    const normalizedPathString = new Path(pathString).toString(); // normalize path.
+    let listen;
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.listens_[normalizedPathString] !== undefined) {
+      listen = this.listens_[normalizedPathString][queryId];
+      delete this.listens_[normalizedPathString][queryId];
+      if (getCount(this.listens_[normalizedPathString]) === 0) {
+        delete this.listens_[normalizedPathString];
+      }
+    } else {
+      // all listens for this path has already been removed
+<span class="cstat-no" title="statement not covered" >      listen = undefined;</span>
+    }
+    return listen;
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  private onAuthRevoked_(</span>statusCode: string, explanation: string) {
+<span class="cstat-no" title="statement not covered" >    log('Auth token revoked: ' + statusCode + '/' + explanation);</span>
+<span class="cstat-no" title="statement not covered" >    this.authToken_ = null;</span>
+<span class="cstat-no" title="statement not covered" >    this.forceTokenRefresh_ = true;</span>
+<span class="cstat-no" title="statement not covered" >    this.realtime_.close();</span>
+<span class="cstat-no" title="statement not covered" >    if (statusCode === 'invalid_token' || statusCode === 'permission_denied') {</span>
+      // We'll wait a couple times before logging the warning / increasing the
+      // retry period since oauth tokens will report as "invalid" if they're
+      // just expired. Plus there may be transient issues that resolve themselves.
+<span class="cstat-no" title="statement not covered" >      this.invalidAuthTokenCount_++;</span>
+<span class="cstat-no" title="statement not covered" >      if (this.invalidAuthTokenCount_ &gt;= INVALID_AUTH_TOKEN_THRESHOLD) {</span>
+        // Set a long reconnect delay because recovery is unlikely
+<span class="cstat-no" title="statement not covered" >        this.reconnectDelay_ = RECONNECT_MAX_DELAY_FOR_ADMINS;</span>
+&nbsp;
+        // Notify the auth token provider that the token is invalid, which will log
+        // a warning
+<span class="cstat-no" title="statement not covered" >        this.authTokenProvider_.notifyForInvalidToken();</span>
+      }
+    }
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  private onSecurityDebugPacket_(</span>body: { [k: string]: any }) {
+<span class="cstat-no" title="statement not covered" >    if (this.securityDebugCallback_) {</span>
+<span class="cstat-no" title="statement not covered" >      this.securityDebugCallback_(body);</span>
+    } else {
+<span class="cstat-no" title="statement not covered" >      if ('msg' in body) {</span>
+<span class="cstat-no" title="statement not covered" >        console.log('FIREBASE: ' + body['msg'].replace('\n', '\nFIREBASE: '));</span>
+      }
+    }
+  }
+&nbsp;
+  private restoreState_() {
+    //Re-authenticate ourselves if we have a credential stored.
+    this.tryAuth();
+&nbsp;
+    // Puts depend on having received the corresponding data update from the server before they complete, so we must
+    // make sure to send listens before puts.
+    forEach(this.listens_, (pathString: string, queries: Object) =&gt; {
+      forEach(queries, (key: string, listenSpec: ListenSpec) =&gt; {
+        this.sendListen_(listenSpec);
+      });
+    });
+&nbsp;
+    for (let i = 0; i &lt; this.outstandingPuts_.length; i++) {
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (this.outstandingPuts_[i]) this.sendPut_(i);
+    }
+&nbsp;
+    while (this.onDisconnectRequestQueue_.length) {
+      const request = <span class="cstat-no" title="statement not covered" >this.onDisconnectRequestQueue_.shift();</span>
+<span class="cstat-no" title="statement not covered" >      this.sendOnDisconnect_(</span>
+        request.action,
+        request.pathString,
+        request.data,
+        request.onComplete
+      );
+    }
+  }
+&nbsp;
+  /**
+   * Sends client stats for first connection
+   * @private
+   */
+  private sendConnectStats_() {
+    const stats: { [k: string]: number } = {};
+&nbsp;
+    let clientName = 'js';
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (CONSTANTS.NODE_ADMIN) {
+<span class="cstat-no" title="statement not covered" >      clientName = 'admin_node';</span>
+    } else <span class="missing-if-branch" title="if path not taken" >I</span>if (CONSTANTS.NODE_CLIENT) {
+<span class="cstat-no" title="statement not covered" >      clientName = 'node';</span>
+    }
+&nbsp;
+    stats[
+      'sdk.' + clientName + '.' + firebase.SDK_VERSION.replace(/\./g, '-')
+    ] = 1;
+&nbsp;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (isMobileCordova()) {
+<span class="cstat-no" title="statement not covered" >      stats['framework.cordova'] = 1;</span>
+    } else <span class="missing-if-branch" title="if path not taken" >I</span>if (isReactNative()) {
+<span class="cstat-no" title="statement not covered" >      stats['framework.reactnative'] = 1;</span>
+    }
+    this.reportStats(stats);
+  }
+&nbsp;
+  /**
+   * @return {boolean}
+   * @private
+   */
+  private shouldReconnect_(): boolean {
+    const online = OnlineMonitor.getInstance().currentlyOnline();
+    return isEmpty(this.interruptReasons_) &amp;&amp; online;
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Mar 20 2018 11:09:37 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

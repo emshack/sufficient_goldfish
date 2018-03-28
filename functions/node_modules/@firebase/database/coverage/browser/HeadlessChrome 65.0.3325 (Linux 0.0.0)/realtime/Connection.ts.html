@@ -1,0 +1,1766 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for realtime/Connection.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">All files</a> / <a href="index.html">realtime</a> Connection.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">79.92% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>211/264</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">54.24% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>64/118</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">82.35% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>28/34</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">79.46% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>205/258</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">1435x</span>
+<span class="cline-any cline-yes">1435x</span>
+<span class="cline-any cline-yes">1425x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-yes">1032x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1425x</span>
+<span class="cline-any cline-yes">1425x</span>
+<span class="cline-any cline-yes">1425x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">1403x</span>
+<span class="cline-any cline-yes">1403x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1404x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1404x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1406x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1034x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1034x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+&nbsp;
+import {
+  error,
+  logWrapper,
+  requireKey,
+  setTimeoutNonBlocking,
+  warn
+} from '../core/util/util';
+import { PersistentStorage } from '../core/storage/storage';
+import { PROTOCOL_VERSION } from './Constants';
+import { TransportManager } from './TransportManager';
+import { RepoInfo } from '../core/RepoInfo';
+import { Transport, TransportConstructor } from './Transport';
+&nbsp;
+// Abort upgrade attempt if it takes longer than 60s.
+const UPGRADE_TIMEOUT = 60000;
+&nbsp;
+// For some transports (WebSockets), we need to "validate" the transport by exchanging a few requests and responses.
+// If we haven't sent enough requests within 5s, we'll start sending noop ping requests.
+const DELAY_BEFORE_SENDING_EXTRA_REQUESTS = 5000;
+&nbsp;
+// If the initial data sent triggers a lot of bandwidth (i.e. it's a large put or a listen for a large amount of data)
+// then we may not be able to exchange our ping/pong requests within the healthy timeout.  So if we reach the timeout
+// but we've sent/received enough bytes, we don't cancel the connection.
+const BYTES_SENT_HEALTHY_OVERRIDE = 10 * 1024;
+const BYTES_RECEIVED_HEALTHY_OVERRIDE = 100 * 1024;
+&nbsp;
+const enum RealtimeState {
+  CONNECTING,
+  CONNECTED,
+  DISCONNECTED
+}
+&nbsp;
+const MESSAGE_TYPE = 't';
+const MESSAGE_DATA = 'd';
+const CONTROL_SHUTDOWN = 's';
+const CONTROL_RESET = 'r';
+const CONTROL_ERROR = 'e';
+const CONTROL_PONG = 'o';
+const SWITCH_ACK = 'a';
+const END_TRANSMISSION = 'n';
+const PING = 'p';
+&nbsp;
+const SERVER_HELLO = 'h';
+&nbsp;
+/**
+ * Creates a new real-time connection to the server using whichever method works
+ * best in the current browser.
+ *
+ * @constructor
+ */
+export class Connection {
+  connectionCount = 0;
+  pendingDataMessages: any[] = [];
+  sessionId: string;
+&nbsp;
+  private conn_: Transport;
+  private healthyTimeout_: number;
+  private isHealthy_: boolean;
+  private log_: (...args: any[]) =&gt; void;
+  private primaryResponsesRequired_: number;
+  private rx_: Transport;
+  private secondaryConn_: Transport;
+  private secondaryResponsesRequired_: number;
+  private state_ = RealtimeState.CONNECTING;
+  private transportManager_: TransportManager;
+  private tx_: Transport;
+&nbsp;
+  /**
+   * @param {!string} id - an id for this connection
+   * @param {!RepoInfo} repoInfo_ - the info for the endpoint to connect to
+   * @param {function(Object)} onMessage_ - the callback to be triggered when a server-push message arrives
+   * @param {function(number, string)} onReady_ - the callback to be triggered when this connection is ready to send messages.
+   * @param {function()} onDisconnect_ - the callback to be triggered when a connection was lost
+   * @param {function(string)} onKill_ - the callback to be triggered when this connection has permanently shut down.
+   * @param {string=} lastSessionId - last session id in persistent connection. is used to clean up old session in real-time server
+   */
+  constructor(
+    public id: string,
+    private repoInfo_: RepoInfo,
+    private onMessage_: (a: Object) =&gt; void,
+    private onReady_: (a: number, b: string) =&gt; void,
+    private onDisconnect_: () =&gt; void,
+    private onKill_: (a: string) =&gt; void,
+    public lastSessionId?: string
+  ) {
+    this.log_ = logWrapper('c:' + this.id + ':');
+    this.transportManager_ = new TransportManager(repoInfo_);
+    this.log_('Connection created');
+    this.start_();
+  }
+&nbsp;
+  /**
+   * Starts a connection attempt
+   * @private
+   */
+  private start_() {
+    const conn = this.transportManager_.initialTransport();
+    this.conn_ = new conn(
+      this.nextTransportId_(),
+      this.repoInfo_,
+      undefined,
+      this.lastSessionId
+    );
+&nbsp;
+    // For certain transports (WebSockets), we need to send and receive several messages back and forth before we
+    // can consider the transport healthy.
+    this.primaryResponsesRequired_ = conn['responsesRequiredToBeHealthy'] || 0;
+&nbsp;
+    const onMessageReceived = this.connReceiver_(this.conn_);
+    const onConnectionLost = this.disconnReceiver_(this.conn_);
+    this.tx_ = this.conn_;
+    this.rx_ = this.conn_;
+    this.secondaryConn_ = null;
+    this.isHealthy_ = false;
+&nbsp;
+    /*
+     * Firefox doesn't like when code from one iframe tries to create another iframe by way of the parent frame.
+     * This can occur in the case of a redirect, i.e. we guessed wrong on what server to connect to and received a reset.
+     * Somehow, setTimeout seems to make this ok. That doesn't make sense from a security perspective, since you should
+     * still have the context of your originating frame.
+     */
+    setTimeout(() =&gt; {
+      // this.conn_ gets set to null in some of the tests. Check to make sure it still exists before using it
+      this.conn_ &amp;&amp; this.conn_.open(onMessageReceived, onConnectionLost);
+    }, Math.floor(0));
+&nbsp;
+    const healthyTimeout_ms = conn['healthyTimeout'] || 0;
+    if (healthyTimeout_ms &gt; 0) {
+      this.healthyTimeout_ = setTimeoutNonBlocking(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        this.healthyTimeout_ = null;</span>
+<span class="cstat-no" title="statement not covered" >        if (!this.isHealthy_) {</span>
+<span class="cstat-no" title="statement not covered" >          if (</span>
+            this.conn_ &amp;&amp;
+            this.conn_.bytesReceived &gt; BYTES_RECEIVED_HEALTHY_OVERRIDE
+          ) {
+<span class="cstat-no" title="statement not covered" >            this.log_(</span>
+              'Connection exceeded healthy timeout but has received ' +
+                this.conn_.bytesReceived +
+                ' bytes.  Marking connection healthy.'
+            );
+<span class="cstat-no" title="statement not covered" >            this.isHealthy_ = true;</span>
+<span class="cstat-no" title="statement not covered" >            this.conn_.markConnectionHealthy();</span>
+          } else <span class="cstat-no" title="statement not covered" >if (</span>
+            this.conn_ &amp;&amp;
+            this.conn_.bytesSent &gt; BYTES_SENT_HEALTHY_OVERRIDE
+          ) {
+<span class="cstat-no" title="statement not covered" >            this.log_(</span>
+              'Connection exceeded healthy timeout but has sent ' +
+                this.conn_.bytesSent +
+                ' bytes.  Leaving connection alive.'
+            );
+            // NOTE: We don't want to mark it healthy, since we have no guarantee that the bytes have made it to
+            // the server.
+          } else {
+<span class="cstat-no" title="statement not covered" >            this.log_('Closing unhealthy connection after timeout.');</span>
+<span class="cstat-no" title="statement not covered" >            this.close();</span>
+          }
+        }
+      }, Math.floor(healthyTimeout_ms)) as any;
+    }
+  }
+&nbsp;
+  /**
+   * @return {!string}
+   * @private
+   */
+  private nextTransportId_(): string {
+    return 'c:' + this.id + ':' + this.connectionCount++;
+  }
+&nbsp;
+  private disconnReceiver_(conn) {
+    return everConnected =&gt; {
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (conn === this.conn_) {
+<span class="cstat-no" title="statement not covered" >        this.onConnectionLost_(everConnected);</span>
+      } else <span class="missing-if-branch" title="if path not taken" >I</span>if (conn === this.secondaryConn_) {
+<span class="cstat-no" title="statement not covered" >        this.log_('Secondary connection lost.');</span>
+<span class="cstat-no" title="statement not covered" >        this.onSecondaryConnectionLost_();</span>
+      } else {
+        this.log_('closing an old connection');
+      }
+    };
+  }
+&nbsp;
+  private connReceiver_(conn: Transport) {
+    return (message: object) =&gt; {
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (this.state_ != RealtimeState.DISCONNECTED) {
+        if (conn === this.rx_) {
+          this.onPrimaryMessageReceived_(message);
+        } else <span class="missing-if-branch" title="else path not taken" >E</span>if (conn === this.secondaryConn_) {
+          this.onSecondaryMessageReceived_(message);
+        } else {
+<span class="cstat-no" title="statement not covered" >          this.log_('message on old connection');</span>
+        }
+      }
+    };
+  }
+&nbsp;
+  /**
+   *
+   * @param {Object} dataMsg An arbitrary data message to be sent to the server
+   */
+  sendRequest(dataMsg: object) {
+    // wrap in a data message envelope and send it on
+    const msg = { t: 'd', d: dataMsg };
+    this.sendData_(msg);
+  }
+&nbsp;
+  tryCleanupConnection() {
+    if (this.tx_ === this.secondaryConn_ &amp;&amp; this.rx_ === this.secondaryConn_) {
+      this.log_(
+        'cleaning up and promoting a connection: ' + this.secondaryConn_.connId
+      );
+      this.conn_ = this.secondaryConn_;
+      this.secondaryConn_ = null;
+      // the server will shutdown the old connection
+    }
+  }
+&nbsp;
+  private onSecondaryControl_(controlData: { [k: string]: any }) {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (MESSAGE_TYPE in controlData) {
+      const cmd = controlData[MESSAGE_TYPE] as string;
+      if (cmd === SWITCH_ACK) {
+        this.upgradeIfSecondaryHealthy_();
+      } else <span class="missing-if-branch" title="if path not taken" >I</span>if (cmd === CONTROL_RESET) {
+        // Most likely the session wasn't valid. Abandon the switch attempt
+<span class="cstat-no" title="statement not covered" >        this.log_('Got a reset on secondary, closing it');</span>
+<span class="cstat-no" title="statement not covered" >        this.secondaryConn_.close();</span>
+        // If we were already using this connection for something, than we need to fully close
+<span class="cstat-no" title="statement not covered" >        if (</span>
+          this.tx_ === this.secondaryConn_ ||
+          this.rx_ === this.secondaryConn_
+        ) {
+<span class="cstat-no" title="statement not covered" >          this.close();</span>
+        }
+      } else <span class="missing-if-branch" title="else path not taken" >E</span>if (cmd === CONTROL_PONG) {
+        this.log_('got pong on secondary.');
+        this.secondaryResponsesRequired_--;
+        this.upgradeIfSecondaryHealthy_();
+      }
+    }
+  }
+&nbsp;
+  private onSecondaryMessageReceived_(parsedData: object) {
+    const layer: string = requireKey('t', parsedData);
+    const data: any = requireKey('d', parsedData);
+    if (layer == 'c') {
+      this.onSecondaryControl_(data);
+    } else <span class="missing-if-branch" title="else path not taken" >E</span>if (layer == 'd') {
+      // got a data message, but we're still second connection. Need to buffer it up
+      this.pendingDataMessages.push(data);
+    } else {
+<span class="cstat-no" title="statement not covered" >      throw new Error('Unknown protocol layer: ' + layer);</span>
+    }
+  }
+&nbsp;
+  private upgradeIfSecondaryHealthy_() {
+    if (this.secondaryResponsesRequired_ &lt;= 0) {
+      this.log_('Secondary connection is healthy.');
+      this.isHealthy_ = true;
+      this.secondaryConn_.markConnectionHealthy();
+      this.proceedWithUpgrade_();
+    } else {
+      // Send a ping to make sure the connection is healthy.
+      this.log_('sending ping on secondary.');
+      this.secondaryConn_.send({ t: 'c', d: { t: PING, d: {} } });
+    }
+  }
+&nbsp;
+  private proceedWithUpgrade_() {
+    // tell this connection to consider itself open
+    this.secondaryConn_.start();
+    // send ack
+    this.log_('sending client ack on secondary');
+    this.secondaryConn_.send({ t: 'c', d: { t: SWITCH_ACK, d: {} } });
+&nbsp;
+    // send end packet on primary transport, switch to sending on this one
+    // can receive on this one, buffer responses until end received on primary transport
+    this.log_('Ending transmission on primary');
+    this.conn_.send({ t: 'c', d: { t: END_TRANSMISSION, d: {} } });
+    this.tx_ = this.secondaryConn_;
+&nbsp;
+    this.tryCleanupConnection();
+  }
+&nbsp;
+  private onPrimaryMessageReceived_(parsedData: { [k: string]: any }) {
+    // Must refer to parsedData properties in quotes, so closure doesn't touch them.
+    const layer: string = requireKey('t', parsedData);
+    const data: any = requireKey('d', parsedData);
+    if (layer == 'c') {
+      this.onControl_(data);
+    } else <span class="missing-if-branch" title="else path not taken" >E</span>if (layer == 'd') {
+      this.onDataMessage_(data);
+    }
+  }
+&nbsp;
+  private onDataMessage_(message: any) {
+    this.onPrimaryResponse_();
+&nbsp;
+    // We don't do anything with data messages, just kick them up a level
+    this.onMessage_(message);
+  }
+&nbsp;
+  private onPrimaryResponse_() {
+    if (!this.isHealthy_) {
+      this.primaryResponsesRequired_--;
+      if (this.primaryResponsesRequired_ &lt;= 0) {
+        this.log_('Primary connection is healthy.');
+        this.isHealthy_ = true;
+        this.conn_.markConnectionHealthy();
+      }
+    }
+  }
+&nbsp;
+  private onControl_(controlData: { [k: string]: any }) {
+    const cmd: string = requireKey(MESSAGE_TYPE, controlData);
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (MESSAGE_DATA in controlData) {
+      const payload = controlData[MESSAGE_DATA];
+      if (cmd === SERVER_HELLO) {
+        this.onHandshake_(payload);
+      } else if (cmd === END_TRANSMISSION) {
+        this.log_('recvd end transmission on primary');
+        this.rx_ = this.secondaryConn_;
+        for (let i = 0; i &lt; this.pendingDataMessages.length; ++i) {
+          this.onDataMessage_(this.pendingDataMessages[i]);
+        }
+        this.pendingDataMessages = [];
+        this.tryCleanupConnection();
+      } else <span class="missing-if-branch" title="if path not taken" >I</span>if (cmd === CONTROL_SHUTDOWN) {
+        // This was previously the 'onKill' callback passed to the lower-level connection
+        // payload in this case is the reason for the shutdown. Generally a human-readable error
+<span class="cstat-no" title="statement not covered" >        this.onConnectionShutdown_(payload);</span>
+      } else <span class="missing-if-branch" title="if path not taken" >I</span>if (cmd === CONTROL_RESET) {
+        // payload in this case is the host we should contact
+<span class="cstat-no" title="statement not covered" >        this.onReset_(payload);</span>
+      } else <span class="missing-if-branch" title="if path not taken" >I</span>if (cmd === CONTROL_ERROR) {
+<span class="cstat-no" title="statement not covered" >        error('Server Error: ' + payload);</span>
+      } else <span class="missing-if-branch" title="else path not taken" >E</span>if (cmd === CONTROL_PONG) {
+        this.log_('got pong on primary.');
+        this.onPrimaryResponse_();
+        this.sendPingOnPrimaryIfNecessary_();
+      } else {
+<span class="cstat-no" title="statement not covered" >        error('Unknown control packet command: ' + cmd);</span>
+      }
+    }
+  }
+&nbsp;
+  /**
+   *
+   * @param {Object} handshake The handshake data returned from the server
+   * @private
+   */
+  private onHandshake_(handshake: {
+    ts: number;
+    v: string;
+    h: string;
+    s: string;
+  }) {
+    const timestamp = handshake.ts;
+    const version = handshake.v;
+    const host = handshake.h;
+    this.sessionId = handshake.s;
+    this.repoInfo_.updateHost(host);
+    // if we've already closed the connection, then don't bother trying to progress further
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.state_ == RealtimeState.CONNECTING) {
+      this.conn_.start();
+      this.onConnectionEstablished_(this.conn_, timestamp);
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (PROTOCOL_VERSION !== version) {
+<span class="cstat-no" title="statement not covered" >        warn('Protocol version mismatch detected');</span>
+      }
+      // TODO: do we want to upgrade? when? maybe a delay?
+      this.tryStartUpgrade_();
+    }
+  }
+&nbsp;
+  private tryStartUpgrade_() {
+    const conn = this.transportManager_.upgradeTransport();
+    if (conn) {
+      this.startUpgrade_(conn);
+    }
+  }
+&nbsp;
+  private startUpgrade_(conn: TransportConstructor) {
+    this.secondaryConn_ = new conn(
+      this.nextTransportId_(),
+      this.repoInfo_,
+      this.sessionId
+    );
+    // For certain transports (WebSockets), we need to send and receive several messages back and forth before we
+    // can consider the transport healthy.
+    this.secondaryResponsesRequired_ =
+      conn['responsesRequiredToBeHealthy'] || <span class="branch-1 cbranch-no" title="branch not covered" >0;</span>
+&nbsp;
+    const onMessage = this.connReceiver_(this.secondaryConn_);
+    const onDisconnect = this.disconnReceiver_(this.secondaryConn_);
+    this.secondaryConn_.open(onMessage, onDisconnect);
+&nbsp;
+    // If we haven't successfully upgraded after UPGRADE_TIMEOUT, give up and kill the secondary.
+    setTimeoutNonBlocking(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      if (this.secondaryConn_) {</span>
+<span class="cstat-no" title="statement not covered" >        this.log_('Timed out trying to upgrade.');</span>
+<span class="cstat-no" title="statement not covered" >        this.secondaryConn_.close();</span>
+      }
+    }, Math.floor(UPGRADE_TIMEOUT));
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  private onReset_(</span>host: string) {
+<span class="cstat-no" title="statement not covered" >    this.log_('Reset packet received.  New host: ' + host);</span>
+<span class="cstat-no" title="statement not covered" >    this.repoInfo_.updateHost(host);</span>
+    // TODO: if we're already "connected", we need to trigger a disconnect at the next layer up.
+    // We don't currently support resets after the connection has already been established
+<span class="cstat-no" title="statement not covered" >    if (this.state_ === RealtimeState.CONNECTED) {</span>
+<span class="cstat-no" title="statement not covered" >      this.close();</span>
+    } else {
+      // Close whatever connections we have open and start again.
+<span class="cstat-no" title="statement not covered" >      this.closeConnections_();</span>
+<span class="cstat-no" title="statement not covered" >      this.start_();</span>
+    }
+  }
+&nbsp;
+  private onConnectionEstablished_(conn: Transport, timestamp: number) {
+    this.log_('Realtime connection established.');
+    this.conn_ = conn;
+    this.state_ = RealtimeState.CONNECTED;
+&nbsp;
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.onReady_) {
+      this.onReady_(timestamp, this.sessionId);
+      this.onReady_ = null;
+    }
+&nbsp;
+    // If after 5 seconds we haven't sent enough requests to the server to get the connection healthy,
+    // send some pings.
+    if (this.primaryResponsesRequired_ === 0) {
+      this.log_('Primary connection is healthy.');
+      this.isHealthy_ = true;
+    } else {
+      setTimeoutNonBlocking(() =&gt; {
+        this.sendPingOnPrimaryIfNecessary_();
+      }, Math.floor(DELAY_BEFORE_SENDING_EXTRA_REQUESTS));
+    }
+  }
+&nbsp;
+  private sendPingOnPrimaryIfNecessary_() {
+    // If the connection isn't considered healthy yet, we'll send a noop ping packet request.
+    if (!this.isHealthy_ &amp;&amp; this.state_ === RealtimeState.CONNECTED) {
+      this.log_('sending ping on primary.');
+      this.sendData_({ t: 'c', d: { t: PING, d: {} } });
+    }
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  private onSecondaryConnectionLost_() {</span>
+    const conn = <span class="cstat-no" title="statement not covered" >this.secondaryConn_;</span>
+<span class="cstat-no" title="statement not covered" >    this.secondaryConn_ = null;</span>
+<span class="cstat-no" title="statement not covered" >    if (this.tx_ === conn || this.rx_ === conn) {</span>
+      // we are relying on this connection already in some capacity. Therefore, a failure is real
+<span class="cstat-no" title="statement not covered" >      this.close();</span>
+    }
+  }
+&nbsp;
+  /**
+   *
+   * @param {boolean} everConnected Whether or not the connection ever reached a server. Used to determine if
+   * we should flush the host cache
+   * @private
+   */
+<span class="fstat-no" title="function not covered" >  private onConnectionLost_(</span>everConnected: boolean) {
+<span class="cstat-no" title="statement not covered" >    this.conn_ = null;</span>
+&nbsp;
+    // NOTE: IF you're seeing a Firefox error for this line, I think it might be because it's getting
+    // called on window close and RealtimeState.CONNECTING is no longer defined.  Just a guess.
+<span class="cstat-no" title="statement not covered" >    if (!everConnected &amp;&amp; this.state_ === RealtimeState.CONNECTING) {</span>
+<span class="cstat-no" title="statement not covered" >      this.log_('Realtime connection failed.');</span>
+      // Since we failed to connect at all, clear any cached entry for this namespace in case the machine went away
+<span class="cstat-no" title="statement not covered" >      if (this.repoInfo_.isCacheableHost()) {</span>
+<span class="cstat-no" title="statement not covered" >        PersistentStorage.remove('host:' + this.repoInfo_.host);</span>
+        // reset the internal host to what we would show the user, i.e. &lt;ns&gt;.firebaseio.com
+<span class="cstat-no" title="statement not covered" >        this.repoInfo_.internalHost = this.repoInfo_.host;</span>
+      }
+    } else <span class="cstat-no" title="statement not covered" >if (this.state_ === RealtimeState.CONNECTED) {</span>
+<span class="cstat-no" title="statement not covered" >      this.log_('Realtime connection lost.');</span>
+    }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    this.close();</span>
+  }
+&nbsp;
+  /**
+   *
+   * @param {string} reason
+   * @private
+   */
+<span class="fstat-no" title="function not covered" >  private onConnectionShutdown_(</span>reason: string) {
+<span class="cstat-no" title="statement not covered" >    this.log_('Connection shutdown command received. Shutting down...');</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    if (this.onKill_) {</span>
+<span class="cstat-no" title="statement not covered" >      this.onKill_(reason);</span>
+<span class="cstat-no" title="statement not covered" >      this.onKill_ = null;</span>
+    }
+&nbsp;
+    // We intentionally don't want to fire onDisconnect (kill is a different case),
+    // so clear the callback.
+<span class="cstat-no" title="statement not covered" >    this.onDisconnect_ = null;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    this.close();</span>
+  }
+&nbsp;
+  private sendData_(data: object) {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state_ !== RealtimeState.CONNECTED) {
+<span class="cstat-no" title="statement not covered" >      throw 'Connection is not connected';</span>
+    } else {
+      this.tx_.send(data);
+    }
+  }
+&nbsp;
+  /**
+   * Cleans up this connection, calling the appropriate callbacks
+   */
+  close() {
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.state_ !== RealtimeState.DISCONNECTED) {
+      this.log_('Closing realtime connection.');
+      this.state_ = RealtimeState.DISCONNECTED;
+&nbsp;
+      this.closeConnections_();
+&nbsp;
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (this.onDisconnect_) {
+        this.onDisconnect_();
+        this.onDisconnect_ = null;
+      }
+    }
+  }
+&nbsp;
+  /**
+   *
+   * @private
+   */
+  private closeConnections_() {
+    this.log_('Shutting down all connections');
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (this.conn_) {
+      this.conn_.close();
+      this.conn_ = null;
+    }
+&nbsp;
+    if (this.secondaryConn_) {
+      this.secondaryConn_.close();
+      this.secondaryConn_ = null;
+    }
+&nbsp;
+    if (this.healthyTimeout_) {
+      clearTimeout(this.healthyTimeout_);
+      this.healthyTimeout_ = null;
+    }
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Mar 20 2018 11:09:37 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>
