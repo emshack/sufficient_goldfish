@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
 
 // TODO: Better populate these
 const double targetLatitude = 37.785844;
@@ -19,13 +19,14 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyProfilePage(_getProfileDoc),
+      home: new MyProfilePage(),//_getProfileDoc),
     );
   }
 
-  DocumentReference get _getProfileDoc => Firestore.instance
+  /*DocumentReference get _getProfileDoc => Firestore.instance
       .collection('profiles')
       .document('Frank'); // TODO(efortuna): Could use google sign in and get "name" from that.
+      */
 }
 
 // TODO(efortuna): Potential Matches page to highlight the
@@ -36,13 +37,13 @@ enum Field {
 }
 
 class MyProfilePage extends StatelessWidget {
-  DocumentReference _profile;
+  //DocumentReference _profile;
 
-  MyProfilePage(this._profile);
+  MyProfilePage();//this._profile);
 
-  Future<Null> _updateProfile(Field field, value) async {
+  /*Future<Null> _updateProfile(Field field, value) async {
     _profile.updateData({field.toString() : value});
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class MyProfilePage extends StatelessWidget {
           new Text('Favorite Music: BlubStep'),
           new TextFormField(decoration:
             new InputDecoration(labelText: 'Favorite pH level'),
-            onFieldSubmitted: (submitted) => _updateProfile(Field.phValue, submitted),
+            //onFieldSubmitted: (submitted) => _updateProfile(Field.phValue, submitted),
           ),
           new Center(
               child: new RaisedButton(
