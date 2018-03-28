@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:audioplayer/audioplayer.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 
 // TODO: Better populate these
@@ -99,11 +100,38 @@ class FinderPage extends StatefulWidget {
   _FinderPageState createState() => new _FinderPageState();
 }
 
+enum PlayerState { stopped, playing }
+
 class _FinderPageState extends State<FinderPage> {
   LocationTools locationTools;
   double latitude = 0.0;
   double longitude = 0.0;
   double accuracy = 0.0;
+
+  final searchingAudio = 'https://freesound.org/data/previews/28/28693_98464-lq.mp3';
+  final foundAudio = 'https://freesound.org/data/previews/397/397354_4284968-lq.mp3';
+
+  AudioPlayer audioPlayer = new AudioPlayer();
+
+  void _initAudio(String loopFile) {
+    // restart audio if it has finished
+    audioPlayer.setCompletionHandler(() {
+      audioPlayer.play(loopFile);
+    });
+    // restart audio if it has been playing for at least 3 seconds
+    audioPlayer.setPositionHandler((Duration d) {
+      if (d.inSeconds > 3) {
+        _playNewAudio(loopFile);
+      }
+    });
+    audioPlayer.play(loopFile);
+  }
+
+  void _playNewAudio(String audioFile) {
+    audioPlayer.stop().then((result) {
+      audioPlayer.play(audioFile);
+    });
+  }
 
   _FinderPageState() {
     locationTools = new LocationTools();
@@ -111,6 +139,7 @@ class _FinderPageState extends State<FinderPage> {
       _updateLocation(currentLocation);
     });
     locationTools.initListener(_updateLocation);
+    _initAudio(searchingAudio);
   }
 
   void _updateLocation(Map<String,double> currentLocation) {
@@ -121,23 +150,28 @@ class _FinderPageState extends State<FinderPage> {
     });
   }
 
-  Color _colorFromLocationDiff() {
+  double _getLocationDiff() {
     int milesBetweenLines = 69;
     int feetInMile = 5280;
     int desiredFeetRange = 15;
     double multiplier = 2 * milesBetweenLines * feetInMile / desiredFeetRange;
     double latitudeDiff = (latitude - widget.targetLatitude).abs() * multiplier;
     double longitudeDiff = (longitude - widget.targetLongitude).abs() * multiplier;
-    print(latitude);
-    print(longitude);
     if (latitudeDiff > 1) {
       latitudeDiff = 1.0;
     }
     if (longitudeDiff > 1) {
       longitudeDiff = 1.0;
     }
-    double totalDiff = (latitudeDiff + longitudeDiff) / 2;
-    return Color.lerp(Colors.red, Colors.blue, totalDiff);
+    double diff = (latitudeDiff + longitudeDiff) / 2;
+    if (diff < 0.1) {
+      _playNewAudio(foundAudio);
+    }
+    return diff;
+  }
+
+  Color _colorFromLocationDiff() {
+    return Color.lerp(Colors.red, Colors.blue, _getLocationDiff());
   }
 
   @override
