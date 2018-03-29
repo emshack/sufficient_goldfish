@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+
 
 // TODO: Better populate these
 const double targetLatitude = 37.785844;
@@ -37,8 +42,52 @@ enum Field {
   name, favoriteMusic, phValue
 }
 
+// we may decide not to do this part since a close variant is shown in our other talk.
+class _ProfilePicState extends State<ProfilePic> {
+  File _imageFile;
+  // TODO(efortuna): this pattern seems gross -- passing profile everywhere
+  DocumentReference _profile;
+
+  _ProfilePicState(this._profile);
+
+  getImage() async {
+    var imageFile = await ImagePicker.pickImage();
+    var random = new Random().nextInt(10000);
+    var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
+    var uploadTask = ref.put(imageFile);
+    var downloadUrl = (await uploadTask.future).downloadUrl;
+    _profile.updateData({'picture' : downloadUrl});
+    setState(() {
+      _imageFile = imageFile;
+    });
+  }
+
+  Widget build(BuildContext context) {
+    return new Stack(children: [
+      _imageFile == null ?
+      new Image.asset('assets/longhorn-cowfish.jpg') :
+      new Image.file(_imageFile),
+      new FloatingActionButton(
+        onPressed: getImage,
+        tooltip: 'Pick Image',
+        child: new Icon(Icons.add_a_photo),
+      ),
+    ]);
+  }
+}
+
+class ProfilePic extends StatefulWidget {
+  DocumentReference _profile;
+
+  ProfilePic(this._profile, {Key key}) : super(key: key);
+
+  _ProfilePicState createState() => new _ProfilePicState(_profile);
+}
+
+
 class MyProfilePage extends StatelessWidget {
   DocumentReference _profile;
+
 
   MyProfilePage(this._profile);
 
@@ -50,7 +99,7 @@ class MyProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Scaffold(
         body: new ListView(children: <Widget>[
-          new Image.asset('assets/longhorn-cowfish.jpg'),
+          new ProfilePic(_profile),
           new Text('Name: Frank'),
           new Text('Favorite Music: BlubStep'),
           new TextFormField(decoration:

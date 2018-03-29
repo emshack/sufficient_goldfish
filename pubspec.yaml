@@ -7,6 +7,8 @@ dependencies:
   cloud_firestore:
   location:
   audioplayer:
+  image_picker:
+  firebase_storage:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -24,7 +26,7 @@ dev_dependencies:
 flutter:
   assets:
     - assets/location_ping.gif
-    - assets/longhorn-cowfish.jpg # this is now how we'll load this stuff for the final version.
+    - assets/longhorn-cowfish.jpg # this is not how we'll load this stuff for the final version.
 
 
   # The following line ensures that the Material Icons font is
