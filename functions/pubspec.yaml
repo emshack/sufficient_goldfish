@@ -8,6 +8,7 @@ environment:
 dependencies:
   # Firebase Functions bindings
   firebase_functions_interop: ^1.0.0-dev
+  cloud_firestore:
 
 dev_dependencies:
   # Needed to compile Dart to valid Node.js module.

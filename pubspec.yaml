@@ -29,6 +29,9 @@ flutter:
   assets:
     - assets/location_ping.gif
     - assets/longhorn-cowfish.jpg # this is not how we'll load this stuff for the final version.
+    - assets/george.jpg
+    - assets/shark.jpg
+    - assets/small-fish.jpg
 
 
   # The following line ensures that the Material Icons font is
