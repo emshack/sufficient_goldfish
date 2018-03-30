@@ -8,7 +8,6 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 // TODO: Better populate these
 const double targetLatitude = 37.785844;
@@ -29,29 +28,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// TODO(efortuna): Potential Matches page to highlight the
-// StreamBuilder/QuerySnapshot thing for cloudFirestore?
-
 enum Field { name, favoriteMusic, phValue, profilePicture }
 
 // we may decide not to do this part since a close variant is shown in our other talk.
 class _ProfilePageState extends State<ProfilePage> {
   File _imageFile;
-  GoogleSignIn _googleSignIn = new GoogleSignIn();
   DocumentReference _profile;
-  String _userName;
+  DocumentSnapshot _details;
 
   @override
   void initState() {
     super.initState();
-    _googleSignIn.signIn().then((user) {
-      _profile =
-          Firestore.instance.collection('profiles').document(user.displayName);
-      print('hyyyyyyyyyyyyyyyyyy ${user.displayName}');
-      setState(() {
-        _userName = user.displayName;
-      });
-    });
+    _profile = Firestore.instance.collection('profiles').document();
   }
 
   getImage() async {
@@ -70,6 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _profile.updateData({field.toString(): value});
   }
 
+  // TODO(efortuna): Maybe do something prettier here with StreamBuilder like the cloud firestore example.
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -89,7 +78,6 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: new InputDecoration(labelText: 'Name'),
           onFieldSubmitted: (submitted) =>
               _updateProfile(Field.name, submitted),
-          initialValue: _userName,
         ),
         new TextFormField(
           decoration: new InputDecoration(labelText: 'Favorite Music'),
