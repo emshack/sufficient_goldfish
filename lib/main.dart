@@ -36,12 +36,16 @@ class _ProfilePageState extends State<ProfilePage> {
   DocumentReference _profile;
   DocumentSnapshot _details;
   bool _editing;
+  Map<String, dynamic> _oldLocalValues;
+  Map<String, dynamic> _localValues;
 
   @override
   void initState() {
     super.initState();
     _profile = Firestore.instance.collection('profiles').document();
     _editing = false;
+    _oldLocalValues = {};
+    _localValues = {};
   }
 
   getImage() async {
@@ -50,14 +54,27 @@ class _ProfilePageState extends State<ProfilePage> {
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
-    _profile.setData({Field.profilePicture.toString(): downloadUrl}, SetOptions.merge);
+    _updateLocalData(Field.profilePicture, downloadUrl);
     setState(() {
       _imageFile = imageFile;
     });
   }
 
-  Future<Null> _updateProfile(Field field, value) async {
-    _profile.setData({field.toString(): value}, SetOptions.merge);
+  void _updateLocalData(Field field, value) {
+    setState(() {
+      _localValues[field.toString()] = value;
+    });
+  }
+
+  Future<Null> _updateProfile() async {
+    for (String key in _localValues.keys) {
+      if (_localValues[key] != _oldLocalValues[key]) {
+        print("Updating");
+        _profile.setData(_localValues, SetOptions.merge);
+        break;
+      }
+    }
+    _oldLocalValues = new Map.from(_localValues);
   }
 
   Widget _showProfilePicture() {
@@ -88,8 +105,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _showData(Field field) {
     String label;
     String defaultValue;
-    // TODO: Update when we have actual values to populate this with
-    String currentValue;
+    String currentValue = _localValues[field.toString()];
     switch (field) {
       case Field.name:
         label = 'Name';
@@ -107,11 +123,11 @@ class _ProfilePageState extends State<ProfilePage> {
         break;
     }
     if (_editing) {
-      return  new TextFormField(
+      return  new TextField(
         decoration: new InputDecoration(labelText: label),
-        onFieldSubmitted: (submitted) =>
-            _updateProfile(field, submitted),
-        initialValue: currentValue ?? defaultValue,
+        onChanged: (changed) =>
+            _updateLocalData(field, changed),
+        controller: new TextEditingController(text: currentValue ?? defaultValue),
       );
     } else {
       return new Text('$label: ${currentValue ?? defaultValue}');
@@ -124,6 +140,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return new Scaffold(
       floatingActionButton: new IconButton(
         onPressed: () {
+          _updateProfile();
           setState(() {
             _editing = !_editing;
           });
