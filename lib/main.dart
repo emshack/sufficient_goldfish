@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
@@ -92,15 +93,21 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         new Center(
             child: new RaisedButton(
-                onPressed: () {
-                  Navigator.of(context).push(new MaterialPageRoute<Null>(
-                      builder: (BuildContext context) {
-                    return new FinderPage(targetLatitude, targetLongitude);
-                  }));
-                },
+                onPressed: matchFish,
                 child: new Text("Find your fish!"))),
       ],
     ));
+  }
+
+  matchFish() {
+    http.get('https://us-central1-sufficientgoldfish.cloudfunctions.net/helloWorld')
+        .then((fileContents) {
+          print('contents ${fileContents.body}');
+    });
+    Navigator.of(context).push(new MaterialPageRoute<Null>(
+        builder: (BuildContext context) {
+          return new FinderPage(targetLatitude, targetLongitude);
+        }));
   }
 }
 
