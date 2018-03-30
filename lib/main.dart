@@ -69,7 +69,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<Null> _updateProfile() async {
     for (String key in _localValues.keys) {
       if (_localValues[key] != _oldLocalValues[key]) {
-        print("Updating");
         _profile.setData(_localValues, SetOptions.merge);
         break;
       }
