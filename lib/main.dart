@@ -53,14 +53,14 @@ class _ProfilePageState extends State<ProfilePage> {
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
-    _profile.updateData({Field.profilePicture.toString(): downloadUrl});
+    _profile.setData({Field.profilePicture.toString(): downloadUrl}, SetOptions.merge);
     setState(() {
       _imageFile = imageFile;
     });
   }
 
   Future<Null> _updateProfile(Field field, value) async {
-    _profile.updateData({field.toString(): value});
+    _profile.setData({field.toString(): value}, SetOptions.merge);
   }
 
   Widget _showProfilePicture() {
