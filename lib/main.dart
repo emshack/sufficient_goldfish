@@ -10,8 +10,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-
-
 // TODO: Better populate these
 const double targetLatitude = 37.785844;
 const double targetLongitude = -122.406427;
@@ -19,7 +17,6 @@ const double targetLongitude = -122.406427;
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -35,9 +32,7 @@ class MyApp extends StatelessWidget {
 // TODO(efortuna): Potential Matches page to highlight the
 // StreamBuilder/QuerySnapshot thing for cloudFirestore?
 
-enum Field {
-  name, favoriteMusic, phValue, profilePicture
-}
+enum Field { name, favoriteMusic, phValue, profilePicture }
 
 // we may decide not to do this part since a close variant is shown in our other talk.
 class _ProfilePageState extends State<ProfilePage> {
@@ -50,8 +45,8 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _googleSignIn.signIn().then((user) {
-      _profile = Firestore.instance.collection('profiles').document(
-          user.displayName);
+      _profile =
+          Firestore.instance.collection('profiles').document(user.displayName);
       print('hyyyyyyyyyyyyyyyyyy ${user.displayName}');
       setState(() {
         _userName = user.displayName;
@@ -65,61 +60,61 @@ class _ProfilePageState extends State<ProfilePage> {
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
-    _profile.updateData({Field.profilePicture.toString() : downloadUrl});
+    _profile.updateData({Field.profilePicture.toString(): downloadUrl});
     setState(() {
       _imageFile = imageFile;
     });
   }
 
   Future<Null> _updateProfile(Field field, value) async {
-    _profile.updateData({field.toString() : value});
+    _profile.updateData({field.toString(): value});
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        body: new ListView(children: <Widget>[
-          new Stack(children: [
-            _imageFile == null ?
-            new Image.asset('assets/longhorn-cowfish.jpg') :
-            new Image.file(_imageFile),
-            new FloatingActionButton(
-              onPressed: getImage,
-              tooltip: 'Pick Image',
-              child: new Icon(Icons.add_a_photo),
-            ),
-          ]),
-          new TextFormField(decoration:
-          new InputDecoration(labelText: 'Name'),
-            onFieldSubmitted: (submitted) => _updateProfile(Field.name, submitted),
-            initialValue: _userName,
+        body: new ListView(
+      children: <Widget>[
+        new Stack(children: [
+          _imageFile == null
+              ? new Image.asset('assets/longhorn-cowfish.jpg')
+              : new Image.file(_imageFile),
+          new FloatingActionButton(
+            onPressed: getImage,
+            tooltip: 'Pick Image',
+            child: new Icon(Icons.add_a_photo),
           ),
-          new TextFormField(decoration:
-          new InputDecoration(labelText: 'Favorite Music'),
-            onFieldSubmitted: (submitted) => _updateProfile(Field.favoriteMusic, submitted),
-            initialValue: 'Blubstep',
-          ),
-          new TextFormField(decoration:
-          new InputDecoration(labelText: 'Favorite pH level'),
-            onFieldSubmitted: (submitted) => _updateProfile(Field.phValue, submitted),
-          ),
-          new Center(
-              child: new RaisedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(new MaterialPageRoute<Null>(
-                        builder: (BuildContext context) {
-                          return new FinderPage(targetLatitude, targetLongitude);
-                        }
-                    ));
-                  },
-                  child: new Text("Find your fish!")
-              )
-          ),
-        ],)
-    );
+        ]),
+        new TextFormField(
+          decoration: new InputDecoration(labelText: 'Name'),
+          onFieldSubmitted: (submitted) =>
+              _updateProfile(Field.name, submitted),
+          initialValue: _userName,
+        ),
+        new TextFormField(
+          decoration: new InputDecoration(labelText: 'Favorite Music'),
+          onFieldSubmitted: (submitted) =>
+              _updateProfile(Field.favoriteMusic, submitted),
+          initialValue: 'Blubstep',
+        ),
+        new TextFormField(
+          decoration: new InputDecoration(labelText: 'Favorite pH level'),
+          onFieldSubmitted: (submitted) =>
+              _updateProfile(Field.phValue, submitted),
+        ),
+        new Center(
+            child: new RaisedButton(
+                onPressed: () {
+                  Navigator.of(context).push(new MaterialPageRoute<Null>(
+                      builder: (BuildContext context) {
+                    return new FinderPage(targetLatitude, targetLongitude);
+                  }));
+                },
+                child: new Text("Find your fish!"))),
+      ],
+    ));
   }
 }
-
 
 class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => new _ProfilePageState();
@@ -135,7 +130,7 @@ class LocationTools {
   }
 
   void initListener(LocationCallback callback) {
-    location.onLocationChanged.listen((Map<String,double> currentLocation) {
+    location.onLocationChanged.listen((Map<String, double> currentLocation) {
       callback(currentLocation);
     });
   }
@@ -157,8 +152,10 @@ class _FinderPageState extends State<FinderPage> {
   double longitude = 0.0;
   double accuracy = 0.0;
 
-  final searchingAudio = 'https://freesound.org/data/previews/28/28693_98464-lq.mp3';
-  final foundAudio = 'https://freesound.org/data/previews/397/397354_4284968-lq.mp3';
+  final searchingAudio =
+      'https://freesound.org/data/previews/28/28693_98464-lq.mp3';
+  final foundAudio =
+      'https://freesound.org/data/previews/397/397354_4284968-lq.mp3';
 
   AudioPlayer audioPlayer = new AudioPlayer();
 
@@ -191,7 +188,7 @@ class _FinderPageState extends State<FinderPage> {
     _initAudio(searchingAudio);
   }
 
-  void _updateLocation(Map<String,double> currentLocation) {
+  void _updateLocation(Map<String, double> currentLocation) {
     setState(() {
       latitude = currentLocation["latitude"];
       longitude = currentLocation["longitude"];
@@ -205,7 +202,8 @@ class _FinderPageState extends State<FinderPage> {
     int desiredFeetRange = 15;
     double multiplier = 2 * milesBetweenLines * feetInMile / desiredFeetRange;
     double latitudeDiff = (latitude - widget.targetLatitude).abs() * multiplier;
-    double longitudeDiff = (longitude - widget.targetLongitude).abs() * multiplier;
+    double longitudeDiff =
+        (longitude - widget.targetLongitude).abs() * multiplier;
     if (latitudeDiff > 1) {
       latitudeDiff = 1.0;
     }
@@ -234,7 +232,6 @@ class _FinderPageState extends State<FinderPage> {
           child: new Center(
             child: new Image.asset('assets/location_ping.gif'),
           ),
-        )
-    );
+        ));
   }
 }
