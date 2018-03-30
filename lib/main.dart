@@ -36,11 +36,13 @@ class _ProfilePageState extends State<ProfilePage> {
   File _imageFile;
   DocumentReference _profile;
   DocumentSnapshot _details;
+  bool _editing;
 
   @override
   void initState() {
     super.initState();
     _profile = Firestore.instance.collection('profiles').document();
+    _editing = false;
   }
 
   getImage() async {
@@ -59,38 +61,83 @@ class _ProfilePageState extends State<ProfilePage> {
     _profile.setData({field.toString(): value}, SetOptions.merge);
   }
 
+  Widget _showProfilePicture() {
+    Image image = _imageFile == null
+        ? new Image.asset('assets/longhorn-cowfish.jpg')
+        : new Image.file(_imageFile);
+    if (_editing) {
+      return new Stack(
+        children: [
+          new Container(
+            child: image,
+            foregroundDecoration: new BoxDecoration(color: new Color.fromRGBO(200, 200, 200, 0.5)),
+          ),
+          new IconButton(
+            iconSize: 50.0,
+            onPressed: getImage,
+            tooltip: 'Pick Image',
+            icon: new Icon(Icons.add_a_photo),
+          ),
+        ],
+        alignment: new Alignment(0.0, 0.0),
+      );
+    } else {
+      return image;
+    }
+  }
+
+  Widget _showData(Field field) {
+    String label;
+    String defaultValue;
+    // TODO: Update when we have actual values to populate this with
+    String currentValue;
+    switch (field) {
+      case Field.name:
+        label = 'Name';
+        defaultValue = 'Goldie';
+        break;
+      case Field.favoriteMusic:
+        label = 'Favorite Music';
+        defaultValue = 'Blubstep';
+        break;
+      case Field.phValue:
+        label = 'Favorite pH level';
+        defaultValue = '5';
+        break;
+      default:
+        break;
+    }
+    if (_editing) {
+      return  new TextFormField(
+        decoration: new InputDecoration(labelText: label),
+        onFieldSubmitted: (submitted) =>
+            _updateProfile(field, submitted),
+        initialValue: currentValue ?? defaultValue,
+      );
+    } else {
+      return new Text('$label: ${currentValue ?? defaultValue}');
+    }
+  }
+
   // TODO(efortuna): Maybe do something prettier here with StreamBuilder like the cloud firestore example.
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        body: new ListView(
+      floatingActionButton: new IconButton(
+        onPressed: () {
+          setState(() {
+            _editing = !_editing;
+          });
+        },
+        tooltip: _editing ? 'Edit Profile' : 'Save Changes',
+        icon: new Icon(_editing ? Icons.check : Icons.edit),
+      ),
+      body: new ListView(
       children: <Widget>[
-        new Stack(children: [
-          _imageFile == null
-              ? new Image.asset('assets/longhorn-cowfish.jpg')
-              : new Image.file(_imageFile),
-          new FloatingActionButton(
-            onPressed: getImage,
-            tooltip: 'Pick Image',
-            child: new Icon(Icons.add_a_photo),
-          ),
-        ]),
-        new TextFormField(
-          decoration: new InputDecoration(labelText: 'Name'),
-          onFieldSubmitted: (submitted) =>
-              _updateProfile(Field.name, submitted),
-        ),
-        new TextFormField(
-          decoration: new InputDecoration(labelText: 'Favorite Music'),
-          onFieldSubmitted: (submitted) =>
-              _updateProfile(Field.favoriteMusic, submitted),
-          initialValue: 'Blubstep',
-        ),
-        new TextFormField(
-          decoration: new InputDecoration(labelText: 'Favorite pH level'),
-          onFieldSubmitted: (submitted) =>
-              _updateProfile(Field.phValue, submitted),
-        ),
+        _showProfilePicture(),
+        _showData(Field.name),
+        _showData(Field.favoriteMusic),
+        _showData(Field.phValue),
         new Center(
             child: new RaisedButton(
                 onPressed: matchFish,
