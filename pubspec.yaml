@@ -6,6 +6,7 @@ dependencies:
     sdk: flutter
   cloud_firestore:
   location:
+    git: git://github.com/efortuna/flutterlocation.git
   audioplayer:
   image_picker:
   firebase_storage:
