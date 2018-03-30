@@ -36,6 +36,8 @@ class _ProfilePageState extends State<ProfilePage> {
   DocumentReference _profile;
   DocumentSnapshot _details;
   bool _editing;
+  //TODO: Presumably when we're pulling down data from Firestore this map can be
+  //replaced with the _details snapshot?
   Map<String, dynamic> _oldLocalValues;
   Map<String, dynamic> _localValues;
 
