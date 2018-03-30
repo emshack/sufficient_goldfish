@@ -86,7 +86,8 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           new Container(
             child: image,
-            foregroundDecoration: new BoxDecoration(color: new Color.fromRGBO(200, 200, 200, 0.5)),
+            foregroundDecoration: new BoxDecoration(
+                color: new Color.fromRGBO(200, 200, 200, 0.5)),
           ),
           new IconButton(
             iconSize: 50.0,
@@ -123,11 +124,11 @@ class _ProfilePageState extends State<ProfilePage> {
         break;
     }
     if (_editing) {
-      return  new TextField(
+      return new TextField(
         decoration: new InputDecoration(labelText: label),
-        onChanged: (changed) =>
-            _updateLocalData(field, changed),
-        controller: new TextEditingController(text: currentValue ?? defaultValue),
+        onChanged: (changed) => _updateLocalData(field, changed),
+        controller:
+            new TextEditingController(text: currentValue ?? defaultValue),
       );
     } else {
       return new Text('$label: ${currentValue ?? defaultValue}');
@@ -138,33 +139,33 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      floatingActionButton: new IconButton(
-        onPressed: () {
-          _updateProfile();
-          setState(() {
-            _editing = !_editing;
-          });
-        },
-        tooltip: _editing ? 'Edit Profile' : 'Save Changes',
-        icon: new Icon(_editing ? Icons.check : Icons.edit),
-      ),
-      body: new ListView(
-      children: <Widget>[
-        _showProfilePicture(),
-        _showData(Field.name),
-        _showData(Field.favoriteMusic),
-        _showData(Field.phValue),
-        new Center(
-            child: new RaisedButton(
-                onPressed: () {
-                  Navigator.of(context).push(new MaterialPageRoute<Null>(
-                      builder: (BuildContext context) {
-                    return new FinderPage(targetLatitude, targetLongitude);
-                  }));
-                },
-                child: new Text("Find your fish!"))),
-      ],
-    ));
+        floatingActionButton: new IconButton(
+          onPressed: () {
+            _updateProfile();
+            setState(() {
+              _editing = !_editing;
+            });
+          },
+          tooltip: _editing ? 'Edit Profile' : 'Save Changes',
+          icon: new Icon(_editing ? Icons.check : Icons.edit),
+        ),
+        body: new ListView(
+          children: <Widget>[
+            _showProfilePicture(),
+            _showData(Field.name),
+            _showData(Field.favoriteMusic),
+            _showData(Field.phValue),
+            new Center(
+                child: new RaisedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(new MaterialPageRoute<Null>(
+                          builder: (BuildContext context) {
+                        return new FinderPage(targetLatitude, targetLongitude);
+                      }));
+                    },
+                    child: new Text("Find your fish!"))),
+          ],
+        ));
   }
 }
 
