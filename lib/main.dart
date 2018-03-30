@@ -42,9 +42,6 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _profile = Firestore.instance.collection('profiles').document();
     _editing = false;
-    _profile.get().then((snapshot) {
-      _details = snapshot;
-    });
   }
 
   getImage() async {
