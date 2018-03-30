@@ -8,6 +8,8 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 
 
 // TODO: Better populate these
@@ -25,30 +27,37 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyProfilePage(_getProfileDoc),
+      home: new ProfilePage(),
     );
   }
-
-  DocumentReference get _getProfileDoc => Firestore.instance
-      .collection('profiles')
-      .document('Frank'); // TODO(efortuna): Could use google sign in and get "name" from that.
-
 }
 
 // TODO(efortuna): Potential Matches page to highlight the
 // StreamBuilder/QuerySnapshot thing for cloudFirestore?
 
 enum Field {
-  name, favoriteMusic, phValue
+  name, favoriteMusic, phValue, profilePicture
 }
 
 // we may decide not to do this part since a close variant is shown in our other talk.
-class _ProfilePicState extends State<ProfilePic> {
+class _ProfilePageState extends State<ProfilePage> {
   File _imageFile;
-  // TODO(efortuna): this pattern seems gross -- passing profile everywhere
+  GoogleSignIn _googleSignIn = new GoogleSignIn();
   DocumentReference _profile;
+  String _userName;
 
-  _ProfilePicState(this._profile);
+  @override
+  void initState() {
+    super.initState();
+    _googleSignIn.signIn().then((user) {
+      _profile = Firestore.instance.collection('profiles').document(
+          user.displayName);
+      print('hyyyyyyyyyyyyyyyyyy ${user.displayName}');
+      setState(() {
+        _userName = user.displayName;
+      });
+    });
+  }
 
   getImage() async {
     var imageFile = await ImagePicker.pickImage();
@@ -56,40 +65,11 @@ class _ProfilePicState extends State<ProfilePic> {
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
-    _profile.updateData({'picture' : downloadUrl});
+    _profile.updateData({Field.profilePicture.toString() : downloadUrl});
     setState(() {
       _imageFile = imageFile;
     });
   }
-
-  Widget build(BuildContext context) {
-    return new Stack(children: [
-      _imageFile == null ?
-      new Image.asset('assets/longhorn-cowfish.jpg') :
-      new Image.file(_imageFile),
-      new FloatingActionButton(
-        onPressed: getImage,
-        tooltip: 'Pick Image',
-        child: new Icon(Icons.add_a_photo),
-      ),
-    ]);
-  }
-}
-
-class ProfilePic extends StatefulWidget {
-  DocumentReference _profile;
-
-  ProfilePic(this._profile, {Key key}) : super(key: key);
-
-  _ProfilePicState createState() => new _ProfilePicState(_profile);
-}
-
-
-class MyProfilePage extends StatelessWidget {
-  DocumentReference _profile;
-
-
-  MyProfilePage(this._profile);
 
   Future<Null> _updateProfile(Field field, value) async {
     _profile.updateData({field.toString() : value});
@@ -99,11 +79,28 @@ class MyProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Scaffold(
         body: new ListView(children: <Widget>[
-          new ProfilePic(_profile),
-          new Text('Name: Frank'),
-          new Text('Favorite Music: BlubStep'),
+          new Stack(children: [
+            _imageFile == null ?
+            new Image.asset('assets/longhorn-cowfish.jpg') :
+            new Image.file(_imageFile),
+            new FloatingActionButton(
+              onPressed: getImage,
+              tooltip: 'Pick Image',
+              child: new Icon(Icons.add_a_photo),
+            ),
+          ]),
           new TextFormField(decoration:
-            new InputDecoration(labelText: 'Favorite pH level'),
+          new InputDecoration(labelText: 'Name'),
+            onFieldSubmitted: (submitted) => _updateProfile(Field.name, submitted),
+            initialValue: _userName,
+          ),
+          new TextFormField(decoration:
+          new InputDecoration(labelText: 'Favorite Music'),
+            onFieldSubmitted: (submitted) => _updateProfile(Field.favoriteMusic, submitted),
+            initialValue: 'Blubstep',
+          ),
+          new TextFormField(decoration:
+          new InputDecoration(labelText: 'Favorite pH level'),
             onFieldSubmitted: (submitted) => _updateProfile(Field.phValue, submitted),
           ),
           new Center(
@@ -121,6 +118,11 @@ class MyProfilePage extends StatelessWidget {
         ],)
     );
   }
+}
+
+
+class ProfilePage extends StatefulWidget {
+  _ProfilePageState createState() => new _ProfilePageState();
 }
 
 typedef void LocationCallback(Map<String, double> location);
