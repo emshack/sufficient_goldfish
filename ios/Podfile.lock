@@ -122,7 +122,7 @@ DEPENDENCIES:
   - Flutter (from `Pods/.symlinks/flutter/ios`)
   - google_sign_in (from `Pods/.symlinks/plugins/google_sign_in-3.0.0/ios`)
   - image_picker (from `Pods/.symlinks/plugins/image_picker-0.4.0/ios`)
-  - location (from `Pods/.symlinks/plugins/flutterlocation-84e198b3112a4ac0aa2741868883f6c3d6c2412b/ios`)
+  - location (from `Pods/.symlinks/plugins/flutterlocation-bd3731a3534a7d087ee607eebf0516ac5ed43b9d/ios`)
 
 EXTERNAL SOURCES:
   audioplayer:
@@ -138,7 +138,7 @@ EXTERNAL SOURCES:
   image_picker:
     :path: Pods/.symlinks/plugins/image_picker-0.4.0/ios
   location:
-    :path: Pods/.symlinks/plugins/flutterlocation-84e198b3112a4ac0aa2741868883f6c3d6c2412b/ios
+    :path: Pods/.symlinks/plugins/flutterlocation-bd3731a3534a7d087ee607eebf0516ac5ed43b9d/ios
 
 SPEC CHECKSUMS:
   audioplayer: 3cc64e4f5f3e231c715c8923a9bc26a19dc5da3b

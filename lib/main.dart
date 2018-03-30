@@ -233,6 +233,11 @@ class _FinderPageState extends State<FinderPage> {
     });
   }
 
+  void _resetHandlers() {
+    audioPlayer.setCompletionHandler(() {});
+    audioPlayer.setPositionHandler((Duration d) {});
+  }
+
   _FinderPageState() {
     locationTools = new LocationTools();
     locationTools.getLocation().then((Map<String, double> currentLocation) {
@@ -266,6 +271,7 @@ class _FinderPageState extends State<FinderPage> {
     }
     double diff = (latitudeDiff + longitudeDiff) / 2;
     if (diff < 0.1) {
+      _resetHandlers();
       _playNewAudio(foundAudio);
     }
     return diff;
