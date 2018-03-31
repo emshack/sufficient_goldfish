@@ -1,27 +1,42 @@
-import 'package:firebase_functions_interop/firebase_functions_interop.dart';
-//import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_functions_interop/firebase_functions_interop.dart' as interop;
+import 'package:firebase/firebase.dart' as fb;
+import 'package:firebase/firestore.dart' as fs;
+import 'package:firebase/src/assets/assets.dart';
 import 'dart:math';
 import 'dart:convert';
 
 void main() {
-  functions['matchFish'] =
-      FirebaseFunctions.https.onRequest(matchFish);
+  interop.functions['matchFish'] =
+      interop.FirebaseFunctions.https.onRequest(matchFish);
 }
 
-void matchFish(ExpressHttpRequest request) async {
-  //Stream<QuerySnapshot> profiles = Firestore.instance.collection('profiles').snapshots;
+void matchFish(interop.ExpressHttpRequest request) async {
+  Set<String> nonMatches = request.uri.queryParametersAll['id'].toSet();
 
+  fb.initializeApp(apiKey: "AIzaSyBH8u34jiFkYsM7SKRAwkRGG9qPET10OSA",
+      authDomain: "sufficientgoldfish.firebaseapp.com",
+      databaseURL: "https://sufficientgoldfish.firebaseio.com",
+      projectId: "sufficientgoldfish",
+      storageBucket: "sufficientgoldfish.appspot.com",
+      messagingSenderId: "611138263249");
+  fs.QuerySnapshot response = await fb.firestore().collection('profiles').get();
+  List<fs.DocumentSnapshot> profiles = response.docs;
 
-  /*QuerySnapshot queryResult = await Firestore.instance.collection('profiles').getDocuments();
-  List<DocumentSnapshot> profiles = queryResult.documents();
-  DocumentSnapshot match = profiles[new Random().nextInt(profiles.length)];
+  fs.DocumentSnapshot match;
+  bool foundMatch = false;
 
-  request.response.writeln(json.encode(match.data));*/
+  while (profiles.length > 0 && !foundMatch) {
+    int index = new Random().nextInt(profiles.length);
+    match = profiles[index];
+    if (nonMatches.contains(match.id)) {
+      profiles.remove(index);
+    } else {
+      foundMatch = true;
+    }
+  }
 
-  //DocumentReference profiles = Firestore.instance.collection('profiles').document('index');
+  request.response.writeln('hello!');
+  request.response.writeln(json.encode(match != null ? match.data : {}));
 
-  request.response.writeln('body of request ${request.body}');
-  request.response.writeln('uri of request ${request.uri}');
-  request.response.writeln('requestedUri of request ${request.requestedUri}');
   request.response.close();
 }

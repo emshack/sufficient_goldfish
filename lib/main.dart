@@ -178,7 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   matchFish() {
-    http.get('https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish')
+    http.get('https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=12345&id=5654&id=222')
         .then((fileContents) {
           print('contents ${fileContents.body}');
     });
