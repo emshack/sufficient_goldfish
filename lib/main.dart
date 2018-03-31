@@ -9,10 +9,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
-// TODO: Better populate these
-const double targetLatitude = 37.785844;
-const double targetLongitude = -122.406427;
-
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
@@ -111,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
     switch (field) {
       case Field.name:
         label = 'Name';
-        defaultValue = 'Goldie';
+        defaultValue = 'Frank';
         break;
       case Field.favoriteMusic:
         label = 'Favorite Music';
@@ -134,6 +130,10 @@ class _ProfilePageState extends State<ProfilePage> {
     } else {
       return new Text('$label: ${currentValue ?? defaultValue}');
     }
+  }
+
+  MatchData _getMatchData() {
+    return new MatchData.generate();
   }
 
   // TODO(efortuna): Maybe do something prettier here with StreamBuilder like the cloud firestore example.
@@ -161,7 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPressed: () {
                       Navigator.of(context).push(new MaterialPageRoute<Null>(
                           builder: (BuildContext context) {
-                        return new FinderPage(targetLatitude, targetLongitude);
+                        return new MatchPage(_getMatchData());
                       }));
                     },
                     child: new Text("Find your fish!"))),
@@ -187,6 +187,46 @@ class LocationTools {
     location.onLocationChanged.listen((Map<String, double> currentLocation) {
       callback(currentLocation);
     });
+  }
+}
+
+class MatchPage extends StatelessWidget {
+  final MatchData matchData;
+
+  MatchPage(this.matchData);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        appBar: new AppBar(
+          title: new Text("You've got a fish!"),
+        ),
+        body: new Column(
+          children: [
+            new Image.asset(matchData.profilePicture),
+            new Text("Name: ${matchData.name}"),
+            new Text("Favorite Music: ${matchData.favoriteMusic}"),
+            new Text("Favorite pH: ${matchData.favoritePh}"),
+            new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  new FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: new Text("Reject")),
+                  new FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).push(new MaterialPageRoute<Null>(
+                            builder: (BuildContext context) {
+                          return new FinderPage(matchData.targetLatitude,
+                              matchData.targetLongitude);
+                        }));
+                      },
+                      child: new Text("Accept")),
+                ]),
+          ],
+        ));
   }
 }
 
@@ -293,5 +333,24 @@ class _FinderPageState extends State<FinderPage> {
             child: new Image.asset('assets/location_ping.gif'),
           ),
         ));
+  }
+}
+
+class MatchData {
+  String profilePicture; //TODO: Probably switch this to a File
+  String name;
+  String favoriteMusic;
+  int favoritePh;
+  double targetLatitude;
+  double targetLongitude;
+
+  // TODO: Populate this via Firebase
+  MatchData.generate() {
+    profilePicture = 'assets/koi.jpg';
+    name = 'Finnegan';
+    favoriteMusic = 'Goldies';
+    favoritePh = 7;
+    targetLatitude = 37.785844;
+    targetLongitude = -122.406427;
   }
 }
