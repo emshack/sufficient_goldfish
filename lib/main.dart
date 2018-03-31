@@ -3,12 +3,17 @@ import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 
+import 'dart:convert';
+
+
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
 
 // TODO: Better populate these
 const double targetLatitude = 37.785844;
@@ -35,32 +40,32 @@ enum Field { name, favoriteMusic, phValue, profilePicture }
 class _ProfilePageState extends State<ProfilePage> {
   File _imageFile;
   DocumentReference _profile;
-  DocumentSnapshot _details;
   bool _editing;
-  //TODO: Presumably when we're pulling down data from Firestore this map can be
-  //replaced with the _details snapshot?
-  Map<String, dynamic> _oldLocalValues;
   Map<String, dynamic> _localValues;
+  static String defaultPicturePath = 'assets/longhorn-cowfish.jpg';
 
   @override
   void initState() {
     super.initState();
     _profile = Firestore.instance.collection('profiles').document();
     _editing = false;
-    _oldLocalValues = {};
     _localValues = {};
   }
 
   getImage() async {
     var imageFile = await ImagePicker.pickImage();
+    await _uploadToStorage(imageFile);
+    setState(() {
+      _imageFile = imageFile;
+    });
+  }
+
+  Future<Null> _uploadToStorage(File imageFile) async {
     var random = new Random().nextInt(10000);
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
     _updateLocalData(Field.profilePicture, downloadUrl);
-    setState(() {
-      _imageFile = imageFile;
-    });
   }
 
   void _updateLocalData(Field field, value) {
@@ -70,18 +75,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<Null> _updateProfile() async {
-    for (String key in _localValues.keys) {
-      if (_localValues[key] != _oldLocalValues[key]) {
-        _profile.setData(_localValues, SetOptions.merge);
-        break;
-      }
-    }
-    _oldLocalValues = new Map.from(_localValues);
+    /*if(_imageFile == null) {
+      ByteData data = await rootBundle.load(defaultPicturePath);
+      _uploadToStorage(new File(defaultPicturePath)); // TODO.
+    }*/
+    _profile.setData(_localValues, SetOptions.merge);
   }
 
   Widget _showProfilePicture() {
     Image image = _imageFile == null
-        ? new Image.asset('assets/longhorn-cowfish.jpg')
+        ? new Image.asset(defaultPicturePath)
         : new Image.file(_imageFile);
     if (_editing) {
       return new Stack(
@@ -133,6 +136,7 @@ class _ProfilePageState extends State<ProfilePage> {
             new TextEditingController(text: currentValue ?? defaultValue),
       );
     } else {
+      _localValues[field.toString()] = currentValue ?? defaultValue;
       return new Text('$label: ${currentValue ?? defaultValue}');
     }
   }
@@ -165,17 +169,28 @@ class _ProfilePageState extends State<ProfilePage> {
         ));
   }
 
+  testStuff() async {
+    QuerySnapshot queryResult = await Firestore.instance.collection('profiles').getDocuments();
+    List<DocumentSnapshot> profiles = queryResult.documents;
+    DocumentSnapshot match = profiles[new Random().nextInt(profiles.length)];
+
+    print(json.encode(match.data));
+  }
+
   matchFish() {
     http.get('https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish')
         .then((fileContents) {
           print('contents ${fileContents.body}');
     });
 
+    testStuff();
+
+
     Navigator.of(context).push(new MaterialPageRoute<Null>(
         builder: (BuildContext context) {
           return new FinderPage(targetLatitude, targetLongitude);
         }));
-    
+
   }
 }
 
