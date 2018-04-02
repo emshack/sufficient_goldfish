@@ -11,7 +11,7 @@ void main() {
 }
 
 void matchFish(interop.ExpressHttpRequest request) async {
-  Set<String> nonMatches = request.uri.queryParametersAll['id'].toSet();
+  /*Set<String> nonMatches = request.uri.queryParametersAll['id'].toSet();
 
   fb.initializeApp(apiKey: "AIzaSyBH8u34jiFkYsM7SKRAwkRGG9qPET10OSA",
       authDomain: "sufficientgoldfish.firebaseapp.com",
@@ -34,7 +34,7 @@ void matchFish(interop.ExpressHttpRequest request) async {
       foundMatch = true;
     }
   }
-
+*/
   request.response.writeln('hello!');
   request.response.writeln(json.encode(match != null ? match.data : {}));
 
