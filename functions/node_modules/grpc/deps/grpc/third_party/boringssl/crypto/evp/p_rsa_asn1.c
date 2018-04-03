@@ -62,12 +62,22 @@
 #include <openssl/mem.h>
 #include <openssl/rsa.h>
 
-#include "../rsa/internal.h"
+#include "../fipsmodule/rsa/internal.h"
+#include "../internal.h"
 #include "internal.h"
 
 
+static struct CRYPTO_STATIC_MUTEX g_buggy_lock = CRYPTO_STATIC_MUTEX_INIT;
+static int g_buggy = 0;
+
+void EVP_set_buggy_rsa_parser(int buggy) {
+  CRYPTO_STATIC_MUTEX_lock_write(&g_buggy_lock);
+  g_buggy = buggy;
+  CRYPTO_STATIC_MUTEX_unlock_write(&g_buggy_lock);
+}
+
 static int rsa_pub_encode(CBB *out, const EVP_PKEY *key) {
-  /* See RFC 3279, section 2.3.1. */
+  // See RFC 3279, section 2.3.1.
   CBB spki, algorithm, oid, null, key_bitstring;
   if (!CBB_add_asn1(out, &spki, CBS_ASN1_SEQUENCE) ||
       !CBB_add_asn1(&spki, &algorithm, CBS_ASN1_SEQUENCE) ||
@@ -86,9 +96,14 @@ static int rsa_pub_encode(CBB *out, const EVP_PKEY *key) {
 }
 
 static int rsa_pub_decode(EVP_PKEY *out, CBS *params, CBS *key) {
-  /* See RFC 3279, section 2.3.1. */
+  int buggy;
+  CRYPTO_STATIC_MUTEX_lock_read(&g_buggy_lock);
+  buggy = g_buggy;
+  CRYPTO_STATIC_MUTEX_unlock_read(&g_buggy_lock);
 
-  /* The parameters must be NULL. */
+  // See RFC 3279, section 2.3.1.
+
+  // The parameters must be NULL.
   CBS null;
   if (!CBS_get_asn1(params, &null, CBS_ASN1_NULL) ||
       CBS_len(&null) != 0 ||
@@ -97,13 +112,13 @@ static int rsa_pub_decode(EVP_PKEY *out, CBS *params, CBS *key) {
     return 0;
   }
 
-  /* Estonian IDs issued between September 2014 to September 2015 are
-   * broken. See https://crbug.com/532048 and https://crbug.com/534766.
-   *
-   * TODO(davidben): Switch this to the strict version in March 2016 or when
-   * Chromium can force client certificates down a different codepath, whichever
-   * comes first. */
-  RSA *rsa = RSA_parse_public_key_buggy(key);
+  // Estonian IDs issued between September 2014 to September 2015 are
+  // broken. See https://crbug.com/532048 and https://crbug.com/534766.
+  //
+  // TODO(davidben): Switch this to the strict version in March 2016 or when
+  // Chromium can force client certificates down a different codepath, whichever
+  // comes first.
+  RSA *rsa = buggy ? RSA_parse_public_key_buggy(key) : RSA_parse_public_key(key);
   if (rsa == NULL || CBS_len(key) != 0) {
     OPENSSL_PUT_ERROR(EVP, EVP_R_DECODE_ERROR);
     RSA_free(rsa);
@@ -138,7 +153,7 @@ static int rsa_priv_encode(CBB *out, const EVP_PKEY *key) {
 }
 
 static int rsa_priv_decode(EVP_PKEY *out, CBS *params, CBS *key) {
-  /* Per RFC 3447, A.1, the parameters have type NULL. */
+  // Per RFC 3447, A.1, the parameters have type NULL.
   CBS null;
   if (!CBS_get_asn1(params, &null, CBS_ASN1_NULL) ||
       CBS_len(&null) != 0 ||
@@ -162,10 +177,6 @@ static int rsa_opaque(const EVP_PKEY *pkey) {
   return RSA_is_opaque(pkey->pkey.rsa);
 }
 
-static int rsa_supports_digest(const EVP_PKEY *pkey, const EVP_MD *md) {
-  return RSA_supports_digest(pkey->pkey.rsa, md);
-}
-
 static int int_rsa_size(const EVP_PKEY *pkey) {
   return RSA_size(pkey->pkey.rsa);
 }
@@ -178,7 +189,7 @@ static void int_rsa_free(EVP_PKEY *pkey) { RSA_free(pkey->pkey.rsa); }
 
 const EVP_PKEY_ASN1_METHOD rsa_asn1_meth = {
   EVP_PKEY_RSA,
-  /* 1.2.840.113549.1.1.1 */
+  // 1.2.840.113549.1.1.1
   {0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01}, 9,
 
   rsa_pub_decode,
@@ -189,7 +200,6 @@ const EVP_PKEY_ASN1_METHOD rsa_asn1_meth = {
   rsa_priv_encode,
 
   rsa_opaque,
-  rsa_supports_digest,
 
   int_rsa_size,
   rsa_bits,

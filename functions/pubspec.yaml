@@ -8,7 +8,7 @@ environment:
 dependencies:
   # Firebase Functions bindings
   firebase_functions_interop: ^1.0.0-dev
-  firebase: '^4.3.0'
+  firebase_admin_interop: ^1.0.0-dev
 
 dev_dependencies:
   # Needed to compile Dart to valid Node.js module.

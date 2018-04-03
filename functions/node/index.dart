@@ -1,7 +1,5 @@
 import 'package:firebase_functions_interop/firebase_functions_interop.dart' as interop;
-import 'package:firebase/firebase.dart' as fb;
-import 'package:firebase/firestore.dart' as fs;
-import 'package:firebase/src/assets/assets.dart';
+import 'package:firebase_admin_interop/firebase_admin_interop.dart';
 import 'dart:math';
 import 'dart:convert';
 
@@ -10,33 +8,46 @@ void main() {
       interop.FirebaseFunctions.https.onRequest(matchFish);
 }
 
+enum Field {
+  name,
+  favoriteMusic,
+  phValue,
+  profilePicture,
+  lastSeenLatitude,
+  lastSeenLongitude,
+  id
+}
+
 void matchFish(interop.ExpressHttpRequest request) async {
-  /*Set<String> nonMatches = request.uri.queryParametersAll['id'].toSet();
+  Set<String> nonMatches = request.uri.queryParametersAll['id'].toSet();
 
-  fb.initializeApp(apiKey: "AIzaSyBH8u34jiFkYsM7SKRAwkRGG9qPET10OSA",
-      authDomain: "sufficientgoldfish.firebaseapp.com",
-      databaseURL: "https://sufficientgoldfish.firebaseio.com",
-      projectId: "sufficientgoldfish",
-      storageBucket: "sufficientgoldfish.appspot.com",
-      messagingSenderId: "611138263249");
-  fs.QuerySnapshot response = await fb.firestore().collection('profiles').get();
-  List<fs.DocumentSnapshot> profiles = response.docs;
+  final serviceAccountKeyFilename = 'node/sufficientgoldfish-firebase-adminsdk-hvu1h-0814254aaa.json';
+  final admin = FirebaseAdmin.instance;
+  final cert = admin.certFromPath(serviceAccountKeyFilename);
+  final app = admin.initializeApp(new AppOptions(
+    credential: cert,
+    databaseURL: "https://sufficientgoldfish.firebaseio.com",
+  ));
 
-  fs.DocumentSnapshot match;
+
+  QuerySnapshot response = await app.firestore().collection('profiles').get();
+  List<DocumentSnapshot> profiles = response.documents;
+
+  DocumentSnapshot match;
   bool foundMatch = false;
+  request.response.writeln('docs size ${profiles.length} ${Field.values}');
 
   while (profiles.length > 0 && !foundMatch) {
     int index = new Random().nextInt(profiles.length);
     match = profiles[index];
-    if (nonMatches.contains(match.id)) {
+    if (nonMatches.contains(match.documentID)) {
       profiles.remove(index);
     } else {
       foundMatch = true;
     }
   }
-*/
-  request.response.writeln('hello!');
-  request.response.writeln(json.encode(match != null ? match.data : {}));
+
+  request.response.writeln(json.encode(match != null ? match.data.toMap() : {}));
 
   request.response.close();
 }

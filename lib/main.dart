@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
 }
 
 enum Field {
+  id, // unique id to separate candidates (the document id)
   name,
   favoriteMusic,
   phValue,
@@ -58,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   getImage() async {
-    var imageFile = await ImagePicker.pickImage(source: ImageSource.camera);
+    var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
     await _uploadToStorage(imageFile);
     setState(() {
       _imageFile = imageFile;
@@ -151,28 +152,19 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<MatchData> _getMatchData() async {
-    QuerySnapshot queryResult = await Firestore.instance.collection('profiles').getDocuments();
-    List<DocumentSnapshot> profiles = queryResult.documents;
+    // making the call.
+    String query = _nonMatches.join('&id=');
 
-    DocumentSnapshot match;
-    bool foundMatch = false;
+    Map<String, dynamic> response = json.decode(
+        (await http.get('https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=$query')).body).cast<String, dynamic>();
 
-    while (profiles.length > 0 && !foundMatch) {
-      int index = new Random().nextInt(profiles.length);
-      match = profiles[index];
-      if (_nonMatches.contains(match.documentID)) {
-        profiles.remove(index);
-      } else {
-        foundMatch = true;
-      }
-    }
-
-    return new MatchData(match.data[Field.profilePicture.toString()],
-        match.data[Field.name.toString()],
-        match.data[Field.favoriteMusic.toString()],
-        match.data[Field.phValue.toString()],
-        match.data[Field.lastSeenLatitude.toString()],
-        match.data[Field.lastSeenLongitude.toString()]);
+    return new MatchData(response[Field.id.toString()],
+        response[Field.profilePicture.toString()],
+        response[Field.name.toString()],
+        response[Field.favoriteMusic.toString()],
+        response[Field.phValue.toString()],
+        response[Field.lastSeenLatitude.toString()],
+        response[Field.lastSeenLongitude.toString()]);
   }
 
   @override
@@ -252,6 +244,7 @@ class MatchPage extends StatelessWidget {
                 children: [
                   new FlatButton(
                       onPressed: () {
+                        //_nonMatches.add(matchData.id), TODO
                         Navigator.pop(context);
                       },
                       child: new Text("Reject")),
@@ -377,6 +370,7 @@ class _FinderPageState extends State<FinderPage> {
 }
 
 class MatchData {
+  String id;
   String profilePicture; //TODO: Probably switch this to a File
   String name;
   String favoriteMusic;
@@ -384,7 +378,7 @@ class MatchData {
   double targetLatitude;
   double targetLongitude;
 
-  MatchData(this.profilePicture, this.name, this.favoriteMusic, this.favoritePh,
+  MatchData(this.id, this.profilePicture, this.name, this.favoriteMusic, this.favoritePh,
       this.targetLatitude, this.targetLongitude);
 
   // TODO: Populate this via Firebase
