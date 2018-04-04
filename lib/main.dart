@@ -228,10 +228,43 @@ class LocationTools {
   }
 }
 
+class AudioTools {
+  final AudioPlayer _audioPlayer;
+
+  AudioTools() : _audioPlayer = new AudioPlayer();
+
+  void initAudioLoop(String audioFile) {
+    // restart audio if it has finished
+    _audioPlayer.setCompletionHandler(() {
+      _audioPlayer.play(audioFile);
+    });
+    // restart audio if it has been playing for at least 3 seconds
+    _audioPlayer.setPositionHandler((Duration d) {
+      if (d.inSeconds > 3) {
+        playNewAudio(audioFile);
+      }
+    });
+    _audioPlayer.play(audioFile);
+  }
+
+  void playNewAudio(String audioFile) {
+    _audioPlayer.stop().then((result) {
+      _audioPlayer.play(audioFile);
+    });
+  }
+
+  void stopAudio() {
+    _audioPlayer.setCompletionHandler(() {});
+    _audioPlayer.setPositionHandler((Duration d) {});
+    _audioPlayer.stop();
+  }
+}
+
 class MatchPage extends StatelessWidget {
   final MatchData matchData;
+  final AudioTools audioTools;
 
-  MatchPage(this.matchData);
+  MatchPage(this.matchData) : audioTools = new AudioTools();
 
   @override
   Widget build(BuildContext context) {
@@ -251,16 +284,18 @@ class MatchPage extends StatelessWidget {
                 children: [
                   new FlatButton(
                       onPressed: () {
+                        audioTools.stopAudio();
                         //_nonMatches.add(matchData.id), TODO
                         Navigator.pop(context);
                       },
                       child: new Text("Reject")),
                   new FlatButton(
                       onPressed: () {
+                        audioTools.stopAudio();
                         Navigator.of(context).push(new MaterialPageRoute<Null>(
                             builder: (BuildContext context) {
                           return new FinderPage(matchData.targetLatitude,
-                              matchData.targetLongitude);
+                              matchData.targetLongitude, audioTools);
                         }));
                       },
                       child: new Text("Accept")),
@@ -273,58 +308,32 @@ class MatchPage extends StatelessWidget {
 class FinderPage extends StatefulWidget {
   final double targetLatitude;
   final double targetLongitude;
+  final AudioTools audioTools;
 
-  FinderPage(this.targetLatitude, this.targetLongitude);
+  FinderPage(this.targetLatitude, this.targetLongitude, this.audioTools);
 
   @override
-  _FinderPageState createState() => new _FinderPageState();
+  _FinderPageState createState() => new _FinderPageState(audioTools);
 }
 
 class _FinderPageState extends State<FinderPage> {
   LocationTools locationTools;
+  AudioTools audioTools;
   double latitude = 0.0;
   double longitude = 0.0;
   double accuracy = 0.0;
-
-  final searchingAudio =
+  final String searchingAudio =
       'https://freesound.org/data/previews/28/28693_98464-lq.mp3';
-  final foundAudio =
+  final String foundAudio =
       'https://freesound.org/data/previews/397/397354_4284968-lq.mp3';
 
-  AudioPlayer audioPlayer = new AudioPlayer();
-
-  void _initAudio(String loopFile) {
-    // restart audio if it has finished
-    audioPlayer.setCompletionHandler(() {
-      audioPlayer.play(loopFile);
-    });
-    // restart audio if it has been playing for at least 3 seconds
-    audioPlayer.setPositionHandler((Duration d) {
-      if (d.inSeconds > 3) {
-        _playNewAudio(loopFile);
-      }
-    });
-    audioPlayer.play(loopFile);
-  }
-
-  void _playNewAudio(String audioFile) {
-    audioPlayer.stop().then((result) {
-      audioPlayer.play(audioFile);
-    });
-  }
-
-  void _resetHandlers() {
-    audioPlayer.setCompletionHandler(() {});
-    audioPlayer.setPositionHandler((Duration d) {});
-  }
-
-  _FinderPageState() {
+  _FinderPageState(this.audioTools) {
     locationTools = new LocationTools();
     locationTools.getLocation().then((Map<String, double> currentLocation) {
       _updateLocation(currentLocation);
     });
     locationTools.initListener(_updateLocation);
-    _initAudio(searchingAudio);
+    audioTools.initAudioLoop(searchingAudio);
   }
 
   void _updateLocation(Map<String, double> currentLocation) {
@@ -351,8 +360,8 @@ class _FinderPageState extends State<FinderPage> {
     }
     double diff = (latitudeDiff + longitudeDiff) / 2;
     if (diff < 0.1) {
-      _resetHandlers();
-      _playNewAudio(foundAudio);
+      audioTools.stopAudio();
+      audioTools.playNewAudio(foundAudio);
     }
     return diff;
   }
