@@ -137,7 +137,7 @@ class _ProfilePageState extends State<ProfilePage> {
       case Field.phValue:
         label = 'Favorite pH level';
         defaultValue = '5';
-        iconData = Icons.beach_access ; // Icons.colorize // Icons.equalizer // Icons.pool // Icons.tune
+        iconData = Icons.beach_access ; // other options: Icons.colorize // Icons.equalizer // Icons.pool // Icons.tune
         break;
       default:
         break;
@@ -159,8 +159,25 @@ class _ProfilePageState extends State<ProfilePage> {
     // making the call.
     String query = _nonMatches.join('&id=');
 
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      child: new Dialog(
+        child: new Container(
+          padding: new EdgeInsets.all(20.0),
+          child: new Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              new CircularProgressIndicator(),
+              new Text('Off Fishing...'),
+            ],
+        ),
+      ),
+      ),
+    );
     Map<String, dynamic> response = json.decode(
         (await http.get('https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=$query')).body).cast<String, dynamic>();
+    Navigator.pop(context);
 
     return new MatchData(response[Field.id.toString()],
         response[Field.profilePicture.toString()],
@@ -190,6 +207,16 @@ class _ProfilePageState extends State<ProfilePage> {
             _showData(Field.name),
             _showData(Field.favoriteMusic),
             _showData(Field.phValue),
+            /*new RaisedButton(child: new Text('Availability for date'), onPressed: () async {
+              final DateTime picked = await showDatePicker(
+              context: context,
+              firstDate: new DateTime.now(),
+              initialDate: new DateTime.now(),
+              lastDate: new DateTime(2020)
+            );
+            if (picked != null && picked != selectedDate)
+            //selectDate(picked);
+            }),*/
             new Center(
                 child: new RaisedButton.icon(
                     icon: new Icon(Icons.favorite),
