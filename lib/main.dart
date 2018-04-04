@@ -122,18 +122,22 @@ class _ProfilePageState extends State<ProfilePage> {
     String label;
     String defaultValue;
     String currentValue = _localValues[field.toString()];
+    IconData iconData;
     switch (field) {
       case Field.name:
         label = 'Name';
         defaultValue = 'Frank';
+        iconData = Icons.person;
         break;
       case Field.favoriteMusic:
         label = 'Favorite Music';
         defaultValue = 'Blubstep';
+        iconData = Icons.music_note;
         break;
       case Field.phValue:
         label = 'Favorite pH level';
         defaultValue = '5';
+        iconData = Icons.beach_access ; // Icons.colorize // Icons.equalizer // Icons.pool // Icons.tune
         break;
       default:
         break;
@@ -147,7 +151,7 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     } else {
       _localValues[field.toString()] = currentValue ?? defaultValue;
-      return new Text('$label: ${currentValue ?? defaultValue}');
+      return new ListTile(leading: new Icon(iconData), title: new Text(label), subtitle: new Text(currentValue ?? defaultValue));
     }
   }
 
