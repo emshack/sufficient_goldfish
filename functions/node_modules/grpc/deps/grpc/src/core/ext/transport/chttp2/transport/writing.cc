@@ -83,11 +83,12 @@ static void maybe_initiate_ping(grpc_chttp2_transport* t) {
               "%s: Ping delayed [%p]: not enough time elapsed since last ping. "
               " Last ping %f: Next ping %f: Now %f",
               t->is_client ? "CLIENT" : "SERVER", t->peer_string,
-              (double)t->ping_state.last_ping_sent_time,
-              (double)next_allowed_ping, (double)now);
+              static_cast<double>(t->ping_state.last_ping_sent_time),
+              static_cast<double>(next_allowed_ping), static_cast<double>(now));
     }
     if (!t->ping_state.is_delayed_ping_timer_set) {
       t->ping_state.is_delayed_ping_timer_set = true;
+      GRPC_CHTTP2_REF_TRANSPORT(t, "retry_initiate_ping_locked");
       grpc_timer_init(&t->ping_state.delayed_ping_timer, next_allowed_ping,
                       &t->retry_initiate_ping_locked);
     }
@@ -146,7 +147,7 @@ static void report_stall(grpc_chttp2_transport* t, grpc_chttp2_stream* s,
       t->settings[GRPC_ACKED_SETTINGS]
                  [GRPC_CHTTP2_SETTINGS_INITIAL_WINDOW_SIZE],
       t->flow_control->remote_window(),
-      (uint32_t)GPR_MAX(
+      static_cast<uint32_t> GPR_MAX(
           0,
           s->flow_control->remote_window_delta() +
               (int64_t)t->settings[GRPC_PEER_SETTINGS]
@@ -180,7 +181,7 @@ class WriteContext {
  public:
   WriteContext(grpc_chttp2_transport* t) : t_(t) {
     GRPC_STATS_INC_HTTP2_WRITES_BEGUN();
-    GPR_TIMER_BEGIN("grpc_chttp2_begin_write", 0);
+    GPR_TIMER_SCOPE("grpc_chttp2_begin_write", 0);
   }
 
   // TODO(ctiller): make this the destructor
@@ -221,7 +222,7 @@ class WriteContext {
       grpc_slice_buffer_add(
           &t_->outbuf, grpc_chttp2_window_update_create(0, transport_announce,
                                                         &throwaway_stats));
-      ResetPingRecvClock();
+      ResetPingClock();
     }
   }
 
@@ -266,11 +267,13 @@ class WriteContext {
     return s;
   }
 
-  void ResetPingRecvClock() {
+  void ResetPingClock() {
     if (!t_->is_client) {
       t_->ping_recv_state.last_ping_recv_time = GRPC_MILLIS_INF_PAST;
       t_->ping_recv_state.ping_strikes = 0;
     }
+    t_->ping_state.pings_before_data_required =
+        t_->ping_policy.max_pings_without_data;
   }
 
   void IncInitialMetadataWrites() { ++initial_metadata_writes_; }
@@ -309,14 +312,14 @@ class DataSendContext {
         sending_bytes_before_(s_->sending_bytes) {}
 
   uint32_t stream_remote_window() const {
-    return (uint32_t)GPR_MAX(
+    return static_cast<uint32_t> GPR_MAX(
         0, s_->flow_control->remote_window_delta() +
                (int64_t)t_->settings[GRPC_PEER_SETTINGS]
                                     [GRPC_CHTTP2_SETTINGS_INITIAL_WINDOW_SIZE]);
   }
 
   uint32_t max_outgoing() const {
-    return (uint32_t)GPR_MIN(
+    return static_cast<uint32_t> GPR_MIN(
         t_->settings[GRPC_PEER_SETTINGS][GRPC_CHTTP2_SETTINGS_MAX_FRAME_SIZE],
         GPR_MIN(stream_remote_window(), t_->flow_control->remote_window()));
   }
@@ -324,8 +327,8 @@ class DataSendContext {
   bool AnyOutgoing() const { return max_outgoing() > 0; }
 
   void FlushCompressedBytes() {
-    uint32_t send_bytes =
-        (uint32_t)GPR_MIN(max_outgoing(), s_->compressed_data_buffer.length);
+    uint32_t send_bytes = static_cast<uint32_t> GPR_MIN(
+        max_outgoing(), s_->compressed_data_buffer.length);
     bool is_last_data_frame =
         (send_bytes == s_->compressed_data_buffer.length &&
          s_->flow_controlled_buffer.length == 0 &&
@@ -374,10 +377,11 @@ class DataSendContext {
   bool is_last_frame() const { return is_last_frame_; }
 
   void CallCallbacks() {
-    if (update_list(t_, s_,
-                    (int64_t)(s_->sending_bytes - sending_bytes_before_),
-                    &s_->on_flow_controlled_cbs,
-                    &s_->flow_controlled_bytes_flowed, GRPC_ERROR_NONE)) {
+    if (update_list(
+            t_, s_,
+            static_cast<int64_t>(s_->sending_bytes - sending_bytes_before_),
+            &s_->on_flow_controlled_cbs, &s_->flow_controlled_bytes_flowed,
+            GRPC_ERROR_NONE)) {
       write_context_->NoteScheduledResults();
     }
   }
@@ -431,7 +435,7 @@ class StreamWriteContext {
       };
       grpc_chttp2_encode_header(&t_->hpack_compressor, nullptr, 0,
                                 s_->send_initial_metadata, &hopt, &t_->outbuf);
-      write_context_->ResetPingRecvClock();
+      write_context_->ResetPingClock();
       write_context_->IncInitialMetadataWrites();
     }
 
@@ -451,7 +455,7 @@ class StreamWriteContext {
     grpc_slice_buffer_add(
         &t_->outbuf, grpc_chttp2_window_update_create(s_->id, stream_announce,
                                                       &s_->stats.outgoing));
-    write_context_->ResetPingRecvClock();
+    write_context_->ResetPingClock();
     write_context_->IncWindowUpdateWrites();
   }
 
@@ -485,7 +489,7 @@ class StreamWriteContext {
         data_send_context.CompressMoreBytes();
       }
     }
-    write_context_->ResetPingRecvClock();
+    write_context_->ResetPingClock();
     if (data_send_context.is_last_frame()) {
       SentLastFrame();
     }
@@ -526,7 +530,7 @@ class StreamWriteContext {
                                 s_->send_trailing_metadata, &hopt, &t_->outbuf);
     }
     write_context_->IncTrailingMetadataWrites();
-    write_context_->ResetPingRecvClock();
+    write_context_->ResetPingClock();
     SentLastFrame();
 
     write_context_->NoteScheduledResults();
@@ -614,24 +618,22 @@ grpc_chttp2_begin_write_result grpc_chttp2_begin_write(
 
   maybe_initiate_ping(t);
 
-  GPR_TIMER_END("grpc_chttp2_begin_write", 0);
-
   return ctx.Result();
 }
 
 void grpc_chttp2_end_write(grpc_chttp2_transport* t, grpc_error* error) {
-  GPR_TIMER_BEGIN("grpc_chttp2_end_write", 0);
+  GPR_TIMER_SCOPE("grpc_chttp2_end_write", 0);
   grpc_chttp2_stream* s;
 
   while (grpc_chttp2_list_pop_writing_stream(t, &s)) {
     if (s->sending_bytes != 0) {
-      update_list(t, s, (int64_t)s->sending_bytes, &s->on_write_finished_cbs,
-                  &s->flow_controlled_bytes_written, GRPC_ERROR_REF(error));
+      update_list(t, s, static_cast<int64_t>(s->sending_bytes),
+                  &s->on_write_finished_cbs, &s->flow_controlled_bytes_written,
+                  GRPC_ERROR_REF(error));
       s->sending_bytes = 0;
     }
     GRPC_CHTTP2_STREAM_UNREF(s, "chttp2_writing:end");
   }
   grpc_slice_buffer_reset_and_unref_internal(&t->outbuf);
   GRPC_ERROR_UNREF(error);
-  GPR_TIMER_END("grpc_chttp2_end_write", 0);
 }

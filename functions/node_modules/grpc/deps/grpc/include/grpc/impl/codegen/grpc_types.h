@@ -119,8 +119,13 @@ typedef struct {
     These configuration options are modelled as key-value pairs as defined
     by grpc_arg; keys are strings to allow easy backwards-compatible extension
     by arbitrary parties. All evaluation is performed at channel creation
-    time (i.e. the values in this structure need only live through the
+    time (i.e. the keys and values in this structure need only live through the
     creation invocation).
+
+    However, if one of the args has grpc_arg_type==GRPC_ARG_POINTER, then the
+    grpc_arg_pointer_vtable must live until the channel args are done being
+    used by core (i.e. when the object for use with which they were passed
+    is destroyed).
 
     See the description of the \ref grpc_arg_keys "available args" for more
     details. */
@@ -239,6 +244,9 @@ typedef struct {
 /** The time between the first and second connection attempts, in ms */
 #define GRPC_ARG_INITIAL_RECONNECT_BACKOFF_MS \
   "grpc.initial_reconnect_backoff_ms"
+/** Minimum amount of time between DNS resolutions, in ms */
+#define GRPC_ARG_DNS_MIN_TIME_BETWEEN_RESOLUTIONS_MS \
+  "grpc.dns_min_time_between_resolutions_ms"
 /** The timeout used on servers for finishing handshaking on an incoming
     connection.  Defaults to 120 seconds. */
 #define GRPC_ARG_SERVER_HANDSHAKE_TIMEOUT_MS "grpc.server_handshake_timeout_ms"
@@ -293,7 +301,7 @@ typedef struct {
 #define GRPC_ARG_GRPCLB_CALL_TIMEOUT_MS "grpc.grpclb_call_timeout_ms"
 /* Timeout in milliseconds to wait for the serverlist from the grpclb load
    balancer before using fallback backend addresses from the resolver.
-   If 0, fallback will never be used. */
+   If 0, fallback will never be used. Default value is 10000. */
 #define GRPC_ARG_GRPCLB_FALLBACK_TIMEOUT_MS "grpc.grpclb_fallback_timeout_ms"
 /** If non-zero, grpc server's cronet compression workaround will be enabled */
 #define GRPC_ARG_WORKAROUND_CRONET_COMPRESSION \
@@ -515,10 +523,6 @@ typedef struct grpc_op {
         uint8_t is_set;
         grpc_compression_level level;
       } maybe_compression_level;
-      struct grpc_op_send_initial_metadata_maybe_stream_compression_level {
-        uint8_t is_set;
-        grpc_stream_compression_level level;
-      } maybe_stream_compression_level;
     } send_initial_metadata;
     struct grpc_op_send_message {
       /** This op takes ownership of the slices in send_message.  After

@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:http/http.dart' as http;
+
+import 'dart:convert';
+
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
@@ -8,6 +12,8 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
 
 void main() => runApp(new MyApp());
 
@@ -24,38 +30,48 @@ class MyApp extends StatelessWidget {
   }
 }
 
-enum Field { name, favoriteMusic, phValue, profilePicture }
+enum Field {
+  id, // unique id to separate candidates (the document id)
+  name,
+  favoriteMusic,
+  phValue,
+  profilePicture,
+  lastSeenLatitude,
+  lastSeenLongitude
+}
 
 // we may decide not to do this part since a close variant is shown in our other talk.
 class _ProfilePageState extends State<ProfilePage> {
   File _imageFile;
   DocumentReference _profile;
-  DocumentSnapshot _details;
   bool _editing;
-  //TODO: Presumably when we're pulling down data from Firestore this map can be
-  //replaced with the _details snapshot?
-  Map<String, dynamic> _oldLocalValues;
   Map<String, dynamic> _localValues;
+  static String defaultPicturePath = 'assets/longhorn-cowfish.jpg';
+  Set<String> _nonMatches;
 
   @override
   void initState() {
     super.initState();
     _profile = Firestore.instance.collection('profiles').document();
     _editing = false;
-    _oldLocalValues = {};
     _localValues = {};
+    _nonMatches = new Set<String>()..add(_profile.documentID);
   }
 
   getImage() async {
-    var imageFile = await ImagePicker.pickImage();
+    var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+    await _uploadToStorage(imageFile);
+    setState(() {
+      _imageFile = imageFile;
+    });
+  }
+
+  Future<Null> _uploadToStorage(File imageFile) async {
     var random = new Random().nextInt(10000);
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
     _updateLocalData(Field.profilePicture, downloadUrl);
-    setState(() {
-      _imageFile = imageFile;
-    });
   }
 
   void _updateLocalData(Field field, value) {
@@ -65,18 +81,20 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<Null> _updateProfile() async {
-    for (String key in _localValues.keys) {
-      if (_localValues[key] != _oldLocalValues[key]) {
-        _profile.setData(_localValues, SetOptions.merge);
-        break;
-      }
-    }
-    _oldLocalValues = new Map.from(_localValues);
+    /*if(_imageFile == null) {
+      ByteData data = await rootBundle.load(defaultPicturePath);
+      _uploadToStorage(new File(defaultPicturePath)); // TODO.
+    }*/
+    // Get GPS data just before sending.
+    Map<String, double> currentLocation = await new LocationTools().getLocation();
+    _localValues[Field.lastSeenLatitude.toString()] = currentLocation['latitude'];
+    _localValues[Field.lastSeenLongitude.toString()] = currentLocation['longitude'];
+    _profile.setData(_localValues, SetOptions.merge);
   }
 
   Widget _showProfilePicture() {
     Image image = _imageFile == null
-        ? new Image.asset('assets/longhorn-cowfish.jpg')
+        ? new Image.asset(defaultPicturePath)
         : new Image.file(_imageFile);
     if (_editing) {
       return new Stack(
@@ -128,15 +146,27 @@ class _ProfilePageState extends State<ProfilePage> {
             new TextEditingController(text: currentValue ?? defaultValue),
       );
     } else {
+      _localValues[field.toString()] = currentValue ?? defaultValue;
       return new Text('$label: ${currentValue ?? defaultValue}');
     }
   }
 
-  MatchData _getMatchData() {
-    return new MatchData.generate();
+  Future<MatchData> _getMatchData() async {
+    // making the call.
+    String query = _nonMatches.join('&id=');
+
+    Map<String, dynamic> response = json.decode(
+        (await http.get('https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=$query')).body).cast<String, dynamic>();
+
+    return new MatchData(response[Field.id.toString()],
+        response[Field.profilePicture.toString()],
+        response[Field.name.toString()],
+        response[Field.favoriteMusic.toString()],
+        response[Field.phValue.toString()],
+        response[Field.lastSeenLatitude.toString()],
+        response[Field.lastSeenLongitude.toString()]);
   }
 
-  // TODO(efortuna): Maybe do something prettier here with StreamBuilder like the cloud firestore example.
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -158,11 +188,12 @@ class _ProfilePageState extends State<ProfilePage> {
             _showData(Field.phValue),
             new Center(
                 child: new RaisedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      var matchData = await _getMatchData();
                       Navigator.of(context).push(new MaterialPageRoute<Null>(
                           builder: (BuildContext context) {
-                        return new MatchPage(_getMatchData());
-                      }));
+                            return new MatchPage(matchData);
+                          }));
                     },
                     child: new Text("Find your fish!"))),
           ],
@@ -230,13 +261,14 @@ class MatchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Nonmatch case.
     return new Scaffold(
         appBar: new AppBar(
           title: new Text("You've got a fish!"),
         ),
         body: new Column(
           children: [
-            new Image.asset(matchData.profilePicture),
+            //new Image.asset(matchData.profilePicture), TODO: re-enable
             new Text("Name: ${matchData.name}"),
             new Text("Favorite Music: ${matchData.favoriteMusic}"),
             new Text("Favorite pH: ${matchData.favoritePh}"),
@@ -246,6 +278,7 @@ class MatchPage extends StatelessWidget {
                   new FlatButton(
                       onPressed: () {
                         audioTools.stopAudio();
+                        //_nonMatches.add(matchData.id), TODO
                         Navigator.pop(context);
                       },
                       child: new Text("Reject")),
@@ -346,19 +379,23 @@ class _FinderPageState extends State<FinderPage> {
 }
 
 class MatchData {
+  String id;
   String profilePicture; //TODO: Probably switch this to a File
   String name;
   String favoriteMusic;
-  int favoritePh;
+  String favoritePh;
   double targetLatitude;
   double targetLongitude;
+
+  MatchData(this.id, this.profilePicture, this.name, this.favoriteMusic, this.favoritePh,
+      this.targetLatitude, this.targetLongitude);
 
   // TODO: Populate this via Firebase
   MatchData.generate() {
     profilePicture = 'assets/koi.jpg';
     name = 'Finnegan';
     favoriteMusic = 'Goldies';
-    favoritePh = 7;
+    favoritePh = '7';
     targetLatitude = 37.785844;
     targetLongitude = -122.406427;
   }
