@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 
 import 'dart:convert';
 
-
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:audioplayer/audioplayer.dart';
@@ -13,7 +12,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart' show rootBundle;
-
 
 void main() => runApp(new MyApp());
 
@@ -86,9 +84,12 @@ class _ProfilePageState extends State<ProfilePage> {
       _uploadToStorage(new File(defaultPicturePath)); // TODO.
     }*/
     // Get GPS data just before sending.
-    Map<String, double> currentLocation = await new LocationTools().getLocation();
-    _localValues[Field.lastSeenLatitude.toString()] = currentLocation['latitude'];
-    _localValues[Field.lastSeenLongitude.toString()] = currentLocation['longitude'];
+    Map<String, double> currentLocation =
+        await new LocationTools().getLocation();
+    _localValues[Field.lastSeenLatitude.toString()] =
+        currentLocation['latitude'];
+    _localValues[Field.lastSeenLongitude.toString()] =
+        currentLocation['longitude'];
     _profile.setData(_localValues, SetOptions.merge);
   }
 
@@ -137,7 +138,8 @@ class _ProfilePageState extends State<ProfilePage> {
       case Field.phValue:
         label = 'Favorite pH level';
         defaultValue = '5';
-        iconData = Icons.beach_access ; // other options: Icons.colorize // Icons.equalizer // Icons.pool // Icons.tune
+        // other options: Icons.colorize, Icons.equalizer, Icons.pool, Icons.tune
+        iconData = Icons.beach_access;
         break;
       default:
         break;
@@ -151,7 +153,10 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     } else {
       _localValues[field.toString()] = currentValue ?? defaultValue;
-      return new ListTile(leading: new Icon(iconData), title: new Text(label), subtitle: new Text(currentValue ?? defaultValue));
+      return new ListTile(
+          leading: new Icon(iconData),
+          title: new Text(label),
+          subtitle: new Text(currentValue ?? defaultValue));
     }
   }
 
@@ -175,11 +180,16 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       ),
     );
-    Map<String, dynamic> response = json.decode(
-        (await http.get('https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=$query')).body).cast<String, dynamic>();
+    Map<String, dynamic> response = json
+        .decode((await http.get(
+                'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=$query'))
+            .body)
+        .cast<String, dynamic>();
     Navigator.pop(context);
 
-    return new MatchData(response[Field.id.toString()],
+
+    return new MatchData(
+        response[Field.id.toString()],
         response[Field.profilePicture.toString()],
         response[Field.name.toString()],
         response[Field.favoriteMusic.toString()],
@@ -224,8 +234,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       var matchData = await _getMatchData();
                       Navigator.of(context).push(new MaterialPageRoute<Null>(
                           builder: (BuildContext context) {
-                            return new MatchPage(matchData);
-                          }));
+                        return new MatchPage(matchData);
+                      }));
                     },
                     color: Colors.blue,
                     splashColor: Colors.lightBlueAccent,
@@ -289,9 +299,8 @@ class AudioTools {
 
 class MatchPage extends StatelessWidget {
   final MatchData matchData;
-  final AudioTools audioTools;
 
-  MatchPage(this.matchData) : audioTools = new AudioTools();
+  MatchPage(this.matchData);
 
   @override
   Widget build(BuildContext context) {
@@ -311,18 +320,16 @@ class MatchPage extends StatelessWidget {
                 children: [
                   new FlatButton(
                       onPressed: () {
-                        audioTools.stopAudio();
                         //_nonMatches.add(matchData.id), TODO
                         Navigator.pop(context);
                       },
                       child: new Text("Reject")),
                   new FlatButton(
                       onPressed: () {
-                        audioTools.stopAudio();
                         Navigator.of(context).push(new MaterialPageRoute<Null>(
                             builder: (BuildContext context) {
                           return new FinderPage(matchData.targetLatitude,
-                              matchData.targetLongitude, audioTools);
+                              matchData.targetLongitude);
                         }));
                       },
                       child: new Text("Accept")),
@@ -335,9 +342,9 @@ class MatchPage extends StatelessWidget {
 class FinderPage extends StatefulWidget {
   final double targetLatitude;
   final double targetLongitude;
-  final AudioTools audioTools;
+  final AudioTools audioTools = new AudioTools();
 
-  FinderPage(this.targetLatitude, this.targetLongitude, this.audioTools);
+  FinderPage(this.targetLatitude, this.targetLongitude);
 
   @override
   _FinderPageState createState() => new _FinderPageState(audioTools);
@@ -399,16 +406,25 @@ class _FinderPageState extends State<FinderPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        appBar: new AppBar(
-          title: new Text("Find your fish!"),
-        ),
-        body: new Container(
-          color: _colorFromLocationDiff(),
-          child: new Center(
-            child: new Image.asset('assets/location_ping.gif'),
-          ),
-        ));
+    return new Container(
+      color: _colorFromLocationDiff(),
+      child: new Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            new FlatButton.icon(
+              icon: new Icon(Icons.cancel, size: 32.0),
+              label: new Text(
+                "Cancel",
+                textScaleFactor: 2.0,
+              ),
+              onPressed: () {
+                audioTools.stopAudio();
+                Navigator.pop(context);
+              },
+            ),
+            new Image.asset('assets/location_ping.gif'),
+          ]),
+    );
   }
 }
 
@@ -421,8 +437,8 @@ class MatchData {
   double targetLatitude;
   double targetLongitude;
 
-  MatchData(this.id, this.profilePicture, this.name, this.favoriteMusic, this.favoritePh,
-      this.targetLatitude, this.targetLongitude);
+  MatchData(this.id, this.profilePicture, this.name, this.favoriteMusic,
+      this.favoritePh, this.targetLatitude, this.targetLongitude);
 
   // TODO: Populate this via Firebase
   MatchData.generate() {
