@@ -11,7 +11,8 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
 
 void main() => runApp(new MyApp());
 
@@ -36,6 +37,20 @@ enum Field {
   profilePicture,
   lastSeenLatitude,
   lastSeenLongitude
+}
+
+class _PictureTile extends StatelessWidget {
+  const _PictureTile(this.backgroundColor, this.iconData);
+
+  final Color backgroundColor;
+  final IconData iconData;
+
+  @override
+  Widget build(BuildContext context) {
+    return new Card(
+      child: new Image.asset('assets/longhorn-cowfish.jpg', fit: BoxFit.cover),
+    );
+  }
 }
 
 // we may decide not to do this part since a close variant is shown in our other talk.
@@ -117,6 +132,33 @@ class _ProfilePageState extends State<ProfilePage> {
     } else {
       return image;
     }
+  }
+
+  List<StaggeredTile> _staggeredTiles = const <StaggeredTile>[
+    const StaggeredTile.count(3, 3),
+    const StaggeredTile.count(2, 1),
+    const StaggeredTile.count(1, 2),
+    const StaggeredTile.count(1, 1),
+    const StaggeredTile.count(2, 1),
+  ];
+
+  List<Widget> _tiles = const <Widget>[
+    const _PictureTile(Colors.green, Icons.widgets),
+    const _PictureTile(Colors.lightBlue, Icons.wifi),
+    const _PictureTile(Colors.amber, Icons.panorama_wide_angle),
+    const _PictureTile(Colors.brown, Icons.map),
+    const _PictureTile(Colors.deepOrange, Icons.send),
+  ];
+
+  Widget _showPics() {
+    return new StaggeredGridView.count(
+      crossAxisCount: 4,
+      staggeredTiles: _staggeredTiles,
+      children: _tiles,
+      mainAxisSpacing: 4.0,
+      crossAxisSpacing: 4.0,
+      padding: const EdgeInsets.all(4.0),
+    );
   }
 
   Widget _showData(Field field) {
@@ -211,35 +253,31 @@ class _ProfilePageState extends State<ProfilePage> {
           tooltip: _editing ? 'Edit Profile' : 'Save Changes',
           icon: new Icon(_editing ? Icons.check : Icons.edit),
         ),
-        body: new ListView(
+        body: Column(
           children: <Widget>[
-            _showProfilePicture(),
-            _showData(Field.name),
-            _showData(Field.favoriteMusic),
-            _showData(Field.phValue),
-            /*new RaisedButton(child: new Text('Availability for date'), onPressed: () async {
-              final DateTime picked = await showDatePicker(
-              context: context,
-              firstDate: new DateTime.now(),
-              initialDate: new DateTime.now(),
-              lastDate: new DateTime(2020)
-            );
-            if (picked != null && picked != selectedDate)
-            //selectDate(picked);
-            }),*/
-            new Center(
-                child: new RaisedButton.icon(
-                    icon: new Icon(Icons.favorite),
-                    onPressed: () async {
-                      var matchData = await _getMatchData();
-                      Navigator.of(context).push(new MaterialPageRoute<Null>(
-                          builder: (BuildContext context) {
-                        return new MatchPage(matchData);
-                      }));
-                    },
-                    color: Colors.blue,
-                    splashColor: Colors.lightBlueAccent,
-                    label: new Text("Find your fish!"))),
+            new Expanded(child: _showPics()),
+            new Expanded(
+              child: new ListView(
+                children: <Widget>[
+                  _showData(Field.name),
+                  _showData(Field.favoriteMusic),
+                  _showData(Field.phValue),
+                  new Center(
+                      child: new RaisedButton.icon(
+                          icon: new Icon(Icons.favorite),
+                          onPressed: () async {
+                            var matchData = await _getMatchData();
+                            Navigator.of(context).push(new MaterialPageRoute<Null>(
+                                builder: (BuildContext context) {
+                              return new MatchPage(matchData);
+                            }));
+                          },
+                          color: Colors.blue,
+                          splashColor: Colors.lightBlueAccent,
+                          label: new Text("Find your fish!"))),
+                ],
+              ),
+            ),
           ],
         ));
   }
@@ -307,7 +345,7 @@ class MatchPage extends StatelessWidget {
     // TODO: Nonmatch case.
     return new Scaffold(
         appBar: new AppBar(
-          title: new Text("You've got a fish!"),
+          title: new Text("You've caught a fish!"),
         ),
         body: new Column(
           children: [
