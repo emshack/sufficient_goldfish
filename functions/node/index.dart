@@ -35,7 +35,7 @@ void matchFish(interop.ExpressHttpRequest request) async {
 
   DocumentSnapshot match;
   bool foundMatch = false;
-  request.response.writeln('docs size ${profiles.length} ${Field.values}');
+  //request.response.writeln('docs size ${profiles.length} ${Field.values}');
 
   while (profiles.length > 0 && !foundMatch) {
     int index = new Random().nextInt(profiles.length);

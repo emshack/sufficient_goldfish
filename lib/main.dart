@@ -191,7 +191,8 @@ class _ProfilePageState extends State<ProfilePage> {
             _showData(Field.favoriteMusic),
             _showData(Field.phValue),
             new Center(
-                child: new RaisedButton(
+                child: new RaisedButton.icon(
+                    icon: new Icon(Icons.favorite),
                     onPressed: () async {
                       var matchData = await _getMatchData();
                       Navigator.of(context).push(new MaterialPageRoute<Null>(
@@ -199,7 +200,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             return new MatchPage(matchData);
                           }));
                     },
-                    child: new Text("Find your fish!"))),
+                    color: Colors.blue,
+                    splashColor: Colors.lightBlueAccent,
+                    label: new Text("Find your fish!"))),
           ],
         ));
   }
