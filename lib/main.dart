@@ -33,7 +33,10 @@ enum Field {
   name,
   favoriteMusic,
   phValue,
-  profilePicture,
+  profilePicture1, // the main profile picture
+  profilePicture2,
+  profilePicture3,
+  profilePicture4,
   lastSeenLatitude,
   lastSeenLongitude
 }
@@ -72,18 +75,18 @@ class _ProfilePageState extends State<ProfilePage> {
 
   getImage() async {
     var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
-    await _uploadToStorage(imageFile);
+    await _uploadToStorage(imageFile, Field.profilePicture1); // TODO: not only image 1
     setState(() {
       _imageFile = imageFile;
     });
   }
 
-  Future<Null> _uploadToStorage(File imageFile) async {
+  Future<Null> _uploadToStorage(File imageFile, Field profileImageLocation) async {
     var random = new Random().nextInt(10000);
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
-    _updateLocalData(Field.profilePicture, downloadUrl);
+    _updateLocalData(profileImageLocation, downloadUrl);
   }
 
   void _updateLocalData(Field field, value) {
@@ -220,7 +223,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return new MatchData(
         response[Field.id.toString()],
-        response[Field.profilePicture.toString()],
+        response[Field.profilePicture1.toString()],
+        response[Field.profilePicture2.toString()],
+        response[Field.profilePicture3.toString()],
+        response[Field.profilePicture4.toString()],
         response[Field.name.toString()],
         response[Field.favoriteMusic.toString()],
         response[Field.phValue.toString()],
@@ -241,35 +247,31 @@ class _ProfilePageState extends State<ProfilePage> {
           tooltip: _editing ? 'Edit Profile' : 'Save Changes',
           icon: new Icon(_editing ? Icons.check : Icons.edit),
         ),
-        body: CustomScrollView(
-          slivers: <Widget>[
-            new SliverList(
-              delegate: SliverChildListDelegate([new Card(
-                        child: new Image.asset('assets/longhorn-cowfish.jpg', fit: BoxFit.cover))]),
-            ),
-            new SliverGrid(gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-                delegate: new SliverChildListDelegate(_tiles)),
-            new SliverList(delegate: SliverChildListDelegate(
-              <Widget>[
-                  _showData(Field.name),
-                  _showData(Field.favoriteMusic),
-                  _showData(Field.phValue),
-                  new Center(
-                      child: new RaisedButton.icon(
-                          icon: new Icon(Icons.favorite),
-                          onPressed: () async {
-                            var matchData = await _getMatchData();
-                            Navigator.of(context).push(new MaterialPageRoute<Null>(
-                                builder: (BuildContext context) {
-                              return new MatchPage(matchData);
-                            }));
-                          },
-                          color: Colors.blue,
-                          splashColor: Colors.lightBlueAccent,
-                          label: new Text("Find your fish!"))),
-                ],
-              ),
-            ),
+        // This simplifies the number of nested widgets compared to my
+        // CustomScrollView implementatation (see commit
+        // 1bf015c1a19808d387ba6f378f1d2b3bab5bf60d) but if you rotate the
+        // screen it gets (understandably) mad at you for overflowing. We can
+        // add back in the CustomScrollView if we decide we want that.
+        body: new Column(
+          children: <Widget>[
+            new Card(child: new Image.asset('assets/longhorn-cowfish.jpg')),
+            new GridView.count(crossAxisCount: 3, shrinkWrap: true, children: _tiles),
+            _showData(Field.name),
+            _showData(Field.favoriteMusic),
+            _showData(Field.phValue),
+            new Center(
+                child: new RaisedButton.icon(
+                    icon: new Icon(Icons.favorite),
+                    onPressed: () async {
+                      var matchData = await _getMatchData();
+                      Navigator.of(context).push(new MaterialPageRoute<Null>(
+                          builder: (BuildContext context) {
+                        return new MatchPage(matchData);
+                      }));
+                    },
+                    color: Colors.blue,
+                    splashColor: Colors.lightBlueAccent,
+                    label: new Text("Find your fish!"))),
           ],
         ));
   }
@@ -460,14 +462,15 @@ class _FinderPageState extends State<FinderPage> {
 
 class MatchData {
   String id;
-  String profilePicture; //TODO: Probably switch this to a File
+  String profilePicture1, profilePicture2, profilePicture3, profilePicture4; //TODO: Probably switch this to a File
   String name;
   String favoriteMusic;
   String favoritePh;
   double targetLatitude;
   double targetLongitude;
 
-  MatchData(this.id, this.profilePicture, this.name, this.favoriteMusic,
+  MatchData(this.id, this.profilePicture1, this.profilePicture2,
+      this.profilePicture3, this.profilePicture4, this.name, this.favoriteMusic,
       this.favoritePh, this.targetLatitude, this.targetLongitude);
 
   // TODO: Populate this via Firebase
