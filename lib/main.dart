@@ -11,7 +11,6 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 
 void main() => runApp(new MyApp());
@@ -134,30 +133,19 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  List<StaggeredTile> _staggeredTiles = const <StaggeredTile>[
-    const StaggeredTile.count(3, 3),
-    const StaggeredTile.count(2, 1),
-    const StaggeredTile.count(1, 2),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(2, 1),
-  ];
-
   List<Widget> _tiles = const <Widget>[
     const _PictureTile(Colors.green, Icons.widgets),
     const _PictureTile(Colors.lightBlue, Icons.wifi),
     const _PictureTile(Colors.amber, Icons.panorama_wide_angle),
-    const _PictureTile(Colors.brown, Icons.map),
-    const _PictureTile(Colors.deepOrange, Icons.send),
   ];
 
   Widget _showPics() {
-    return new StaggeredGridView.count(
-      crossAxisCount: 4,
-      staggeredTiles: _staggeredTiles,
+    return GridView.count(
+      crossAxisCount: 3,
       children: _tiles,
       mainAxisSpacing: 4.0,
       crossAxisSpacing: 4.0,
-      padding: const EdgeInsets.all(4.0),
+      padding: EdgeInsets.all(4.0),
     );
   }
 
@@ -253,12 +241,16 @@ class _ProfilePageState extends State<ProfilePage> {
           tooltip: _editing ? 'Edit Profile' : 'Save Changes',
           icon: new Icon(_editing ? Icons.check : Icons.edit),
         ),
-        body: Column(
-          children: <Widget>[
-            new Expanded(child: _showPics()),
-            new Expanded(
-              child: new ListView(
-                children: <Widget>[
+        body: CustomScrollView(
+          slivers: <Widget>[
+            new SliverList(
+              delegate: SliverChildListDelegate([new Card(
+                        child: new Image.asset('assets/longhorn-cowfish.jpg', fit: BoxFit.cover))]),
+            ),
+            new SliverGrid(gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+                delegate: new SliverChildListDelegate(_tiles)),
+            new SliverList(delegate: SliverChildListDelegate(
+              <Widget>[
                   _showData(Field.name),
                   _showData(Field.favoriteMusic),
                   _showData(Field.phValue),
