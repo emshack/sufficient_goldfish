@@ -12,7 +12,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
-
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
@@ -78,15 +77,19 @@ class _ProfilePageState extends State<ProfilePage> {
     _profile.setData(_localValues, SetOptions.merge);
   }
 
-  Widget _showProfilePictures() {
+  List<Widget> _profilePictures() {
     var tiles = <Widget>[
       new ProfilePicture(_editing, Field.profilePicture2, _localValues),
       new ProfilePicture(_editing, Field.profilePicture3, _localValues),
       new ProfilePicture(_editing, Field.profilePicture4, _localValues),
     ];
-      return new Column(children: [
-        new Card(child: new ProfilePicture(_editing, Field.profilePicture1, _localValues)),
-        new GridView.count(crossAxisCount: 3, shrinkWrap: true, children: tiles, padding: EdgeInsets.all(4.0))]);
+    return <Widget>[
+                new SliverList(
+                 delegate: SliverChildListDelegate([new ProfilePicture(
+                               _editing, Field.profilePicture1, _localValues)]),
+                ),
+                new SliverGrid(gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 4.0),
+                    delegate: new SliverChildListDelegate(tiles)),];
   }
 
   Widget _showData(Field field) {
@@ -146,8 +149,8 @@ class _ProfilePageState extends State<ProfilePage> {
               new CircularProgressIndicator(),
               new Text('Off Fishing...'),
             ],
+          ),
         ),
-      ),
       ),
     );
     Map<String, dynamic> response = json
@@ -156,7 +159,6 @@ class _ProfilePageState extends State<ProfilePage> {
             .body)
         .cast<String, dynamic>();
     Navigator.pop(context);
-
 
     return new MatchData(
         response[Field.id.toString()],
@@ -184,31 +186,30 @@ class _ProfilePageState extends State<ProfilePage> {
           tooltip: _editing ? 'Edit Profile' : 'Save Changes',
           icon: new Icon(_editing ? Icons.check : Icons.edit),
         ),
-        // This simplifies the number of nested widgets compared to my
-        // CustomScrollView implementatation (see commit
-        // 1bf015c1a19808d387ba6f378f1d2b3bab5bf60d) but if you rotate the
-        // screen it gets (understandably) mad at you for overflowing. We can
-        // add back in the CustomScrollView if we decide we want that.
-        body: new Column(
-          children: <Widget>[
-            _showProfilePictures(),
-            _showData(Field.name),
-            _showData(Field.favoriteMusic),
-            _showData(Field.phValue),
-            new Center(
-                child: new RaisedButton.icon(
-                    icon: new Icon(Icons.favorite),
-                    onPressed: () async {
-                      var matchData = await _getMatchData();
-                      Navigator.of(context).push(new MaterialPageRoute<Null>(
-                          builder: (BuildContext context) {
-                        return new MatchPage(matchData);
-                      }));
-                    },
-                    color: Colors.blue,
-                    splashColor: Colors.lightBlueAccent,
-                    label: new Text("Find your fish!"))),
-          ],
+        body: CustomScrollView(slivers: _profilePictures()..add(
+          new SliverList(
+            delegate: SliverChildListDelegate(
+              <Widget>[
+                _showData(Field.name),
+                _showData(Field.favoriteMusic),
+                _showData(Field.phValue),
+                new Center(
+                    child: new RaisedButton.icon(
+                        icon: new Icon(Icons.favorite),
+                        onPressed: () async {
+                          var matchData = await _getMatchData();
+                          Navigator.of(context).push(
+                              new MaterialPageRoute<Null>(
+                                  builder: (BuildContext context) {
+                            return new MatchPage(matchData);
+                          }));
+                        },
+                        color: Colors.blue,
+                        splashColor: Colors.lightBlueAccent,
+                        label: new Text("Find your fish!"))),
+              ],
+            ),
+          ))
         ));
   }
 }
@@ -219,22 +220,22 @@ class ProfilePicture extends StatefulWidget {
   final Field imagePosition;
   final Map<String, dynamic> localValues;
 
-  ProfilePicture(this.editing, this.imagePosition, this.localValues, [this._imageFile]);
+  ProfilePicture(this.editing, this.imagePosition, this.localValues,
+      [this._imageFile]);
 
   @override
   State<ProfilePicture> createState() => new _ProfilePictureState(_imageFile);
-
 }
 
-class _ProfilePictureState extends State<ProfilePicture>  {
+class _ProfilePictureState extends State<ProfilePicture> {
   File _imageFile;
   _ProfilePictureState(this._imageFile);
 
   @override
   Widget build(BuildContext context) {
-    Image image = _imageFile == null
+    var image = new Card(child: _imageFile == null
         ? new Image.asset('assets/fish-silhouette.png')
-        : new Image.file(_imageFile);
+        : new Image.file(_imageFile));
     if (widget.editing) {
       return new Stack(
         children: [
@@ -256,7 +257,6 @@ class _ProfilePictureState extends State<ProfilePicture>  {
       return image;
     }
   }
-
 
   _getImage() async {
     var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -460,16 +460,27 @@ class _FinderPageState extends State<FinderPage> {
 
 class MatchData {
   String id;
-  String profilePicture1, profilePicture2, profilePicture3, profilePicture4; //TODO: Probably switch this to a File
+  String profilePicture1,
+      profilePicture2,
+      profilePicture3,
+      profilePicture4; //TODO: Probably switch this to a File
   String name;
   String favoriteMusic;
   String favoritePh;
   double targetLatitude;
   double targetLongitude;
 
-  MatchData(this.id, this.profilePicture1, this.profilePicture2,
-      this.profilePicture3, this.profilePicture4, this.name, this.favoriteMusic,
-      this.favoritePh, this.targetLatitude, this.targetLongitude);
+  MatchData(
+      this.id,
+      this.profilePicture1,
+      this.profilePicture2,
+      this.profilePicture3,
+      this.profilePicture4,
+      this.name,
+      this.favoriteMusic,
+      this.favoritePh,
+      this.targetLatitude,
+      this.targetLongitude);
 
   // TODO: Populate this via Firebase
   MatchData.generate() {
