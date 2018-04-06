@@ -41,27 +41,11 @@ enum Field {
   lastSeenLongitude
 }
 
-class _PictureTile extends StatelessWidget {
-  const _PictureTile(this.backgroundColor, this.iconData);
-
-  final Color backgroundColor;
-  final IconData iconData;
-
-  @override
-  Widget build(BuildContext context) {
-    return new Card(
-      child: new Image.asset('assets/longhorn-cowfish.jpg', fit: BoxFit.cover),
-    );
-  }
-}
-
 // we may decide not to do this part since a close variant is shown in our other talk.
 class _ProfilePageState extends State<ProfilePage> {
-  File _imageFile;
   DocumentReference _profile;
   bool _editing;
   Map<String, dynamic> _localValues;
-  static String defaultPicturePath = 'assets/longhorn-cowfish.jpg';
   Set<String> _nonMatches;
 
   @override
@@ -71,22 +55,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _editing = false;
     _localValues = {};
     _nonMatches = new Set<String>()..add(_profile.documentID);
-  }
-
-  getImage() async {
-    var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
-    await _uploadToStorage(imageFile, Field.profilePicture1); // TODO: not only image 1
-    setState(() {
-      _imageFile = imageFile;
-    });
-  }
-
-  Future<Null> _uploadToStorage(File imageFile, Field profileImageLocation) async {
-    var random = new Random().nextInt(10000);
-    var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
-    var uploadTask = ref.put(imageFile);
-    var downloadUrl = (await uploadTask.future).downloadUrl;
-    _updateLocalData(profileImageLocation, downloadUrl);
   }
 
   void _updateLocalData(Field field, value) {
@@ -110,46 +78,15 @@ class _ProfilePageState extends State<ProfilePage> {
     _profile.setData(_localValues, SetOptions.merge);
   }
 
-  Widget _showProfilePicture() {
-    Image image = _imageFile == null
-        ? new Image.asset(defaultPicturePath)
-        : new Image.file(_imageFile);
-    if (_editing) {
-      return new Stack(
-        children: [
-          new Container(
-            child: image,
-            foregroundDecoration: new BoxDecoration(
-                color: new Color.fromRGBO(200, 200, 200, 0.5)),
-          ),
-          new IconButton(
-            iconSize: 50.0,
-            onPressed: getImage,
-            tooltip: 'Pick Image',
-            icon: new Icon(Icons.add_a_photo),
-          ),
-        ],
-        alignment: new Alignment(0.0, 0.0),
-      );
-    } else {
-      return image;
-    }
-  }
-
-  List<Widget> _tiles = const <Widget>[
-    const _PictureTile(Colors.green, Icons.widgets),
-    const _PictureTile(Colors.lightBlue, Icons.wifi),
-    const _PictureTile(Colors.amber, Icons.panorama_wide_angle),
-  ];
-
-  Widget _showPics() {
-    return GridView.count(
-      crossAxisCount: 3,
-      children: _tiles,
-      mainAxisSpacing: 4.0,
-      crossAxisSpacing: 4.0,
-      padding: EdgeInsets.all(4.0),
-    );
+  Widget _showProfilePictures() {
+    var tiles = <Widget>[
+      new ProfilePicture(_editing, Field.profilePicture2, _localValues),
+      new ProfilePicture(_editing, Field.profilePicture3, _localValues),
+      new ProfilePicture(_editing, Field.profilePicture4, _localValues),
+    ];
+      return new Column(children: [
+        new Card(child: new ProfilePicture(_editing, Field.profilePicture1, _localValues)),
+        new GridView.count(crossAxisCount: 3, shrinkWrap: true, children: tiles, padding: EdgeInsets.all(4.0))]);
   }
 
   Widget _showData(Field field) {
@@ -254,8 +191,7 @@ class _ProfilePageState extends State<ProfilePage> {
         // add back in the CustomScrollView if we decide we want that.
         body: new Column(
           children: <Widget>[
-            new Card(child: new Image.asset('assets/longhorn-cowfish.jpg')),
-            new GridView.count(crossAxisCount: 3, shrinkWrap: true, children: _tiles),
+            _showProfilePictures(),
             _showData(Field.name),
             _showData(Field.favoriteMusic),
             _showData(Field.phValue),
@@ -274,6 +210,68 @@ class _ProfilePageState extends State<ProfilePage> {
                     label: new Text("Find your fish!"))),
           ],
         ));
+  }
+}
+
+class ProfilePicture extends StatefulWidget {
+  final bool editing;
+  final File _imageFile;
+  final Field imagePosition;
+  final Map<String, dynamic> localValues;
+
+  ProfilePicture(this.editing, this.imagePosition, this.localValues, [this._imageFile]);
+
+  @override
+  State<ProfilePicture> createState() => new _ProfilePictureState(_imageFile);
+
+}
+
+class _ProfilePictureState extends State<ProfilePicture>  {
+  File _imageFile;
+  _ProfilePictureState(this._imageFile);
+
+  @override
+  Widget build(BuildContext context) {
+    Image image = _imageFile == null
+        ? new Image.asset('assets/fish-silhouette.png')
+        : new Image.file(_imageFile);
+    if (widget.editing) {
+      return new Stack(
+        children: [
+          new Container(
+            child: image,
+            foregroundDecoration: new BoxDecoration(
+                color: new Color.fromRGBO(200, 200, 200, 0.5)),
+          ),
+          new IconButton(
+            iconSize: 50.0,
+            onPressed: _getImage,
+            tooltip: 'Pick Image',
+            icon: new Icon(Icons.add_a_photo),
+          ),
+        ],
+        alignment: new Alignment(0.0, 0.0),
+      );
+    } else {
+      return image;
+    }
+  }
+
+
+  _getImage() async {
+    var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+    await _uploadToStorage(imageFile);
+    setState(() {
+      _imageFile = imageFile;
+    });
+  }
+
+  Future<Null> _uploadToStorage(File imageFile) async {
+    var random = new Random().nextInt(10000);
+    var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
+    var uploadTask = ref.put(imageFile);
+    var downloadUrl = (await uploadTask.future).downloadUrl;
+    widget.localValues[widget.imagePosition.toString()] = downloadUrl;
   }
 }
 
@@ -475,7 +473,7 @@ class MatchData {
 
   // TODO: Populate this via Firebase
   MatchData.generate() {
-    profilePicture = 'assets/koi.jpg';
+    profilePicture1 = 'assets/koi.jpg';
     name = 'Finnegan';
     favoriteMusic = 'Goldies';
     favoritePh = '7';
