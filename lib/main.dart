@@ -57,7 +57,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _updateLocalData(Field field, value) {
-    print('UPDATING LOCAL DATA! $field');
     setState(() {
       _localValues[field.toString()] = value;
     });
@@ -71,9 +70,6 @@ class _ProfilePageState extends State<ProfilePage> {
         currentLocation['latitude'];
     _localValues[Field.lastSeenLongitude.toString()] =
         currentLocation['longitude'];
-    for (var value in _localValues.keys) {
-      print('type of this value $value is ${_localValues[value].runtimeType}');
-    }
     _profile.setData(_localValues, SetOptions.merge);
   }
 
@@ -162,10 +158,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return new MatchData(
         response[Field.id.toString()],
-        response[Field.profilePicture1.toString()],
-        response[Field.profilePicture2.toString()],
-        response[Field.profilePicture3.toString()],
-        response[Field.profilePicture4.toString()],
+        Uri.parse(response[Field.profilePicture1.toString()]),
+        Uri.parse(response[Field.profilePicture2.toString()]),
+        Uri.parse(response[Field.profilePicture3.toString()]),
+        Uri.parse(response[Field.profilePicture4.toString()]),
         response[Field.name.toString()],
         response[Field.favoriteMusic.toString()],
         response[Field.phValue.toString()],
@@ -216,7 +212,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
 class ProfilePicture extends StatefulWidget {
   final bool editing;
-  final File _imageFile;
+  final Uri _imageFile;
   final Field imagePosition;
   final Function updateLocalValuesCallback;
 
@@ -228,14 +224,14 @@ class ProfilePicture extends StatefulWidget {
 }
 
 class _ProfilePictureState extends State<ProfilePicture> {
-  File _imageFile;
+  Uri _imageFile;
   _ProfilePictureState(this._imageFile);
 
   @override
   Widget build(BuildContext context) {
     var image = new Card(child: _imageFile == null
         ? new Image.asset('assets/fish-silhouette.png')
-        : new Image.file(_imageFile));
+        : (_imageFile.toString().startsWith('http') ? new Image.network(_imageFile.toString(), fit: BoxFit.cover) : new Image.file(new File.fromUri(_imageFile), fit: BoxFit.cover)));
     if (widget.editing) {
       return new Stack(
         children: [
@@ -261,7 +257,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
   _getImage() async {
     var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
-      _imageFile = imageFile;
+      _imageFile = imageFile.uri;
     });
     await _uploadToStorage(imageFile);
   }
@@ -460,10 +456,10 @@ class _FinderPageState extends State<FinderPage> {
 
 class MatchData {
   String id;
-  String profilePicture1,
+  Uri profilePicture1,
       profilePicture2,
       profilePicture3,
-      profilePicture4; //TODO: Probably switch this to a File
+      profilePicture4;
   String name;
   String favoriteMusic;
   String favoritePh;
@@ -481,14 +477,4 @@ class MatchData {
       this.favoritePh,
       this.targetLatitude,
       this.targetLongitude);
-
-  // TODO: Populate this via Firebase
-  MatchData.generate() {
-    profilePicture1 = 'assets/koi.jpg';
-    name = 'Finnegan';
-    favoriteMusic = 'Goldies';
-    favoritePh = '7';
-    targetLatitude = 37.785844;
-    targetLongitude = -122.406427;
-  }
 }
