@@ -57,16 +57,13 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _updateLocalData(Field field, value) {
+    print('UPDATING LOCAL DATA! $field');
     setState(() {
       _localValues[field.toString()] = value;
     });
   }
 
   Future<Null> _updateProfile() async {
-    /*if(_imageFile == null) {
-      ByteData data = await rootBundle.load(defaultPicturePath);
-      _uploadToStorage(new File(defaultPicturePath)); // TODO.
-    }*/
     // Get GPS data just before sending.
     Map<String, double> currentLocation =
         await new LocationTools().getLocation();
@@ -74,19 +71,22 @@ class _ProfilePageState extends State<ProfilePage> {
         currentLocation['latitude'];
     _localValues[Field.lastSeenLongitude.toString()] =
         currentLocation['longitude'];
+    for (var value in _localValues.keys) {
+      print('type of this value $value is ${_localValues[value].runtimeType}');
+    }
     _profile.setData(_localValues, SetOptions.merge);
   }
 
   List<Widget> _profilePictures() {
     var tiles = <Widget>[
-      new ProfilePicture(_editing, Field.profilePicture2, _localValues),
-      new ProfilePicture(_editing, Field.profilePicture3, _localValues),
-      new ProfilePicture(_editing, Field.profilePicture4, _localValues),
+      new ProfilePicture(_editing, Field.profilePicture2, _updateLocalData),
+      new ProfilePicture(_editing, Field.profilePicture3, _updateLocalData),
+      new ProfilePicture(_editing, Field.profilePicture4, _updateLocalData),
     ];
     return <Widget>[
                 new SliverList(
                  delegate: SliverChildListDelegate([new ProfilePicture(
-                               _editing, Field.profilePicture1, _localValues)]),
+                               _editing, Field.profilePicture1, _updateLocalData)]),
                 ),
                 new SliverGrid(gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 4.0),
                     delegate: new SliverChildListDelegate(tiles)),];
@@ -218,9 +218,9 @@ class ProfilePicture extends StatefulWidget {
   final bool editing;
   final File _imageFile;
   final Field imagePosition;
-  final Map<String, dynamic> localValues;
+  final Function updateLocalValuesCallback;
 
-  ProfilePicture(this.editing, this.imagePosition, this.localValues,
+  ProfilePicture(this.editing, this.imagePosition, this.updateLocalValuesCallback,
       [this._imageFile]);
 
   @override
@@ -260,10 +260,10 @@ class _ProfilePictureState extends State<ProfilePicture> {
 
   _getImage() async {
     var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
-    await _uploadToStorage(imageFile);
     setState(() {
       _imageFile = imageFile;
     });
+    await _uploadToStorage(imageFile);
   }
 
   Future<Null> _uploadToStorage(File imageFile) async {
@@ -271,7 +271,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
-    widget.localValues[widget.imagePosition.toString()] = downloadUrl;
+    widget.updateLocalValuesCallback(widget.imagePosition, downloadUrl.toString());
   }
 }
 
