@@ -102,20 +102,13 @@ class _ProfilePageState extends State<ProfilePage> {
       default:
         break;
     }
-    if (_editing) {
-      return new TextField(
-        decoration: new InputDecoration(labelText: label),
-        onChanged: (changed) => _updateLocalData(field, changed),
-        controller:
-            new TextEditingController(text: currentValue ?? defaultValue),
-      );
-    } else {
-      _localValues[field.toString()] = currentValue ?? defaultValue;
-      return new ListTile(
-          leading: new Icon(iconData),
-          title: new Text(label),
-          subtitle: new Text(currentValue ?? defaultValue));
-    }
+    return new TextField(
+      decoration: new InputDecoration(labelText: label, icon: new Icon(iconData)),
+      onChanged: (changed) => _updateLocalData(field, changed),
+      enabled: _editing,
+      controller:
+          new TextEditingController(text: currentValue ?? defaultValue),
+    );
   }
 
   Future<MatchData> _getMatchData() async {
@@ -322,7 +315,7 @@ class MatchPage extends StatelessWidget {
     // TODO: Nonmatch case.
     return new Scaffold(
         appBar: new AppBar(
-          title: new Text("You've caught a fish!"),
+          title: new Text("Great catch!"),
         ),
         body: new Column(
           children: [
