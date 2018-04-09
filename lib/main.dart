@@ -80,22 +80,21 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _showData(Field field) {
     String label;
     String defaultValue;
-    String currentValue = _localValues[field.toString()];
     IconData iconData;
     switch (field) {
       case Field.name:
         label = 'Name';
-        defaultValue = 'Frank';
+        defaultValue = 'e.g. Frank';
         iconData = Icons.person;
         break;
       case Field.favoriteMusic:
         label = 'Favorite Music';
-        defaultValue = 'Blubstep';
+        defaultValue = 'e.g. Blubstep';
         iconData = Icons.music_note;
         break;
       case Field.phValue:
         label = 'Favorite pH level';
-        defaultValue = '5';
+        defaultValue = 'e.g. 5';
         // other options: Icons.colorize, Icons.equalizer, Icons.pool, Icons.tune
         iconData = Icons.beach_access;
         break;
@@ -103,11 +102,9 @@ class _ProfilePageState extends State<ProfilePage> {
         break;
     }
     return new TextField(
-      decoration: new InputDecoration(labelText: label, icon: new Icon(iconData)),
+      decoration: new InputDecoration(labelText: label, icon: new Icon(iconData), hintText: defaultValue),
       onChanged: (changed) => _updateLocalData(field, changed),
       enabled: _editing,
-      controller:
-          new TextEditingController(text: currentValue ?? defaultValue),
     );
   }
 
