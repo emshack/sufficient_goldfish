@@ -42,6 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _profile = Firestore.instance.collection('profiles').document();
     _editing = false;
     _localValues = {};
+    _localValues[Field.phValue.toString()] = 5.0;
     _nonMatches = new Set<String>()..add(_profile.documentID);
   }
 
@@ -69,41 +70,24 @@ class _ProfilePageState extends State<ProfilePage> {
       new ProfilePicture(_editing, Field.profilePicture4, _updateLocalData),
     ];
     return <Widget>[
-                new SliverList(
-                 delegate: SliverChildListDelegate([new ProfilePicture(
-                               _editing, Field.profilePicture1, _updateLocalData)]),
-                ),
-                new SliverGrid(gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 4.0),
-                    delegate: new SliverChildListDelegate(tiles)),];
+      new SliverList(
+        delegate: SliverChildListDelegate([
+          new ProfilePicture(_editing, Field.profilePicture1, _updateLocalData)
+        ]),
+      ),
+      new SliverGrid(
+          gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3, crossAxisSpacing: 4.0),
+          delegate: new SliverChildListDelegate(tiles)),
+    ];
   }
 
-  Widget _showData(Field field) {
-    String label;
-    String defaultValue;
-    IconData iconData;
-    switch (field) {
-      case Field.name:
-        label = 'Name';
-        defaultValue = 'e.g. Frank';
-        iconData = Icons.person;
-        break;
-      case Field.favoriteMusic:
-        label = 'Favorite Music';
-        defaultValue = 'e.g. Blubstep';
-        iconData = Icons.music_note;
-        break;
-      case Field.phValue:
-        label = 'Favorite pH level';
-        defaultValue = 'e.g. 5';
-        // other options: Icons.colorize, Icons.equalizer, Icons.pool, Icons.tune
-        iconData = Icons.beach_access;
-        break;
-      default:
-        break;
-    }
+  Widget _showData(
+      Field field, String label, String hintText, IconData iconData) {
     return new TextField(
-      decoration: new InputDecoration(labelText: label, icon: new Icon(iconData), hintText: defaultValue),
-      onChanged: (changed) => _updateLocalData(field, changed),
+      decoration: new InputDecoration(
+          labelText: label, icon: new Icon(iconData), hintText: hintText),
+      onSubmitted: (changed) => _updateLocalData(field, changed),
       enabled: _editing,
     );
   }
@@ -116,17 +100,17 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       barrierDismissible: false,
       builder: (context) => new Dialog(
-        child: new Container(
-          padding: new EdgeInsets.all(20.0),
-          child: new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              new CircularProgressIndicator(),
-              new Text('Off Fishing...'),
-            ],
+            child: new Container(
+              padding: new EdgeInsets.all(20.0),
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  new CircularProgressIndicator(),
+                  new Text('Off Fishing...'),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
     );
     Map<String, dynamic> response = json
         .decode((await http.get(
@@ -161,31 +145,54 @@ class _ProfilePageState extends State<ProfilePage> {
           tooltip: _editing ? 'Edit Profile' : 'Save Changes',
           icon: new Icon(_editing ? Icons.check : Icons.edit),
         ),
-        body: CustomScrollView(slivers: _profilePictures()..add(
-          new SliverList(
-            delegate: SliverChildListDelegate(
-              <Widget>[
-                _showData(Field.name),
-                _showData(Field.favoriteMusic),
-                _showData(Field.phValue),
-                new Center(
-                    child: new RaisedButton.icon(
-                        icon: new Icon(Icons.favorite),
-                        onPressed: () async {
-                          var matchData = await _getMatchData();
-                          Navigator.of(context).push(
-                              new MaterialPageRoute<Null>(
-                                  builder: (BuildContext context) {
-                            return new MatchPage(matchData);
-                          }));
-                        },
-                        color: Colors.blue,
-                        splashColor: Colors.lightBlueAccent,
-                        label: new Text("Find your fish!"))),
-              ],
-            ),
-          ))
-        ));
+        body: CustomScrollView(
+            slivers: _profilePictures()
+              ..add(new SliverList(
+                delegate: SliverChildListDelegate(
+                  <Widget>[
+                    _showData(Field.name, 'Name', 'e.g. Frank', Icons.person),
+                    _showData(Field.favoriteMusic, 'Favorite Music',
+                        'e.g. Blubstep', Icons.music_note),
+                    // other options for pH icon: Icons.colorize, Icons.equalizer, Icons.pool, Icons.tune
+
+                        /*new InputDecorator(
+                          decoration: new InputDecoration(
+                            //border: InputBorder.none,
+                            //enabled: _editing,
+                            labelText: 'Preferred pH', icon: new Icon(Icons.beach_access)), child:
+                        //new Icon(Icons.beach_access),
+                        //new Text('Preferred pH'),
+                        new Slider(
+                            value: _localValues[Field.phValue.toString()],
+                            divisions: 14,
+                            max: 14.0,
+                            label:
+                                _localValues[Field.phValue.toString()].toString(),
+                            onChanged: _editing
+                                ? (changed) =>
+                                    _updateLocalData(Field.phValue, changed)
+                                : null)),*/
+
+
+                    _showData(Field.phValue, 'Favorite pH level', 'e.g. 5',
+                        Icons.beach_access),
+                    new Center(
+                        child: new RaisedButton.icon(
+                            icon: new Icon(Icons.favorite),
+                            onPressed: () async {
+                              var matchData = await _getMatchData();
+                              Navigator.of(context).push(
+                                  new MaterialPageRoute<Null>(
+                                      builder: (BuildContext context) {
+                                return new MatchPage(matchData);
+                              }));
+                            },
+                            color: Colors.blue,
+                            splashColor: Colors.lightBlueAccent,
+                            label: new Text("Find your fish!"))),
+                  ],
+                ),
+              ))));
   }
 }
 
@@ -195,7 +202,8 @@ class ProfilePicture extends StatefulWidget {
   final Field imagePosition;
   final Function updateLocalValuesCallback;
 
-  ProfilePicture(this.editing, this.imagePosition, this.updateLocalValuesCallback,
+  ProfilePicture(
+      this.editing, this.imagePosition, this.updateLocalValuesCallback,
       [this._imageFile]);
 
   @override
@@ -208,9 +216,13 @@ class _ProfilePictureState extends State<ProfilePicture> {
 
   @override
   Widget build(BuildContext context) {
-    var image = new Card(child: _imageFile == null
-        ? new Image.asset('assets/fish-silhouette.png')
-        : (_imageFile.toString().startsWith('http') ? new Image.network(_imageFile.toString(), fit: BoxFit.cover) : new Image.file(new File.fromUri(_imageFile), fit: BoxFit.cover)));
+    var image = new Card(
+        child: _imageFile == null
+            ? new Image.asset('assets/fish-silhouette.png')
+            : (_imageFile.toString().startsWith('http')
+                ? new Image.network(_imageFile.toString(), fit: BoxFit.cover)
+                : new Image.file(new File.fromUri(_imageFile),
+                    fit: BoxFit.cover)));
     if (widget.editing) {
       return new Stack(
         children: [
@@ -246,7 +258,8 @@ class _ProfilePictureState extends State<ProfilePicture> {
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
-    widget.updateLocalValuesCallback(widget.imagePosition, downloadUrl.toString());
+    widget.updateLocalValuesCallback(
+        widget.imagePosition, downloadUrl.toString());
   }
 }
 
@@ -435,10 +448,7 @@ class _FinderPageState extends State<FinderPage> {
 
 class MatchData {
   String id;
-  Uri profilePicture1,
-      profilePicture2,
-      profilePicture3,
-      profilePicture4;
+  Uri profilePicture1, profilePicture2, profilePicture3, profilePicture4;
   String name;
   String favoriteMusic;
   String favoritePh;
