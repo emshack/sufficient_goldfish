@@ -35,12 +35,14 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _editing;
   Map<String, dynamic> _localValues;
   Set<String> _nonMatches;
+  bool _showFab;
 
   @override
   void initState() {
     super.initState();
     _profile = Firestore.instance.collection('profiles').document();
     _editing = false;
+    _showFab = true;
     _localValues = {};
     _localValues[Field.phValue.toString()] = 5.0;
     _nonMatches = new Set<String>()..add(_profile.documentID);
@@ -84,10 +86,24 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _showData(
       Field field, String label, String hintText, IconData iconData) {
+    FocusNode myNode = new FocusNode();
+    myNode.addListener(() {
+      setState(() {
+        _showFab = false;
+      });
+      /*print('beeee');
+      if (myNode.hasFocus){
+        setState(() {_showFab = false;
+        print('eeee');
+        });
+        print('aaaaaaa');
+      }*/
+    });
     return new TextField(
       decoration: new InputDecoration(
           labelText: label, icon: new Icon(iconData), hintText: hintText),
       onSubmitted: (changed) => _updateLocalData(field, changed),
+      focusNode: myNode,
       enabled: _editing,
     );
   }
@@ -135,7 +151,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        floatingActionButton: new IconButton(
+        floatingActionButton: _showFab? new FloatingActionButton(
           onPressed: () {
             _updateProfile();
             setState(() {
@@ -143,8 +159,9 @@ class _ProfilePageState extends State<ProfilePage> {
             });
           },
           tooltip: _editing ? 'Edit Profile' : 'Save Changes',
-          icon: new Icon(_editing ? Icons.check : Icons.edit),
-        ),
+          backgroundColor: _editing? Colors.green: Colors.blue,
+          child: new Icon(_editing ? Icons.check : Icons.edit),
+        ) : null,
         body: CustomScrollView(
             slivers: _profilePictures()
               ..add(new SliverList(
@@ -153,27 +170,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     _showData(Field.name, 'Name', 'e.g. Frank', Icons.person),
                     _showData(Field.favoriteMusic, 'Favorite Music',
                         'e.g. Blubstep', Icons.music_note),
-                    // other options for pH icon: Icons.colorize, Icons.equalizer, Icons.pool, Icons.tune
-
-                        /*new InputDecorator(
-                          decoration: new InputDecoration(
-                            //border: InputBorder.none,
-                            //enabled: _editing,
-                            labelText: 'Preferred pH', icon: new Icon(Icons.beach_access)), child:
-                        //new Icon(Icons.beach_access),
-                        //new Text('Preferred pH'),
-                        new Slider(
-                            value: _localValues[Field.phValue.toString()],
-                            divisions: 14,
-                            max: 14.0,
-                            label:
-                                _localValues[Field.phValue.toString()].toString(),
-                            onChanged: _editing
-                                ? (changed) =>
-                                    _updateLocalData(Field.phValue, changed)
-                                : null)),*/
-
-
                     _showData(Field.phValue, 'Favorite pH level', 'e.g. 5',
                         Icons.beach_access),
                     new Center(
