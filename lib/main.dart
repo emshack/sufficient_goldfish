@@ -37,12 +37,23 @@ class _ProfilePageState extends State<ProfilePage> {
   Set<String> _nonMatches;
   bool _showFab;
 
+  FocusNode _focus;
+
+
   @override
   void initState() {
     super.initState();
     _profile = Firestore.instance.collection('profiles').document();
     _editing = false;
     _showFab = true;
+    _focus = new FocusNode();
+    _focus.addListener(() {
+      if (_focus.hasFocus){
+        setState(() {_showFab = false;});
+      } else {
+        setState(() {_showFab = true;});
+      }
+    });
     _localValues = {};
     _localValues[Field.phValue.toString()] = 5.0;
     _nonMatches = new Set<String>()..add(_profile.documentID);
@@ -86,24 +97,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _showData(
       Field field, String label, String hintText, IconData iconData) {
-    FocusNode myNode = new FocusNode();
-    myNode.addListener(() {
-      setState(() {
-        _showFab = false;
-      });
-      /*print('beeee');
-      if (myNode.hasFocus){
-        setState(() {_showFab = false;
-        print('eeee');
-        });
-        print('aaaaaaa');
-      }*/
-    });
     return new TextField(
       decoration: new InputDecoration(
           labelText: label, icon: new Icon(iconData), hintText: hintText),
       onSubmitted: (changed) => _updateLocalData(field, changed),
-      focusNode: myNode,
+      focusNode: _focus,
       enabled: _editing,
     );
   }
