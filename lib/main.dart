@@ -12,6 +12,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'utils.dart';
+
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
@@ -25,19 +27,6 @@ class MyApp extends StatelessWidget {
       home: new ProfilePage(),
     );
   }
-}
-
-enum Field {
-  id, // unique id to separate candidates (the document id)
-  name,
-  favoriteMusic,
-  phValue,
-  profilePicture1, // the main profile picture
-  profilePicture2,
-  profilePicture3,
-  profilePicture4,
-  lastSeenLatitude,
-  lastSeenLongitude
 }
 
 // we may decide not to do this part since a close variant is shown in our other talk.
@@ -136,7 +125,7 @@ class _ProfilePageState extends State<ProfilePage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      child: new Dialog(
+      builder: (context) => new Dialog(
         child: new Container(
           padding: new EdgeInsets.all(20.0),
           child: new Row(
