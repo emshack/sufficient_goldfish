@@ -4,8 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
-import 'package:audioplayer/audioplayer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'utils.dart';
@@ -34,6 +32,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Set<String> _nonMatches;
   bool _showFab;
   FocusNode _focus;
+  final String cloudFunctionUrl =
+      'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=';
 
   @override
   void initState() {
@@ -50,7 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     });
     _matchData = new MatchData(_profile.documentID);
-    _nonMatches = new Set<String>()..add(_profile.documentID);
+    _nonMatches = new Set<String>()..add(_matchData.id);
   }
 
   Future<Null> _updateProfile() async {
@@ -83,10 +83,8 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
     );
     Map<String, dynamic> response = json.decode((await http.get(
-            'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=$query'))
-        .body);
+            cloudFunctionUrl + query)).body);
     Navigator.pop(context);
-
     return new MatchData.parseResponse(response);
   }
 
@@ -102,7 +100,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   });
                 },
                 tooltip: _editing ? 'Edit Profile' : 'Save Changes',
-                backgroundColor: _editing ? Colors.green : Colors.blue,
                 child: new Icon(_editing ? Icons.check : Icons.edit),
               )
             : null,
@@ -130,54 +127,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
 class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => new _ProfilePageState();
-}
-
-typedef void LocationCallback(Map<String, double> location);
-
-class LocationTools {
-  final Location location = new Location();
-
-  Future<Map<String, double>> getLocation() {
-    return location.getLocation;
-  }
-
-  void initListener(LocationCallback callback) {
-    location.onLocationChanged.listen((Map<String, double> currentLocation) {
-      callback(currentLocation);
-    });
-  }
-}
-
-class AudioTools {
-  final AudioPlayer _audioPlayer;
-
-  AudioTools() : _audioPlayer = new AudioPlayer();
-
-  void initAudioLoop(String audioFile) {
-    // restart audio if it has finished
-    _audioPlayer.setCompletionHandler(() {
-      _audioPlayer.play(audioFile);
-    });
-    // restart audio if it has been playing for at least 3 seconds
-    _audioPlayer.setPositionHandler((Duration d) {
-      if (d.inSeconds > 3) {
-        playNewAudio(audioFile);
-      }
-    });
-    _audioPlayer.play(audioFile);
-  }
-
-  void playNewAudio(String audioFile) {
-    _audioPlayer.stop().then((result) {
-      _audioPlayer.play(audioFile);
-    });
-  }
-
-  void stopAudio() {
-    _audioPlayer.setCompletionHandler(() {});
-    _audioPlayer.setPositionHandler((Duration d) {});
-    _audioPlayer.stop();
-  }
 }
 
 class MatchPage extends StatelessWidget {
