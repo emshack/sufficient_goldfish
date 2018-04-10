@@ -13,8 +13,7 @@ class ProfilePicture extends StatefulWidget {
   final Uri _imageFile;
   final Function updateLocalValuesCallback;
 
-  ProfilePicture(
-      this.editing, this.updateLocalValuesCallback,
+  ProfilePicture(this.editing, this.updateLocalValuesCallback,
       [this._imageFile]);
 
   @override
@@ -31,9 +30,9 @@ class _ProfilePictureState extends State<ProfilePicture> {
         child: _imageFile == null
             ? new Image.asset('assets/fish-silhouette.png')
             : (_imageFile.toString().startsWith('http')
-            ? new Image.network(_imageFile.toString(), fit: BoxFit.cover)
-            : new Image.file(new File.fromUri(_imageFile),
-            fit: BoxFit.cover)));
+                ? new Image.network(_imageFile.toString(), fit: BoxFit.cover)
+                : new Image.file(new File.fromUri(_imageFile),
+                    fit: BoxFit.cover)));
     if (widget.editing) {
       return new Stack(
         children: [
@@ -73,37 +72,42 @@ class _ProfilePictureState extends State<ProfilePicture> {
   }
 }
 
-Widget createScrollableProfile(BuildContext context, bool editing, FocusNode focus, MatchData data, Widget extras) {
+Widget createScrollableProfile(BuildContext context, bool editing,
+    FocusNode focus, MatchData data, Widget extras) {
   return CustomScrollView(
       slivers: scrollableProfilePictures(editing, data)
         ..add(new SliverList(
           delegate: SliverChildListDelegate(
             <Widget>[
-              _showData('Name', 'e.g. Frank', Icons.person, editing, focus, (changed) => data.name = changed),
-              _showData('Favorite Music',
-                  'e.g. Blubstep', Icons.music_note, editing, focus, (changed) => data.favoriteMusic = changed),
-              _showData('Favorite pH level', 'e.g. 5',
-                  Icons.beach_access, editing, focus, (changed) => data.favoritePh = changed),
+              _showData('Name', data.name, 'e.g. Frank', Icons.person, editing, focus,
+                  (changed) => data.name = changed),
+              _showData('Favorite Music', data.favoriteMusic, 'e.g. Blubstep', Icons.music_note,
+                  editing, focus, (changed) => data.favoriteMusic = changed),
+              _showData('Favorite pH level', data.favoritePh, 'e.g. 5', Icons.beach_access,
+                  editing, focus, (changed) => data.favoritePh = changed),
               extras,
             ],
           ),
         )));
 }
 
-Widget _showData(String label, String hintText, IconData iconData, bool editing, FocusNode focus, Function onChanged) {
+Widget _showData(String label, String text, String hintText, IconData iconData,
+    bool editing, FocusNode focus, Function onChanged) {
   return new TextField(
     decoration: new InputDecoration(
         labelText: label, icon: new Icon(iconData), hintText: hintText),
     onSubmitted: onChanged,
     focusNode: focus,
     enabled: editing,
+    controller: new TextEditingController(text: text),
   );
 }
 
-
 List<Widget> scrollableProfilePictures(bool editable, MatchData matchData) {
-  var tiles = new List.generate(4,
-          (i) => new ProfilePicture(editable, (value) => matchData.setImageData(i, value), matchData.getImage(i)));
+  var tiles = new List.generate(
+      4,
+      (i) => new ProfilePicture(editable,
+          (value) => matchData.setImageData(i, value), matchData.getImage(i)));
 
   var mainImage = tiles.removeAt(0);
   return <Widget>[

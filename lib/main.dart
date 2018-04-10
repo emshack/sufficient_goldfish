@@ -33,9 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
   MatchData _matchData;
   Set<String> _nonMatches;
   bool _showFab;
-
   FocusNode _focus;
-
 
   @override
   void initState() {
@@ -45,7 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _showFab = true;
     _focus = new FocusNode();
     _focus.addListener(() {
-      if (_focus.hasFocus){
+      if (_focus.hasFocus) {
         setState(() => _showFab = false);
       } else {
         setState(() => _showFab = true);
@@ -59,10 +57,8 @@ class _ProfilePageState extends State<ProfilePage> {
     // Get GPS data just before sending.
     Map<String, double> currentLocation =
         await new LocationTools().getLocation();
-    _matchData.targetLongitude =
-        currentLocation['latitude'];
-    _matchData.targetLatitude =
-        currentLocation['longitude'];
+    _matchData.targetLongitude = currentLocation['latitude'];
+    _matchData.targetLatitude = currentLocation['longitude'];
     _profile.setData(_matchData.serialize(), SetOptions.merge);
   }
 
@@ -80,17 +76,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   new CircularProgressIndicator(),
-                  new Text('Off Fishing...'),
+                  new Text('Gone Fishing...'),
                 ],
               ),
             ),
           ),
     );
-    Map<String, dynamic> response = json
-        .decode((await http.get(
-                'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=$query'))
-            .body)
-        .cast<String, dynamic>();
+    Map<String, dynamic> response = json.decode((await http.get(
+            'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=$query'))
+        .body);
     Navigator.pop(context);
 
     return new MatchData.parseResponse(response);
@@ -99,34 +93,39 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        floatingActionButton: _showFab? new FloatingActionButton(
-          onPressed: () {
-            _updateProfile();
-            setState(() {
-              _editing = !_editing;
-            });
-          },
-          tooltip: _editing ? 'Edit Profile' : 'Save Changes',
-          backgroundColor: _editing? Colors.green: Colors.blue,
-          child: new Icon(_editing ? Icons.check : Icons.edit),
-        ) : null,
-        body: createScrollableProfile(context, _editing, _focus, _matchData, new Center(
-            child: new RaisedButton.icon(
-                icon: new Icon(Icons.favorite),
-                onPressed: () async {
-                  var matchData = await _getMatchData();
-                  Navigator.of(context).push(
-                      new MaterialPageRoute<Null>(
-                          builder: (BuildContext context) {
-                            return new MatchPage(matchData);
-                          }));
+        floatingActionButton: _showFab
+            ? new FloatingActionButton(
+                onPressed: () {
+                  _updateProfile();
+                  setState(() {
+                    _editing = !_editing;
+                  });
                 },
-                color: Colors.blue,
-                splashColor: Colors.lightBlueAccent,
-                label: new Text("Find your fish!")))));
+                tooltip: _editing ? 'Edit Profile' : 'Save Changes',
+                backgroundColor: _editing ? Colors.green : Colors.blue,
+                child: new Icon(_editing ? Icons.check : Icons.edit),
+              )
+            : null,
+        body: createScrollableProfile(
+            context,
+            _editing,
+            _focus,
+            _matchData,
+            new Center(
+                child: new RaisedButton.icon(
+                    icon: new Icon(Icons.favorite),
+                    onPressed: () async {
+                      var matchData = await _getMatchData();
+                      Navigator.of(context).push(new MaterialPageRoute<Null>(
+                          builder: (BuildContext context) {
+                        return new MatchPage(matchData);
+                      }));
+                    },
+                    color: Colors.blue,
+                    splashColor: Colors.lightBlueAccent,
+                    label: new Text("Find your fish!")))));
   }
 }
-
 
 class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => new _ProfilePageState();
@@ -188,45 +187,42 @@ class MatchPage extends StatelessWidget {
   Widget _displayData(String label, String data, IconData iconData) {
     return new TextField(
         controller: new TextEditingController(text: data),
-        decoration: new InputDecoration(
-        labelText: label, icon: new Icon(iconData)),
-    enabled: false);
+        decoration:
+            new InputDecoration(labelText: label, icon: new Icon(iconData)),
+        enabled: false);
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO: Nonmatch case.
     return new Scaffold(
-        appBar: new AppBar(
-          title: new Text("Great catch!"),
-        ),
-        body: new Column(
-          children: scrollableProfilePictures(false, matchData)..addAll([
-            //new Image.asset(matchData.profilePicture), TODO: re-enable
-            _displayData('Name', matchData.name, Icons.person),
-            _displayData('Favorite Music', matchData.favoriteMusic, Icons.music_note),
-            _displayData('Favorite pH', matchData.favoritePh, Icons.beach_access),
-            new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  new FlatButton(
-                      onPressed: () {
-                        //_nonMatches.add(matchData.id), TODO
-                        Navigator.pop(context);
-                      },
-                      child: new Text("Reject")),
-                  new FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).push(new MaterialPageRoute<Null>(
-                            builder: (BuildContext context) {
-                          return new FinderPage(matchData.targetLatitude,
-                              matchData.targetLongitude);
-                        }));
-                      },
-                      child: new Text("Accept")),
-                ]),
-          ]),
-        ));
+      appBar: new AppBar(
+        title: new Text("Great catch!"),
+      ),
+      body: createScrollableProfile(
+        context,
+        false,
+        null,
+        matchData,
+        new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          new FlatButton(
+              onPressed: () {
+                //_nonMatches.add(matchData.id), TODO
+                Navigator.pop(context);
+              },
+              child: new Text("Reject")),
+          new FlatButton(
+              onPressed: () {
+                Navigator.of(context).push(new MaterialPageRoute<Null>(
+                    builder: (BuildContext context) {
+                  return new FinderPage(
+                      matchData.targetLatitude, matchData.targetLongitude);
+                }));
+              },
+              child: new Text("Accept")),
+        ]),
+      ),
+    );
   }
 }
 

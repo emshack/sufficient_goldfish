@@ -38,38 +38,42 @@ class MatchData {
     this.name ??= 'Frank';
     this.favoriteMusic ??= 'Blubstep';
     this.favoritePh ??= '7.0';
-    this.profilePicture1 = profilePicture1 == null? null : Uri.parse(profilePicture1);
-    this.profilePicture2 = profilePicture2 == null? null : Uri.parse(profilePicture2);
-    this.profilePicture3 = profilePicture3 == null? null : Uri.parse(profilePicture3);
-    this.profilePicture4= profilePicture4 == null? null : Uri.parse(profilePicture4);
-
+    this.profilePicture1 =
+        profilePicture1 == null ? null : Uri.parse(profilePicture1);
+    this.profilePicture2 =
+        profilePicture2 == null ? null : Uri.parse(profilePicture2);
+    this.profilePicture3 =
+        profilePicture3 == null ? null : Uri.parse(profilePicture3);
+    this.profilePicture4 =
+        profilePicture4 == null ? null : Uri.parse(profilePicture4);
   }
 
-  factory MatchData.parseResponse(Map<String, dynamic> response) => MatchData.data(
-    response[Field.id.toString()],
-    response[Field.profilePicture1.toString()],
-    response[Field.profilePicture2.toString()],
-    response[Field.profilePicture3.toString()],
-    response[Field.profilePicture4.toString()],
-    response[Field.name.toString()],
-    response[Field.favoriteMusic.toString()],
-    response[Field.phValue.toString()],
-    response[Field.lastSeenLatitude.toString()],
-    response[Field.lastSeenLongitude.toString()]);
-
+  factory MatchData.parseResponse(Map<String, dynamic> response) =>
+      MatchData.data(
+          response[Field.id.toString()],
+          response[Field.name.toString()],
+          response[Field.favoriteMusic.toString()],
+          response[Field.phValue.toString()],
+          response[Field.profilePicture1.toString()],
+          response[Field.profilePicture2.toString()],
+          response[Field.profilePicture3.toString()],
+          response[Field.profilePicture4.toString()],
+          response[Field.lastSeenLatitude.toString()],
+          response[Field.lastSeenLongitude.toString()]);
 
   Map<String, dynamic> serialize() {
     return {
-        Field.id.toString(): id;
-        Field.profilePicture1.toString() : profilePicture1.toString(),
-        Field.profilePicture2.toString() :  profilePicture2.toString(),
-        Field.profilePicture3.toString() :  profilePicture3.toString(),
-        Field.profilePicture4.toString() :  profilePicture4.toString(),
-        Field.name.toString() :  name,
-        Field.favoriteMusic.toString()] : favoriteMusic,
-        Field.phValue.toString()] : phValue,
-        Field.lastSeenLatitude.toString() : targetLatitude,
-        Field.lastSeenLongitude.toString() : targetLongitude};
+      Field.id.toString(): id,
+      Field.profilePicture1.toString(): profilePicture1.toString(),
+      Field.profilePicture2.toString(): profilePicture2.toString(),
+      Field.profilePicture3.toString(): profilePicture3.toString(),
+      Field.profilePicture4.toString(): profilePicture4.toString(),
+      Field.name.toString(): name,
+      Field.favoriteMusic.toString(): favoriteMusic,
+      Field.phValue.toString(): favoritePh,
+      Field.lastSeenLatitude.toString(): targetLatitude,
+      Field.lastSeenLongitude.toString(): targetLongitude
+    };
   }
 
   setImageData(int imageNum, Uri uri) {
