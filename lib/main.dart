@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new ProfilePage(),
+      home: new MatchPage(),
     );
   }
 }
@@ -49,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() => _showFab = true);
       }
     });
-    _matchData = new MatchData(_profile.documentID);
+    _matchData = new MatchData();//_profile.documentID);
     _nonMatches = new Set<String>()..add(_matchData.id);
   }
 
@@ -115,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       var matchData = await _getMatchData();
                       Navigator.of(context).push(new MaterialPageRoute<Null>(
                           builder: (BuildContext context) {
-                        return new MatchPage(matchData, (id) =>
+                        return new MatchPage2(matchData, (id) =>
                             _nonMatches.add(matchData.id));
                       }));
                     },
@@ -129,18 +129,115 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => new _ProfilePageState();
 }
 
-class MatchPage extends StatelessWidget {
-  final MatchData matchData;
-  final Function rejectCallback;
+class MatchPage extends StatefulWidget {
+  @override
+  State<MatchPage> createState() => new MatchPageState();
+}
 
-  MatchPage(this.matchData, this.rejectCallback);
+class MatchPageState extends State<MatchPage> {
+  DocumentReference _profile;
+  bool _hasData;
+  List<MatchData> _potentialMatches;
+  MatchData _matchData;
+  Set<String> _nonMatches;
+  final String cloudFunctionUrl =
+      'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=';
+
+  @override
+  void initState() {
+    super.initState();
+    _matchData = new MatchData();
+    _potentialMatches = [_matchData];
+    _hasData = false;
+    _nonMatches = new Set<String>();
+    fetchMatchData();
+  }
+
+  fetchMatchData() {
+    String query = _nonMatches.join('&id=');
+    http.get(cloudFunctionUrl + query).then((response) {
+      MatchData matchData = new MatchData.parseResponse(json.decode(response.body));
+      // TODO: return a lsit of results.
+      setState(() {
+        _hasData = true;
+        _matchData = matchData;
+        _potentialMatches = [matchData];
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Nonmatch case.
+    if (!_hasData) {
+      // TODO.
+      /*Scaffold.of(context).showSnackBar(new SnackBar(content: new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          new CircularProgressIndicator(),
+          new Text('Gone Fishing...'),
+        ],
+      )));*/
+    }
+    var matchCard = new Card(child: new SimpleProfile(_matchData, false));
+    // TODO: Need to notify that the state of the images has been updated.
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Great catch!"),
+        title: new Text('Plenty of Goldfish'),
+      ),
+      body: new Column(children: [
+        new Padding(
+            padding: EdgeInsets.all(10.0),
+            child: new Dismissible(
+                key: new Key(_matchData.toString()),
+                child: matchCard,
+              background: new Container(child: new Text('Reject'), color: Colors.red),
+              secondaryBackground: new Container(child: new Center(child: new Text('Accept')), color: Colors.green),
+              onDismissed: (direction) {
+                  if(direction == DismissDirection.startToEnd) {
+                    _nonMatches.add(_matchData.id);
+                    _hasData = false;
+                    fetchMatchData();
+                  } else {
+                    Navigator.of(context).push(new MaterialPageRoute<Null>(
+                        builder: (BuildContext context) {
+                          return new FinderPage(
+                              _matchData.targetLatitude, _matchData.targetLongitude);
+                        }));
+                  }
+                  _potentialMatches.remove(matchCard);
+              },
+            )),
+        new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          new FlatButton(
+              onPressed: () {
+                _nonMatches.add(_matchData.id);
+                _hasData = false;
+                fetchMatchData();
+              },
+              child: new Text("Reject")),
+          new FlatButton(
+              onPressed: () {
+
+              },
+              child: new Text("Accept")),
+        ])
+      ]),
+    );
+  }
+
+}
+
+class MatchPage2 extends StatelessWidget {
+  final MatchData matchData;
+  final Function rejectCallback;
+
+  MatchPage2(this.matchData, this.rejectCallback);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text('Plenty of Goldfish'),
       ),
       body: createScrollableProfile(
         context,
