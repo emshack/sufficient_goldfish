@@ -114,6 +114,5 @@ Widget scrollableProfilePictures(bool editable, MatchData matchData) {
     children: <Widget>[
       mainImage,
       new Row(children: tiles),
-    ],
   );
 }
