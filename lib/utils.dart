@@ -22,11 +22,11 @@ class MatchData {
   double targetLatitude;
   double targetLongitude;
 
-  MatchData();
+  MatchData(this.id);
 
   MatchData.data(
       this.id,
-      this.name,
+      [this.name,
       this.favoriteMusic,
       this.favoritePh,
       String profilePicture1,
@@ -34,7 +34,7 @@ class MatchData {
       String profilePicture3,
       String profilePicture4,
       this.targetLatitude,
-      this.targetLongitude) {
+      this.targetLongitude]) {
     this.name ??= 'Frank';
     this.favoriteMusic ??= 'Blubstep';
     this.favoritePh ??= '7.0';

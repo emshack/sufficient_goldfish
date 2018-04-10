@@ -68,7 +68,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
     var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
     var uploadTask = ref.put(imageFile);
     var downloadUrl = (await uploadTask.future).downloadUrl;
-    widget.updateLocalValuesCallback(downloadUrl.toString());
+    widget.updateLocalValuesCallback(downloadUrl);
   }
 }
 

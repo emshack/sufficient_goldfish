@@ -49,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() => _showFab = true);
       }
     });
-    _matchData = new MatchData();
+    _matchData = new MatchData(_profile.documentID);
     _nonMatches = new Set<String>()..add(_profile.documentID);
   }
 
@@ -118,7 +118,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       var matchData = await _getMatchData();
                       Navigator.of(context).push(new MaterialPageRoute<Null>(
                           builder: (BuildContext context) {
-                        return new MatchPage(matchData);
+                        return new MatchPage(matchData, (id) =>
+                            _nonMatches.add(matchData.id));
                       }));
                     },
                     color: Colors.blue,
@@ -181,16 +182,9 @@ class AudioTools {
 
 class MatchPage extends StatelessWidget {
   final MatchData matchData;
+  final Function rejectCallback;
 
-  MatchPage(this.matchData);
-
-  Widget _displayData(String label, String data, IconData iconData) {
-    return new TextField(
-        controller: new TextEditingController(text: data),
-        decoration:
-            new InputDecoration(labelText: label, icon: new Icon(iconData)),
-        enabled: false);
-  }
+  MatchPage(this.matchData, this.rejectCallback);
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +201,7 @@ class MatchPage extends StatelessWidget {
         new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           new FlatButton(
               onPressed: () {
-                //_nonMatches.add(matchData.id), TODO
+                rejectCallback(matchData.id);
                 Navigator.pop(context);
               },
               child: new Text("Reject")),
