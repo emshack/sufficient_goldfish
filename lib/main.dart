@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:math';
 import 'package:http/http.dart' as http;
 
 import 'dart:convert';
@@ -9,10 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
 
 import 'utils.dart';
+import 'shared_widgets.dart';
 
 void main() => runApp(new MyApp());
 
@@ -33,7 +30,7 @@ class MyApp extends StatelessWidget {
 class _ProfilePageState extends State<ProfilePage> {
   DocumentReference _profile;
   bool _editing;
-  Map<String, dynamic> _localValues;
+  MatchData _matchData;
   Set<String> _nonMatches;
   bool _showFab;
 
@@ -49,61 +46,24 @@ class _ProfilePageState extends State<ProfilePage> {
     _focus = new FocusNode();
     _focus.addListener(() {
       if (_focus.hasFocus){
-        setState(() {_showFab = false;});
+        setState(() => _showFab = false);
       } else {
-        setState(() {_showFab = true;});
+        setState(() => _showFab = true);
       }
     });
-    _localValues = {};
-    _localValues[Field.phValue.toString()] = 5.0;
+    _matchData = new MatchData();
     _nonMatches = new Set<String>()..add(_profile.documentID);
-  }
-
-  void _updateLocalData(Field field, value) {
-    setState(() {
-      _localValues[field.toString()] = value;
-    });
   }
 
   Future<Null> _updateProfile() async {
     // Get GPS data just before sending.
     Map<String, double> currentLocation =
         await new LocationTools().getLocation();
-    _localValues[Field.lastSeenLatitude.toString()] =
+    _matchData.targetLongitude =
         currentLocation['latitude'];
-    _localValues[Field.lastSeenLongitude.toString()] =
+    _matchData.targetLatitude =
         currentLocation['longitude'];
-    _profile.setData(_localValues, SetOptions.merge);
-  }
-
-  List<Widget> _profilePictures() {
-    var tiles = <Widget>[
-      new ProfilePicture(_editing, Field.profilePicture2, _updateLocalData),
-      new ProfilePicture(_editing, Field.profilePicture3, _updateLocalData),
-      new ProfilePicture(_editing, Field.profilePicture4, _updateLocalData),
-    ];
-    return <Widget>[
-      new SliverList(
-        delegate: SliverChildListDelegate([
-          new ProfilePicture(_editing, Field.profilePicture1, _updateLocalData)
-        ]),
-      ),
-      new SliverGrid(
-          gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3, crossAxisSpacing: 4.0),
-          delegate: new SliverChildListDelegate(tiles)),
-    ];
-  }
-
-  Widget _showData(
-      Field field, String label, String hintText, IconData iconData) {
-    return new TextField(
-      decoration: new InputDecoration(
-          labelText: label, icon: new Icon(iconData), hintText: hintText),
-      onSubmitted: (changed) => _updateLocalData(field, changed),
-      focusNode: _focus,
-      enabled: _editing,
-    );
+    _profile.setData(_matchData.serialize(), SetOptions.merge);
   }
 
   Future<MatchData> _getMatchData() async {
@@ -133,17 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
         .cast<String, dynamic>();
     Navigator.pop(context);
 
-    return new MatchData(
-        response[Field.id.toString()],
-        Uri.parse(response[Field.profilePicture1.toString()]),
-        Uri.parse(response[Field.profilePicture2.toString()]),
-        Uri.parse(response[Field.profilePicture3.toString()]),
-        Uri.parse(response[Field.profilePicture4.toString()]),
-        response[Field.name.toString()],
-        response[Field.favoriteMusic.toString()],
-        response[Field.phValue.toString()],
-        response[Field.lastSeenLatitude.toString()],
-        response[Field.lastSeenLongitude.toString()]);
+    return new MatchData.parseResponse(response);
   }
 
   @override
@@ -160,102 +110,23 @@ class _ProfilePageState extends State<ProfilePage> {
           backgroundColor: _editing? Colors.green: Colors.blue,
           child: new Icon(_editing ? Icons.check : Icons.edit),
         ) : null,
-        body: CustomScrollView(
-            slivers: _profilePictures()
-              ..add(new SliverList(
-                delegate: SliverChildListDelegate(
-                  <Widget>[
-                    _showData(Field.name, 'Name', 'e.g. Frank', Icons.person),
-                    _showData(Field.favoriteMusic, 'Favorite Music',
-                        'e.g. Blubstep', Icons.music_note),
-                    _showData(Field.phValue, 'Favorite pH level', 'e.g. 5',
-                        Icons.beach_access),
-                    new Center(
-                        child: new RaisedButton.icon(
-                            icon: new Icon(Icons.favorite),
-                            onPressed: () async {
-                              var matchData = await _getMatchData();
-                              Navigator.of(context).push(
-                                  new MaterialPageRoute<Null>(
-                                      builder: (BuildContext context) {
-                                return new MatchPage(matchData);
-                              }));
-                            },
-                            color: Colors.blue,
-                            splashColor: Colors.lightBlueAccent,
-                            label: new Text("Find your fish!"))),
-                  ],
-                ),
-              ))));
+        body: createScrollableProfile(context, _editing, _focus, _matchData, new Center(
+            child: new RaisedButton.icon(
+                icon: new Icon(Icons.favorite),
+                onPressed: () async {
+                  var matchData = await _getMatchData();
+                  Navigator.of(context).push(
+                      new MaterialPageRoute<Null>(
+                          builder: (BuildContext context) {
+                            return new MatchPage(matchData);
+                          }));
+                },
+                color: Colors.blue,
+                splashColor: Colors.lightBlueAccent,
+                label: new Text("Find your fish!")))));
   }
 }
 
-class ProfilePicture extends StatefulWidget {
-  final bool editing;
-  final Uri _imageFile;
-  final Field imagePosition;
-  final Function updateLocalValuesCallback;
-
-  ProfilePicture(
-      this.editing, this.imagePosition, this.updateLocalValuesCallback,
-      [this._imageFile]);
-
-  @override
-  State<ProfilePicture> createState() => new _ProfilePictureState(_imageFile);
-}
-
-class _ProfilePictureState extends State<ProfilePicture> {
-  Uri _imageFile;
-  _ProfilePictureState(this._imageFile);
-
-  @override
-  Widget build(BuildContext context) {
-    var image = new Card(
-        child: _imageFile == null
-            ? new Image.asset('assets/fish-silhouette.png')
-            : (_imageFile.toString().startsWith('http')
-                ? new Image.network(_imageFile.toString(), fit: BoxFit.cover)
-                : new Image.file(new File.fromUri(_imageFile),
-                    fit: BoxFit.cover)));
-    if (widget.editing) {
-      return new Stack(
-        children: [
-          new Container(
-            child: image,
-            foregroundDecoration: new BoxDecoration(
-                color: new Color.fromRGBO(200, 200, 200, 0.5)),
-          ),
-          new IconButton(
-            iconSize: 50.0,
-            onPressed: _getImage,
-            tooltip: 'Pick Image',
-            icon: new Icon(Icons.add_a_photo),
-          ),
-        ],
-        alignment: new Alignment(0.0, 0.0),
-      );
-    } else {
-      return image;
-    }
-  }
-
-  _getImage() async {
-    var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _imageFile = imageFile.uri;
-    });
-    await _uploadToStorage(imageFile);
-  }
-
-  Future<Null> _uploadToStorage(File imageFile) async {
-    var random = new Random().nextInt(10000);
-    var ref = FirebaseStorage.instance.ref().child('image_$random.jpg');
-    var uploadTask = ref.put(imageFile);
-    var downloadUrl = (await uploadTask.future).downloadUrl;
-    widget.updateLocalValuesCallback(
-        widget.imagePosition, downloadUrl.toString());
-  }
-}
 
 class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => new _ProfilePageState();
@@ -314,6 +185,14 @@ class MatchPage extends StatelessWidget {
 
   MatchPage(this.matchData);
 
+  Widget _displayData(String label, String data, IconData iconData) {
+    return new TextField(
+        controller: new TextEditingController(text: data),
+        decoration: new InputDecoration(
+        labelText: label, icon: new Icon(iconData)),
+    enabled: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: Nonmatch case.
@@ -322,11 +201,11 @@ class MatchPage extends StatelessWidget {
           title: new Text("Great catch!"),
         ),
         body: new Column(
-          children: [
+          children: scrollableProfilePictures(false, matchData)..addAll([
             //new Image.asset(matchData.profilePicture), TODO: re-enable
-            new Text("Name: ${matchData.name}"),
-            new Text("Favorite Music: ${matchData.favoriteMusic}"),
-            new Text("Favorite pH: ${matchData.favoritePh}"),
+            _displayData('Name', matchData.name, Icons.person),
+            _displayData('Favorite Music', matchData.favoriteMusic, Icons.music_note),
+            _displayData('Favorite pH', matchData.favoritePh, Icons.beach_access),
             new Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -346,7 +225,7 @@ class MatchPage extends StatelessWidget {
                       },
                       child: new Text("Accept")),
                 ]),
-          ],
+          ]),
         ));
   }
 }
@@ -438,26 +317,4 @@ class _FinderPageState extends State<FinderPage> {
           ]),
     );
   }
-}
-
-class MatchData {
-  String id;
-  Uri profilePicture1, profilePicture2, profilePicture3, profilePicture4;
-  String name;
-  String favoriteMusic;
-  String favoritePh;
-  double targetLatitude;
-  double targetLongitude;
-
-  MatchData(
-      this.id,
-      this.profilePicture1,
-      this.profilePicture2,
-      this.profilePicture3,
-      this.profilePicture4,
-      this.name,
-      this.favoriteMusic,
-      this.favoritePh,
-      this.targetLatitude,
-      this.targetLongitude);
 }
