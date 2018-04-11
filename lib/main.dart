@@ -24,110 +24,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// we may decide not to do this part since a close variant is shown in our other talk.
-class _ProfilePageState extends State<ProfilePage> {
-  DocumentReference _profile;
-  bool _editing;
-  MatchData _matchData;
-  Set<String> _nonMatches;
-  bool _showFab;
-  FocusNode _focus;
-  final String cloudFunctionUrl =
-      'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=';
-
-  @override
-  void initState() {
-    super.initState();
-    _profile = Firestore.instance.collection('profiles').document();
-    _editing = false;
-    _showFab = true;
-    _focus = new FocusNode();
-    _focus.addListener(() {
-      if (_focus.hasFocus) {
-        setState(() => _showFab = false);
-      } else {
-        setState(() => _showFab = true);
-      }
-    });
-    _matchData = new MatchData();//_profile.documentID);
-    _nonMatches = new Set<String>()..add(_matchData.id);
-  }
-
-  Future<Null> _updateProfile() async {
-    // Get GPS data just before sending.
-    Map<String, double> currentLocation =
-        await new LocationTools().getLocation();
-    _matchData.targetLongitude = currentLocation['latitude'];
-    _matchData.targetLatitude = currentLocation['longitude'];
-    _profile.setData(_matchData.serialize(), SetOptions.merge);
-  }
-
-  Future<MatchData> _getMatchData() async {
-    // making the call.
-    String query = _nonMatches.join('&id=');
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => new Dialog(
-            child: new Container(
-              padding: new EdgeInsets.all(20.0),
-              child: new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  new CircularProgressIndicator(),
-                  new Text('Gone Fishing...'),
-                ],
-              ),
-            ),
-          ),
-    );
-    Map<String, dynamic> response = json.decode((await http.get(
-            cloudFunctionUrl + query)).body);
-    Navigator.pop(context);
-    return new MatchData.parseResponse(response);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-          appBar: new AppBar(
-          title: new Text('My Profile'),
-        ),
-        floatingActionButton: _showFab
-            ? new FloatingActionButton(
-                onPressed: () {
-                  _updateProfile();
-                  setState(() {
-                    _editing = !_editing;
-                  });
-                },
-                tooltip: _editing ? 'Edit Profile' : 'Save Changes',
-                child: new Icon(_editing ? Icons.check : Icons.edit),
-              )
-            : null,
-        body: new SimpleProfile(_matchData, _editing, _focus));
-            /*new Center(
-                child: new RaisedButton.icon(
-                    icon: new Icon(Icons.favorite),
-                    onPressed: () async {
-                      var matchData = await _getMatchData();
-                      Navigator.of(context).push(new MaterialPageRoute<Null>(
-                          builder: (BuildContext context) {
-                        return new MatchPage2(matchData, (id) =>
-                            _nonMatches.add(matchData.id));
-                      }));
-                    },
-                    color: Colors.blue,
-                    splashColor: Colors.lightBlueAccent,
-                    label: new Text("Find your fish!")))));*/
-  }
-}
-
-class ProfilePage extends StatefulWidget {
-  _ProfilePageState createState() => new _ProfilePageState();
-}
-
 class MatchPage extends StatefulWidget {
   @override
   State<MatchPage> createState() => new MatchPageState();
@@ -162,15 +58,19 @@ class MatchPageState extends State<MatchPage> {
   @override
   Widget build(BuildContext context) {
     if (_potentialMatches.isEmpty) {
-      return new Text('loading');
-      // TODO.
-      /*Scaffold.of(context).showSnackBar(new SnackBar(content: new Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          new CircularProgressIndicator(),
-          new Text('Gone Fishing...'),
-        ],
-      )));*/
+      return new Scaffold(
+          appBar: new AppBar(
+            title: new Text('Plenty of Goldfish'),
+          ),
+        body: Center(
+          child: new Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                new CircularProgressIndicator(),
+                new Text('Gone Fishing...'),
+              ]),
+        )
+      );
+
     } else {
       var matchData = _potentialMatches.first;
       return new Scaffold(
@@ -181,42 +81,98 @@ class MatchPageState extends State<MatchPage> {
         floatingActionButton: new FloatingActionButton(onPressed: () {
           Navigator.of(context).push(new MaterialPageRoute<Null>(
               builder: (BuildContext context)
-          {
-            return new ProfilePage();
-          }));
+              {
+                return new ProfilePage();
+              }));
 
         }, child: new Icon(Icons.person)),
         body: new Padding(
-              padding: EdgeInsets.all(10.0),
-              child: new Dismissible(
-                key: new ObjectKey(matchData),
-                child: new Card(child: new SimpleProfile(matchData, false)),
-                background: new Container(
-                    child: new Text('Reject'), color: Colors.red),
-                secondaryBackground: new Container(
-                    child: new Center(child: new Text('Accept')),
-                    color: Colors.green),
-                onDismissed: (direction) {
-                  setState(() {
-                    _potentialMatches.removeAt(0);
-                  });
-                  if (direction == DismissDirection.startToEnd) {
-                    _nonMatches.add(matchData.id);
-                    if (_potentialMatches.isEmpty) fetchMatchData();
-                  } else {
-                    Navigator.of(context).push(new MaterialPageRoute<Null>(
-                        builder: (BuildContext context) {
-                          return new FinderPage(
-                              matchData.targetLatitude,
-                              matchData.targetLongitude);
-                        }));
-                  }
-                },
-              )),
-        );
+            padding: EdgeInsets.all(10.0),
+            child: new Dismissible(
+              key: new ObjectKey(matchData),
+              child: new Card(child: new SimpleProfile(matchData, false)),
+              background: new Container(
+                  child: new Text('Reject'), color: Colors.red),
+              secondaryBackground: new Container(
+                  child: new Center(child: new Text('Accept')),
+                  color: Colors.green),
+              onDismissed: (direction) {
+                setState(() {
+                  _potentialMatches.removeAt(0);
+                });
+                if (direction == DismissDirection.startToEnd) {
+                  _nonMatches.add(matchData.id);
+                  if (_potentialMatches.isEmpty) fetchMatchData();
+                } else {
+                  Navigator.of(context).push(new MaterialPageRoute<Null>(
+                      builder: (BuildContext context) {
+                        return new FinderPage(
+                            matchData.targetLatitude,
+                            matchData.targetLongitude);
+                      }));
+                }
+              },
+            )),
+      );
     }
   }
+}
 
+class ProfilePage extends StatefulWidget {
+  _ProfilePageState createState() => new _ProfilePageState();
+}
+
+// we may decide not to do this part since a close variant is shown in our other talk.
+class _ProfilePageState extends State<ProfilePage> {
+  DocumentReference _profile;
+  bool _editing;
+  MatchData _myData;
+  bool _showFab;
+  FocusNode _focus;
+
+  @override
+  void initState() {
+    super.initState();
+    _profile = Firestore.instance.collection('profiles').document();
+    _editing = false;
+    _showFab = true;
+    _focus = new FocusNode();
+    _focus.addListener(() {
+      if (_focus.hasFocus) setState(() => _showFab = false);
+      else setState(() => _showFab = true);
+    });
+    _myData = new MatchData(_profile.documentID);
+  }
+
+  Future<Null> _updateProfile() async {
+    // Get GPS data just before sending.
+    Map<String, double> currentLocation =
+        await new LocationTools().getLocation();
+    _myData.targetLongitude = currentLocation['latitude'];
+    _myData.targetLatitude = currentLocation['longitude'];
+    _profile.setData(_myData.serialize(), SetOptions.merge);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+          appBar: new AppBar(
+          title: new Text('My Profile'),
+        ),
+        floatingActionButton: _showFab
+            ? new FloatingActionButton(
+                onPressed: () {
+                  _updateProfile();
+                  setState(() {
+                    _editing = !_editing;
+                  });
+                },
+                tooltip: _editing ? 'Edit Profile' : 'Save Changes',
+                child: new Icon(_editing ? Icons.check : Icons.edit),
+              )
+            : null,
+        body: new SimpleProfile(_myData, _editing, _focus));
+  }
 }
 
 class FinderPage extends StatefulWidget {

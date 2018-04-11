@@ -25,11 +25,11 @@ class MatchData {
   double targetLatitude;
   double targetLongitude;
 
-  MatchData();
+  MatchData(this.id);
 
   MatchData.data(
-      [this.id,
-      this.name,
+      this.id,
+      [this.name,
       this.favoriteMusic,
       this.favoritePh,
       String profilePicture1,
