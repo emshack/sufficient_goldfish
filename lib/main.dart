@@ -136,9 +136,7 @@ class MatchPage extends StatefulWidget {
 
 class MatchPageState extends State<MatchPage> {
   DocumentReference _profile;
-  bool _hasData;
   List<MatchData> _potentialMatches;
-  MatchData _matchData;
   Set<String> _nonMatches;
   final String cloudFunctionUrl =
       'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=';
@@ -146,9 +144,7 @@ class MatchPageState extends State<MatchPage> {
   @override
   void initState() {
     super.initState();
-    _matchData = new MatchData();
-    _potentialMatches = [_matchData];
-    _hasData = false;
+    _potentialMatches = [];
     _nonMatches = new Set<String>();
     fetchMatchData();
   }
@@ -156,19 +152,18 @@ class MatchPageState extends State<MatchPage> {
   fetchMatchData() {
     String query = _nonMatches.join('&id=');
     http.get(cloudFunctionUrl + query).then((response) {
-      MatchData matchData = new MatchData.parseResponse(json.decode(response.body));
-      // TODO: return a lsit of results.
+      var suggestedMatches = json.decode(response.body);
       setState(() {
-        _hasData = true;
-        _matchData = matchData;
-        _potentialMatches = [matchData];
+        _potentialMatches = suggestedMatches.map<MatchData>(
+                (matchData) => new MatchData.parseResponse(matchData)).toList();
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_hasData) {
+    if (_potentialMatches.isEmpty) {
+      return new Text('loading');
       // TODO.
       /*Scaffold.of(context).showSnackBar(new SnackBar(content: new Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -177,52 +172,43 @@ class MatchPageState extends State<MatchPage> {
           new Text('Gone Fishing...'),
         ],
       )));*/
-    }
-    var matchCard = new Card(child: new SimpleProfile(_matchData, false));
-    // TODO: Need to notify that the state of the images has been updated.
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Plenty of Goldfish'),
-      ),
-      body: new Column(children: [
-        new Padding(
-            padding: EdgeInsets.all(10.0),
-            child: new Dismissible(
-                key: new Key(_matchData.toString()),
-                child: matchCard,
-              background: new Container(child: new Text('Reject'), color: Colors.red),
-              secondaryBackground: new Container(child: new Center(child: new Text('Accept')), color: Colors.green),
-              onDismissed: (direction) {
-                  if(direction == DismissDirection.startToEnd) {
-                    _nonMatches.add(_matchData.id);
-                    _hasData = false;
-                    fetchMatchData();
+    } else {
+      var matchData = _potentialMatches.first;
+      return new Scaffold(
+        appBar: new AppBar(
+          title: new Text('Plenty of Goldfish'),
+        ),
+        body: new Column(children: [
+          new Padding(
+              padding: EdgeInsets.all(10.0),
+              child: new Dismissible(
+                key: new ObjectKey(matchData),
+                child: new Card(child: new SimpleProfile(matchData, false)),
+                background: new Container(
+                    child: new Text('Reject'), color: Colors.red),
+                secondaryBackground: new Container(
+                    child: new Center(child: new Text('Accept')),
+                    color: Colors.green),
+                onDismissed: (direction) {
+                  setState(() {
+                    _potentialMatches.removeAt(0);
+                  });
+                  if (direction == DismissDirection.startToEnd) {
+                    _nonMatches.add(matchData.id);
+                    if (_potentialMatches.isEmpty) fetchMatchData();
                   } else {
                     Navigator.of(context).push(new MaterialPageRoute<Null>(
                         builder: (BuildContext context) {
                           return new FinderPage(
-                              _matchData.targetLatitude, _matchData.targetLongitude);
+                              matchData.targetLatitude,
+                              matchData.targetLongitude);
                         }));
                   }
-                  _potentialMatches.remove(matchCard);
-              },
-            )),
-        new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          new FlatButton(
-              onPressed: () {
-                _nonMatches.add(_matchData.id);
-                _hasData = false;
-                fetchMatchData();
-              },
-              child: new Text("Reject")),
-          new FlatButton(
-              onPressed: () {
-
-              },
-              child: new Text("Accept")),
-        ])
-      ]),
-    );
+                },
+              )),
+          ])
+        );
+    }
   }
 
 }
