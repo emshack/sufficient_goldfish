@@ -91,6 +91,9 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+          appBar: new AppBar(
+          title: new Text('My Profile'),
+        ),
         floatingActionButton: _showFab
             ? new FloatingActionButton(
                 onPressed: () {
@@ -103,11 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: new Icon(_editing ? Icons.check : Icons.edit),
               )
             : null,
-        body: createScrollableProfile(
-            context,
-            _editing,
-            _focus,
-            _matchData,));
+        body: new SimpleProfile(_matchData, _editing, _focus));
             /*new Center(
                 child: new RaisedButton.icon(
                     icon: new Icon(Icons.favorite),
@@ -178,6 +177,15 @@ class MatchPageState extends State<MatchPage> {
         appBar: new AppBar(
           title: new Text('Plenty of Goldfish'),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: new FloatingActionButton(onPressed: () {
+          Navigator.of(context).push(new MaterialPageRoute<Null>(
+              builder: (BuildContext context)
+          {
+            return new ProfilePage();
+          }));
+
+        }, child: new Icon(Icons.person)),
         body: new Padding(
               padding: EdgeInsets.all(10.0),
               child: new Dismissible(
