@@ -113,6 +113,6 @@ Widget scrollableProfilePictures(bool editable, MatchData matchData) {
   return new Column(
     children: <Widget>[
       mainImage,
-      new Row(children: tiles),
+      new Row(children: tiles),]
   );
 }
