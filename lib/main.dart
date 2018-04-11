@@ -107,8 +107,8 @@ class _ProfilePageState extends State<ProfilePage> {
             context,
             _editing,
             _focus,
-            _matchData,
-            new Center(
+            _matchData,));
+            /*new Center(
                 child: new RaisedButton.icon(
                     icon: new Icon(Icons.favorite),
                     onPressed: () async {
@@ -121,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     },
                     color: Colors.blue,
                     splashColor: Colors.lightBlueAccent,
-                    label: new Text("Find your fish!")))));
+                    label: new Text("Find your fish!")))));*/
   }
 }
 
@@ -178,8 +178,7 @@ class MatchPageState extends State<MatchPage> {
         appBar: new AppBar(
           title: new Text('Plenty of Goldfish'),
         ),
-        body: new Column(children: [
-          new Padding(
+        body: new Padding(
               padding: EdgeInsets.all(10.0),
               child: new Dismissible(
                 key: new ObjectKey(matchData),
@@ -206,50 +205,10 @@ class MatchPageState extends State<MatchPage> {
                   }
                 },
               )),
-          ])
         );
     }
   }
 
-}
-
-class MatchPage2 extends StatelessWidget {
-  final MatchData matchData;
-  final Function rejectCallback;
-
-  MatchPage2(this.matchData, this.rejectCallback);
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Plenty of Goldfish'),
-      ),
-      body: createScrollableProfile(
-        context,
-        false,
-        null,
-        matchData,
-        new Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          new FlatButton(
-              onPressed: () {
-                rejectCallback(matchData.id);
-                Navigator.pop(context);
-              },
-              child: new Text("Reject")),
-          new FlatButton(
-              onPressed: () {
-                Navigator.of(context).push(new MaterialPageRoute<Null>(
-                    builder: (BuildContext context) {
-                  return new FinderPage(
-                      matchData.targetLatitude, matchData.targetLongitude);
-                }));
-              },
-              child: new Text("Accept")),
-        ]),
-      ),
-    );
-  }
 }
 
 class FinderPage extends StatefulWidget {

@@ -79,8 +79,8 @@ class SimpleProfile extends StatelessWidget {
 
   SimpleProfile(this.data, this.editing, [this.focus]);
 
-  @override
-  Widget build(BuildContext context) {
+  //@override
+  Widget build2(BuildContext context) {
     var tiles = new List.generate(
         4,
             (i) => new ProfilePicture(editing,
@@ -105,11 +105,32 @@ class SimpleProfile extends StatelessWidget {
     );
   }
 
+  Widget build(BuildContext context) {
+    return ListView(
+        children: <Widget>[
+          scrollableProfilePictures(editing, data),
+          new Padding(
+            padding: const EdgeInsets.only(left: 15.0),
+            child: new Column(
+              children: <Widget>[
+                _showData('Name', data.name, 'e.g. Frank', Icons.person, editing, focus,
+                        (changed) => data.name = changed),
+                _showData('Favorite Music', data.favoriteMusic, 'e.g. Blubstep', Icons.music_note,
+                    editing, focus, (changed) => data.favoriteMusic = changed),
+                _showData('Favorite pH level', data.favoritePh, 'e.g. 5', Icons.beach_access,
+                    editing, focus, (changed) => data.favoritePh = changed),
+              ],
+            ),
+          ),
+        ]
+    );
+  }
+
 
 }
 
 Widget createScrollableProfile(BuildContext context, bool editing,
-    FocusNode focus, MatchData data, Widget extras) {
+    FocusNode focus, MatchData data) {
   return ListView(
       children: <Widget>[
         scrollableProfilePictures(editing, data),
@@ -119,7 +140,6 @@ Widget createScrollableProfile(BuildContext context, bool editing,
             editing, focus, (changed) => data.favoriteMusic = changed),
         _showData('Favorite pH level', data.favoritePh, 'e.g. 5', Icons.beach_access,
             editing, focus, (changed) => data.favoritePh = changed),
-        extras,
       ]
   );
 }
