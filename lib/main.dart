@@ -92,9 +92,9 @@ class MatchPageState extends State<MatchPage> {
               key: new ObjectKey(matchData),
               child: new Card(child: new SimpleProfile(matchData, false)),
               background: new Container(
-                  child: new Text('Reject'), color: Colors.red),
+                  child: new Icon(Icons.thumb_down), color: Colors.red),
               secondaryBackground: new Container(
-                  child: new Center(child: new Text('Accept')),
+                  child: new Icon(Icons.thumb_up),
                   color: Colors.green),
               onDismissed: (direction) {
                 setState(() {

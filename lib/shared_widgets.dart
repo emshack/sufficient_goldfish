@@ -118,7 +118,7 @@ class SimpleProfile extends StatelessWidget {
           labelText: label,
           icon: new Icon(iconData),
           hintText: hintText,
-          border: InputBorder.none),
+          border: editing? null : InputBorder.none),
       onSubmitted: onChanged,
       focusNode: focus,
       enabled: editing,
