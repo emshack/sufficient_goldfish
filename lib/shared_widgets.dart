@@ -82,7 +82,10 @@ class SimpleProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(shrinkWrap: true, children: <Widget>[
-      scrollableProfilePictures(editing, data),
+      new Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: scrollableProfilePictures(editing, data),
+      ),
       new Padding(
         padding: const EdgeInsets.only(left: 15.0),
         child: new Column(
@@ -113,16 +116,19 @@ class SimpleProfile extends StatelessWidget {
 
   Widget _showData(String label, String text, String hintText,
       IconData iconData, bool editing, FocusNode focus, Function onChanged) {
-    return new TextField(
-      decoration: new InputDecoration(
-          labelText: label,
-          icon: new Icon(iconData),
-          hintText: hintText,
-          border: editing? null : InputBorder.none),
-      onSubmitted: onChanged,
-      focusNode: focus,
-      enabled: editing,
-      controller: new TextEditingController(text: text),
+    return new Padding(
+      padding: new EdgeInsets.fromLTRB(0.0, 0.0, 8.0, 8.0),
+      child: new TextField(
+        decoration: new InputDecoration(
+            labelText: label,
+            icon: new Icon(iconData),
+            hintText: hintText,
+            border: editing ? const OutlineInputBorder() : InputBorder.none),
+        onSubmitted: onChanged,
+        focusNode: focus,
+        enabled: editing,
+        controller: new TextEditingController(text: text),
+      ),
     );
   }
 
