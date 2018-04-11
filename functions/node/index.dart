@@ -27,7 +27,7 @@ void matchFish(interop.ExpressHttpRequest request) async {
   List<DocumentSnapshot> profiles = response.documents;
 
   // Remove nonmatches.
-  profiles.removeWhere((DocumentSnapshot snapshot) => nonMatches.contains(snapshot.documentID));
+  profiles = profiles.where((DocumentSnapshot snapshot) => !nonMatches.contains(snapshot.documentID)).toList();
 
   // SUPER SECRET MATCH SELECTION ALGORITHM!
   profiles.shuffle(new Random());
