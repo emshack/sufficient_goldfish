@@ -27,8 +27,7 @@ class MatchData {
 
   MatchData(this.id);
 
-  MatchData.data(
-      this.id,
+  MatchData.data(this.id,
       [this.name,
       this.favoriteMusic,
       this.favoritePh,

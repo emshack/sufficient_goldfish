@@ -9,16 +9,33 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'utils.dart';
 import 'shared_widgets.dart';
 
+// From Hans:
+// In a couple of days, I hope a more complete version of this will be the
+// value of new ThemeData.day(), the M2 "light" theme. There will also
+// be a new ThemeData.night().
+final ThemeData m2Theme = new ThemeData(
+  primarySwatch: Colors.blue,
+  scaffoldBackgroundColor: Colors.white,
+  backgroundColor: Colors.white,
+  dividerColor: const Color(0xFFAAF7FE),
+  buttonColor: Colors.blue[500],
+  buttonTheme: new ButtonThemeData(
+    textTheme: ButtonTextTheme.primary,
+  ),
+  errorColor: const Color(0xFFFF1744),
+  highlightColor: Colors.transparent,
+  splashColor: Colors.white24,
+  splashFactory: InkRipple.splashFactory,
+);
+
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Plenty of Goldfish',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      title: 'Sufficient Goldfish',
+      theme: m2Theme,
       home: new MatchPage(),
     );
   }
@@ -49,8 +66,10 @@ class MatchPageState extends State<MatchPage> {
     http.get(cloudFunctionUrl + query).then((response) {
       var suggestedMatches = json.decode(response.body);
       setState(() {
-        _potentialMatches = suggestedMatches.map<MatchData>(
-                (matchData) => new MatchData.parseResponse(matchData)).toList();
+        _potentialMatches = suggestedMatches
+            .map<MatchData>(
+                (matchData) => new MatchData.parseResponse(matchData))
+            .toList();
       });
     });
   }
@@ -60,32 +79,31 @@ class MatchPageState extends State<MatchPage> {
     if (_potentialMatches.isEmpty) {
       return new Scaffold(
           appBar: new AppBar(
-            title: new Text('Plenty of Goldfish'),
+            title: new Text('Sufficient Goldfish'),
           ),
-        body: Center(
-          child: new Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                new CircularProgressIndicator(),
-                new Text('Gone Fishing...'),
-              ]),
-        )
-      );
-
+          body: Center(
+            child: new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  new CircularProgressIndicator(),
+                  new Text('Gone Fishing...'),
+                ]),
+          ));
     } else {
       var matchData = _potentialMatches.first;
       return new Scaffold(
         appBar: new AppBar(
-          title: new Text('Plenty of Goldfish'),
+          title: new Text('Sufficient Goldfish'),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: new FloatingActionButton(onPressed: () {
-          Navigator.of(context).push(new MaterialPageRoute<Null>(
-              builder: (BuildContext context)
-              {
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: new FloatingActionButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                  new MaterialPageRoute<Null>(builder: (BuildContext context) {
                 return new ProfilePage();
               }));
-
-        }, child: new Icon(Icons.person)),
+            },
+            child: new Icon(Icons.person)),
         body: new Padding(
             padding: EdgeInsets.all(10.0),
             child: new Dismissible(
@@ -94,8 +112,7 @@ class MatchPageState extends State<MatchPage> {
               background: new Container(
                   child: new Icon(Icons.thumb_down), color: Colors.red),
               secondaryBackground: new Container(
-                  child: new Icon(Icons.thumb_up),
-                  color: Colors.green),
+                  child: new Icon(Icons.thumb_up), color: Colors.green),
               onDismissed: (direction) {
                 setState(() {
                   _potentialMatches.removeAt(0);
@@ -106,10 +123,9 @@ class MatchPageState extends State<MatchPage> {
                 } else {
                   Navigator.of(context).push(new MaterialPageRoute<Null>(
                       builder: (BuildContext context) {
-                        return new FinderPage(
-                            matchData.targetLatitude,
-                            matchData.targetLongitude);
-                      }));
+                    return new FinderPage(
+                        matchData.targetLatitude, matchData.targetLongitude);
+                  }));
                 }
               },
             )),
@@ -138,8 +154,10 @@ class _ProfilePageState extends State<ProfilePage> {
     _showFab = true;
     _focus = new FocusNode();
     _focus.addListener(() {
-      if (_focus.hasFocus) setState(() => _showFab = false);
-      else setState(() => _showFab = true);
+      if (_focus.hasFocus)
+        setState(() => _showFab = false);
+      else
+        setState(() => _showFab = true);
     });
     _myData = new MatchData(_profile.documentID);
   }
@@ -156,9 +174,10 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-          appBar: new AppBar(
+        appBar: new AppBar(
           title: new Text('My Profile'),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: _showFab
             ? new FloatingActionButton(
                 onPressed: () {
@@ -247,18 +266,25 @@ class _FinderPageState extends State<FinderPage> {
       child: new Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            new FlatButton.icon(
-              icon: new Icon(Icons.cancel, size: 32.0),
+            new Text(
+              "Locate your match!",
+              style: new TextStyle(
+                  color: Colors.black,
+                  fontSize: 32.0,
+                  decoration: TextDecoration.none),
+            ),
+            new Image.asset('assets/location_ping.gif'),
+            new FloatingActionButton.extended(
+              icon: new Icon(Icons.cancel, color: Colors.black),
               label: new Text(
                 "Cancel",
-                textScaleFactor: 2.0,
+                style: new TextStyle(color: Colors.black, fontSize: 24.0),
               ),
               onPressed: () {
                 audioTools.stopAudio();
                 Navigator.pop(context);
               },
             ),
-            new Image.asset('assets/location_ping.gif'),
           ]),
     );
   }
