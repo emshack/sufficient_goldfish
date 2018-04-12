@@ -130,14 +130,15 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Card(
-      child: new Column( children: <Widget>[
+      child: new ListView(shrinkWrap: true, children: <Widget>[
         new Padding(
           padding: const EdgeInsets.all(8.0),
           child: showProfilePictures(data),
         ),
         new Padding(
           padding: const EdgeInsets.only(left: 15.0),
-          child: new Column(
+          child: new ListView(
+            shrinkWrap: true,
             children: <Widget>[
               _showData('Name', data.name, Icons.person),
               _showData('Favorite Music', data.favoriteMusic, Icons.music_note),
@@ -322,12 +323,21 @@ class _CoverFlowState extends State<CoverFlow> {
             key: ObjectKey(child),
             direction: DismissDirection.vertical,
             child: new Center(
-              child: new SizedBox(
-                height: Curves.easeOut.transform(value) * 300,
-                width: Curves.easeOut.transform(value) * 400,
-                child: child,
+                child: new SizedBox(
+                  height: Curves.easeOut.transform(value) * 300,
+                  width: Curves.easeOut.transform(value) * 400,
+                  child: new Stack(children: [
+                    child,
+                    new Container(color: Colors.transparent), ]),
+
               ),
             ),
+            onDismissed: (direction) {
+              setState(() {
+                controller.nextPage(duration: new Duration(seconds: 1), curve: Curves.easeOut);
+                widget.potentialMatches.removeAt(0);
+              });
+            },
           );
         } catch (ArgumentError) {
           // Trying to build before everything has been initialized
