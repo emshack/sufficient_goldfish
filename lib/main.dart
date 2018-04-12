@@ -111,33 +111,24 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Card(
-      child: new ListView(shrinkWrap: true, children: <Widget>[
-        new Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: showProfilePictures(data),
-        ),
-        new Padding(
-          padding: const EdgeInsets.only(left: 15.0),
-          child: new ListView(
-            shrinkWrap: true,
-            children: <Widget>[
-              _showData(data.name, data.favoriteMusic, data.favoritePh),
-              new RaisedButton.icon(
-                  color: Colors.green,
-                  icon: new Icon(Icons.check),
-                  label: new Text('Meet'),
-                  onPressed: () {
-                    Navigator.of(context).push(new MaterialPageRoute<Null>(
-                        builder: (BuildContext context) {
-                      return new FinderPage(
-                          data.targetLatitude, data.targetLongitude);
-                    }));
-                  })
-            ],
-          ),
-        ),
+        child: new Container(
+      padding: new EdgeInsets.all(16.0),
+      child: new Column(children: <Widget>[
+        new Expanded(flex: 1, child: showProfilePictures(data)),
+        _showData(data.name, data.favoriteMusic, data.favoritePh),
+        new RaisedButton.icon(
+            color: Colors.green,
+            icon: new Icon(Icons.check),
+            label: new Text('Meet'),
+            onPressed: () {
+              Navigator.of(context).push(
+                  new MaterialPageRoute<Null>(builder: (BuildContext context) {
+                return new FinderPage(
+                    data.targetLatitude, data.targetLongitude);
+              }));
+            }),
       ]),
-    );
+    ));
   }
 
   Widget _showData(String name, String music, String pH) {
@@ -156,9 +147,10 @@ class ProfileCard extends StatelessWidget {
   }
 
   Widget showProfilePictures(MatchData matchData) {
-    return new Card(
-        child: new Image.network(matchData.getImage(0).toString(),
-            fit: BoxFit.cover));
+    return new Image.network(
+      matchData.getImage(0).toString(),
+      fit: BoxFit.cover,
+    );
   }
 }
 
@@ -310,12 +302,9 @@ class _CoverFlowState extends State<CoverFlow> {
           direction: DismissDirection.vertical,
           child: new Center(
             child: new SizedBox(
-              height: Curves.easeOut.transform(value) * 300,
-              width: Curves.easeOut.transform(value) * 400,
-              child: new Stack(children: [
-                child,
-                new Container(color: Colors.transparent),
-              ]),
+              height: Curves.easeOut.transform(value) * 525,
+              width: Curves.easeOut.transform(value) * 700,
+              child: child,
             ),
           ),
           onDismissed: (direction) {
