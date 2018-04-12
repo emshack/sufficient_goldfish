@@ -95,21 +95,7 @@ class MatchPageState extends State<MatchPage> {
                 child: new Icon(Icons.thumb_down), color: Colors.red),
             secondaryBackground: new Container(
                 child: new Icon(Icons.thumb_up), color: Colors.green),
-            onDismissed: (direction) {
-              setState(() {
-                _potentialMatches.removeAt(0);
-              });
-              if (direction == DismissDirection.startToEnd) {
-                _nonMatches.add(matchData.id);
-                if (_potentialMatches.isEmpty) fetchMatchData();
-              } else {
-                Navigator.of(context).push(new MaterialPageRoute<Null>(
-                    builder: (BuildContext context) {
-                  return new FinderPage(
-                      matchData.targetLatitude, matchData.targetLongitude);
-                }));
-              }
-            }));
+            onDismissed: (dismissed) => _respondToChoice(matchData, dismissed)));
     }
 
     return new Scaffold(
@@ -126,6 +112,22 @@ class MatchPageState extends State<MatchPage> {
             },
             child: new Icon(Icons.person)),
         body: body);
+  }
+
+  _respondToChoice(MatchData matchData, DismissDirection direction) {
+    setState(() {
+      _potentialMatches.removeAt(0);
+    });
+    if (direction == DismissDirection.startToEnd) {
+      _nonMatches.add(matchData.id);
+      if (_potentialMatches.isEmpty) fetchMatchData();
+    } else {
+      Navigator.of(context).push(new MaterialPageRoute<Null>(
+          builder: (BuildContext context) {
+            return new FinderPage(
+                matchData.targetLatitude, matchData.targetLongitude);
+          }));
+    }
   }
 }
 
