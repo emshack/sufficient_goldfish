@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:http/http.dart' as http;
 
 import 'dart:convert';
@@ -7,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'utils.dart';
-import 'shared_widgets.dart';
+import 'my_profile_page.dart';
 
 // From Hans:
 // In a couple of days, I hope a more complete version of this will be the
@@ -76,22 +75,44 @@ class MatchPageState extends State<MatchPage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget body;
     if (_potentialMatches.isEmpty) {
-      return new Scaffold(
-          appBar: new AppBar(
-            title: new Text('Sufficient Goldfish'),
-          ),
-          body: Center(
-            child: new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  new CircularProgressIndicator(),
-                  new Text('Gone Fishing...'),
-                ]),
-          ));
+      body = new Center(
+        child: new Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              new CircularProgressIndicator(),
+              new Text('Gone Fishing...'),
+            ]));
     } else {
       var matchData = _potentialMatches.first;
-      return new Scaffold(
+      body = new Padding(
+          padding: EdgeInsets.all(10.0),
+          child: new Dismissible(
+            key: new ObjectKey(matchData),
+            child: new ProfileCard(matchData),
+            background: new Container(
+                child: new Icon(Icons.thumb_down), color: Colors.red),
+            secondaryBackground: new Container(
+                child: new Icon(Icons.thumb_up), color: Colors.green),
+            onDismissed: (direction) {
+              setState(() {
+                _potentialMatches.removeAt(0);
+              });
+              if (direction == DismissDirection.startToEnd) {
+                _nonMatches.add(matchData.id);
+                if (_potentialMatches.isEmpty) fetchMatchData();
+              } else {
+                Navigator.of(context).push(new MaterialPageRoute<Null>(
+                    builder: (BuildContext context) {
+                  return new FinderPage(
+                      matchData.targetLatitude, matchData.targetLongitude);
+                }));
+              }
+            }));
+    }
+
+    return new Scaffold(
         appBar: new AppBar(
           title: new Text('Sufficient Goldfish'),
         ),
@@ -104,93 +125,55 @@ class MatchPageState extends State<MatchPage> {
               }));
             },
             child: new Icon(Icons.person)),
-        body: new Padding(
-            padding: EdgeInsets.all(10.0),
-            child: new Dismissible(
-              key: new ObjectKey(matchData),
-              child: new Card(child: new SimpleProfile(matchData, false)),
-              background: new Container(
-                  child: new Icon(Icons.thumb_down), color: Colors.red),
-              secondaryBackground: new Container(
-                  child: new Icon(Icons.thumb_up), color: Colors.green),
-              onDismissed: (direction) {
-                setState(() {
-                  _potentialMatches.removeAt(0);
-                });
-                if (direction == DismissDirection.startToEnd) {
-                  _nonMatches.add(matchData.id);
-                  if (_potentialMatches.isEmpty) fetchMatchData();
-                } else {
-                  Navigator.of(context).push(new MaterialPageRoute<Null>(
-                      builder: (BuildContext context) {
-                    return new FinderPage(
-                        matchData.targetLatitude, matchData.targetLongitude);
-                  }));
-                }
-              },
-            )),
-      );
-    }
+        body: body);
   }
 }
 
-class ProfilePage extends StatefulWidget {
-  _ProfilePageState createState() => new _ProfilePageState();
-}
-
-// we may decide not to do this part since a close variant is shown in our other talk.
-class _ProfilePageState extends State<ProfilePage> {
-  DocumentReference _profile;
-  bool _editing;
-  MatchData _myData;
-  bool _showFab;
-  FocusNode _focus;
-
-  @override
-  void initState() {
-    super.initState();
-    _profile = Firestore.instance.collection('profiles').document();
-    _editing = false;
-    _showFab = true;
-    _focus = new FocusNode();
-    _focus.addListener(() {
-      if (_focus.hasFocus)
-        setState(() => _showFab = false);
-      else
-        setState(() => _showFab = true);
-    });
-    _myData = new MatchData(_profile.documentID);
-  }
-
-  Future<Null> _updateProfile() async {
-    // Get GPS data just before sending.
-    Map<String, double> currentLocation =
-        await new LocationTools().getLocation();
-    _myData.targetLongitude = currentLocation['latitude'];
-    _myData.targetLatitude = currentLocation['longitude'];
-    _profile.setData(_myData.serialize(), SetOptions.merge);
-  }
+class ProfileCard extends StatelessWidget {
+  MatchData data;
+  ProfileCard(this.data);
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        appBar: new AppBar(
-          title: new Text('My Profile'),
+    return new Card(
+      child: new ListView(shrinkWrap: true, children: <Widget>[
+        new Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: showProfilePictures(data),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: _showFab
-            ? new FloatingActionButton(
-                onPressed: () {
-                  _updateProfile();
-                  setState(() {
-                    _editing = !_editing;
-                  });
-                },
-                tooltip: _editing ? 'Edit Profile' : 'Save Changes',
-                child: new Icon(_editing ? Icons.check : Icons.edit),
-              )
-            : null,
-        body: new SimpleProfile(_myData, _editing, _focus));
+        new Padding(
+          padding: const EdgeInsets.only(left: 15.0),
+          child: new Column(
+            children: <Widget>[
+              _showData('Name', data.name, Icons.person),
+              _showData('Favorite Music', data.favoriteMusic, Icons.music_note),
+              _showData(
+                  'Favorite pH level', data.favoritePh, Icons.beach_access),
+            ],
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _showData(String label, String text, IconData iconData) {
+    // TODO(emshack): Help me make this less ugly!
+    return new Text('$label: $text');
+  }
+
+  Widget showProfilePictures(MatchData matchData) {
+    var tiles = new List.generate(
+        4,
+        (i) => new Expanded(
+            flex: i == 0 ? 0 : 1,
+            child: new Card(
+                child: new Image.network(matchData.getImage(i).toString(),
+                    fit: BoxFit.cover))));
+    var mainImage = tiles.removeAt(0);
+    return new Column(children: <Widget>[
+      mainImage,
+      new Row(children: tiles),
+    ]);
   }
 }
 
@@ -227,9 +210,9 @@ class _FinderPageState extends State<FinderPage> {
 
   void _updateLocation(Map<String, double> currentLocation) {
     setState(() {
-      latitude = currentLocation["latitude"];
-      longitude = currentLocation["longitude"];
-      accuracy = currentLocation["accuracy"];
+      latitude = currentLocation['latitude'];
+      longitude = currentLocation['longitude'];
+      accuracy = currentLocation['accuracy'];
     });
   }
 
@@ -267,7 +250,7 @@ class _FinderPageState extends State<FinderPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             new Text(
-              "Locate your match!",
+              'Locate your match!',
               style: new TextStyle(
                   color: Colors.black,
                   fontSize: 32.0,
@@ -277,7 +260,7 @@ class _FinderPageState extends State<FinderPage> {
             new FloatingActionButton.extended(
               icon: new Icon(Icons.cancel, color: Colors.black),
               label: new Text(
-                "Cancel",
+                'Cancel',
                 style: new TextStyle(color: Colors.black, fontSize: 24.0),
               ),
               onPressed: () {

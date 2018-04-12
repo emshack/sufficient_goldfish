@@ -24,6 +24,8 @@ class MatchData {
   String favoritePh;
   double targetLatitude;
   double targetLongitude;
+  final String defaultImage =
+      'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/fish-silhouette.png?alt=media&token=27fed5f3-9a70-4355-a3d7-7ec378c40acd';
 
   MatchData(this.id);
 
@@ -40,14 +42,10 @@ class MatchData {
     this.name ??= 'Frank';
     this.favoriteMusic ??= 'Blubstep';
     this.favoritePh ??= '7.0';
-    this.profilePicture1 =
-        profilePicture1 == null ? null : Uri.parse(profilePicture1);
-    this.profilePicture2 =
-        profilePicture2 == null ? null : Uri.parse(profilePicture2);
-    this.profilePicture3 =
-        profilePicture3 == null ? null : Uri.parse(profilePicture3);
-    this.profilePicture4 =
-        profilePicture4 == null ? null : Uri.parse(profilePicture4);
+    this.profilePicture1 = Uri.parse(profilePicture1 == null ? defaultImage: profilePicture1);
+    this.profilePicture2 = Uri.parse(profilePicture2 == null ? defaultImage: profilePicture2);
+    this.profilePicture3 = Uri.parse(profilePicture3 == null ? defaultImage: profilePicture3);
+    this.profilePicture4 = Uri.parse(profilePicture4 == null ? defaultImage: profilePicture4);
   }
 
   factory MatchData.parseResponse(Map<String, dynamic> response) =>
