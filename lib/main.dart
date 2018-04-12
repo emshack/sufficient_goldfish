@@ -3,29 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'utils.dart';
 import 'my_profile_page.dart';
-
-// From Hans:
-// In a couple of days, I hope a more complete version of this will be the
-// value of new ThemeData.day(), the M2 "light" theme. There will also
-// be a new ThemeData.night().
-final ThemeData m2Theme = new ThemeData(
-  primarySwatch: Colors.blue,
-  scaffoldBackgroundColor: Colors.white,
-  backgroundColor: Colors.white,
-  dividerColor: const Color(0xFFAAF7FE),
-  buttonColor: Colors.blue[500],
-  buttonTheme: new ButtonThemeData(
-    textTheme: ButtonTextTheme.primary,
-  ),
-  errorColor: const Color(0xFFFF1744),
-  highlightColor: Colors.transparent,
-  splashColor: Colors.white24,
-  splashFactory: InkRipple.splashFactory,
-);
 
 void main() => runApp(new MyApp());
 
@@ -34,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Sufficient Goldfish',
-      theme: m2Theme,
+      theme: new ThemeData.light(), // switch to ThemeData.day() when available
       home: new MatchPage(),
     );
   }
@@ -46,7 +26,6 @@ class MatchPage extends StatefulWidget {
 }
 
 class MatchPageState extends State<MatchPage> {
-  DocumentReference _profile;
   List<MatchData> _potentialMatches;
   Set<String> _nonMatches;
   final String cloudFunctionUrl =
@@ -78,32 +57,31 @@ class MatchPageState extends State<MatchPage> {
     Widget body;
     if (_potentialMatches.isEmpty) {
       body = new Center(
-        child: new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              new CircularProgressIndicator(),
-              new Text('Gone Fishing...'),
-            ]));
+          child: new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+            new CircularProgressIndicator(),
+            new Text('Gone Fishing...'),
+          ]));
     } else {
       body = new CoverFlow(_potentialMatches);
     }
 
     return new Scaffold(
-        appBar: new AppBar(
-          title: new Text('Sufficient Goldfish'),
-        ),
-        body: body,
-        // temporary addition for ease of adding more data. Feel free to make it a different type of button elsewhere.
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-                floatingActionButton: new FloatingActionButton(
-                    onPressed: () {
-                    Navigator.of(context).push(
-                            new MaterialPageRoute<Null>(builder: (BuildContext context) {
-                            return new ProfilePage();
-                          }));
-                },
-                child: new Icon(Icons.person)),
-
+      appBar: new AppBar(
+        title: new Text('Sufficient Goldfish'),
+      ),
+      body: body,
+      // temporary addition for ease of adding more data. Feel free to make it a different type of button elsewhere.
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: new FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(
+                new MaterialPageRoute<Null>(builder: (BuildContext context) {
+              return new ProfilePage();
+            }));
+          },
+          child: new Icon(Icons.person)),
     );
   }
 
@@ -115,17 +93,19 @@ class MatchPageState extends State<MatchPage> {
       _nonMatches.add(matchData.id);
       if (_potentialMatches.isEmpty) fetchMatchData();
     } else {
-      Navigator.of(context).push(new MaterialPageRoute<Null>(
-          builder: (BuildContext context) {
-            return new FinderPage(
-                matchData.targetLatitude, matchData.targetLongitude);
-          }));
+      Navigator
+          .of(context)
+          .push(new MaterialPageRoute<Null>(builder: (BuildContext context) {
+        return new FinderPage(
+            matchData.targetLatitude, matchData.targetLongitude);
+      }));
     }
   }
 }
 
 class ProfileCard extends StatelessWidget {
-  MatchData data;
+  final MatchData data;
+
   ProfileCard(this.data);
 
   @override
@@ -141,22 +121,18 @@ class ProfileCard extends StatelessWidget {
           child: new ListView(
             shrinkWrap: true,
             children: <Widget>[
-              _showData('Name', data.name, Icons.person),
-              _showData('Favorite Music', data.favoriteMusic, Icons.music_note),
-              _showData(
-                  'Favorite pH level', data.favoritePh, Icons.beach_access),
+              _showData(data.name, data.favoriteMusic, data.favoritePh),
               new RaisedButton.icon(
-                color: Colors.green,
-                icon: new Icon(Icons.check),
-                label: new Text('Meet'),
-                onPressed: () {
-                  Navigator.of(context).push(new MaterialPageRoute<Null>(
-                      builder: (BuildContext context) {
-                        return new FinderPage(
-                            data.targetLatitude, data.targetLongitude);
-                      }));
-                }
-              )
+                  color: Colors.green,
+                  icon: new Icon(Icons.check),
+                  label: new Text('Meet'),
+                  onPressed: () {
+                    Navigator.of(context).push(new MaterialPageRoute<Null>(
+                        builder: (BuildContext context) {
+                      return new FinderPage(
+                          data.targetLatitude, data.targetLongitude);
+                    }));
+                  })
             ],
           ),
         ),
@@ -164,14 +140,25 @@ class ProfileCard extends StatelessWidget {
     );
   }
 
-  Widget _showData(String label, String text, IconData iconData) {
-    // TODO(emshack): Help me make this less ugly!
-    return new Text('$label: $text');
+  Widget _showData(String name, String music, String pH) {
+    Text nameWidget = new Text(name,
+        style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0));
+    Text musicWidget = new Text('Favorite music: $music',
+        style: new TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
+    Text phWidget = new Text('Favorite pH: $pH',
+        style: new TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
+    List<Widget> children = [nameWidget, musicWidget, phWidget];
+    return new Column(
+        children: children
+            .map((child) =>
+                new Padding(child: child, padding: new EdgeInsets.all(8.0)))
+            .toList());
   }
 
   Widget showProfilePictures(MatchData matchData) {
-    return new Card(child: new Image.network(matchData.getImage(0).toString(),
-                    fit: BoxFit.cover));
+    return new Card(
+        child: new Image.network(matchData.getImage(0).toString(),
+            fit: BoxFit.cover));
   }
 }
 
@@ -271,7 +258,6 @@ class _FinderPageState extends State<FinderPage> {
   }
 }
 
-
 class CoverFlow extends StatefulWidget {
   List<MatchData> potentialMatches;
   CoverFlow(this.potentialMatches);
@@ -284,7 +270,6 @@ class _CoverFlowState extends State<CoverFlow> {
   PageController controller;
   int currentpage = 0;
   bool _pageHasChanged = false;
-
 
   @override
   initState() {
@@ -315,7 +300,7 @@ class _CoverFlowState extends State<CoverFlow> {
     return new AnimatedBuilder(
       animation: controller,
       builder: (context, Widget child) {
-        double result = _pageHasChanged? controller.page : 0.0;
+        double result = _pageHasChanged ? controller.page : 0.0;
         double value = result - index;
 
         value = (1 - (value.abs() * .5)).clamp(0.0, 1.0);
@@ -324,26 +309,26 @@ class _CoverFlowState extends State<CoverFlow> {
           key: ObjectKey(child),
           direction: DismissDirection.vertical,
           child: new Center(
-              child: new SizedBox(
-                height: Curves.easeOut.transform(value) * 300,
-                width: Curves.easeOut.transform(value) * 400,
-                child: new Stack(children: [
-                  child,
-                  new Container(color: Colors.transparent), ]),
-
+            child: new SizedBox(
+              height: Curves.easeOut.transform(value) * 300,
+              width: Curves.easeOut.transform(value) * 400,
+              child: new Stack(children: [
+                child,
+                new Container(color: Colors.transparent),
+              ]),
             ),
           ),
           onDismissed: (direction) {
             setState(() {
-              controller.nextPage(duration: new Duration(seconds: 1), curve: Curves.easeOut);
+              controller.nextPage(
+                  duration: new Duration(seconds: 1), curve: Curves.easeOut);
               widget.potentialMatches.removeAt(0);
             });
           },
         );
-
-
       },
-      child: new ProfileCard(widget.potentialMatches[index % widget.potentialMatches.length]),
+      child: new ProfileCard(
+          widget.potentialMatches[index % widget.potentialMatches.length]),
     );
   }
 }

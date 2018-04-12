@@ -42,10 +42,14 @@ class MatchData {
     this.name ??= 'Frank';
     this.favoriteMusic ??= 'Blubstep';
     this.favoritePh ??= '7.0';
-    this.profilePicture1 = Uri.parse(profilePicture1 == null ? defaultImage: profilePicture1);
-    this.profilePicture2 = Uri.parse(profilePicture2 == null ? defaultImage: profilePicture2);
-    this.profilePicture3 = Uri.parse(profilePicture3 == null ? defaultImage: profilePicture3);
-    this.profilePicture4 = Uri.parse(profilePicture4 == null ? defaultImage: profilePicture4);
+    this.profilePicture1 =
+        Uri.parse(profilePicture1 == null ? defaultImage : profilePicture1);
+    this.profilePicture2 =
+        Uri.parse(profilePicture2 == null ? defaultImage : profilePicture2);
+    this.profilePicture3 =
+        Uri.parse(profilePicture3 == null ? defaultImage : profilePicture3);
+    this.profilePicture4 =
+        Uri.parse(profilePicture4 == null ? defaultImage : profilePicture4);
   }
 
   factory MatchData.parseResponse(Map<String, dynamic> response) =>
@@ -102,7 +106,7 @@ class MatchData {
     } else if (imageNum == 3) {
       return profilePicture4;
     } else {
-      print('invalid image position');
+      throw new ArgumentError('invalid image position');
     }
   }
 }
