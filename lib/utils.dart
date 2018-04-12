@@ -106,7 +106,7 @@ class MatchData {
     } else if (imageNum == 3) {
       return profilePicture4;
     } else {
-      print('invalid image position');
+      throw new ArgumentError('invalid image position');
     }
   }
 }
