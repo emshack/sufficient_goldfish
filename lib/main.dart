@@ -78,24 +78,25 @@ class MatchPageState extends State<MatchPage> {
     Widget body;
     if (_potentialMatches.isEmpty) {
       body = new Center(
-        child: new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              new CircularProgressIndicator(),
-              new Text('Gone Fishing...'),
-            ]));
+          child: new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+            new CircularProgressIndicator(),
+            new Text('Gone Fishing...'),
+          ]));
     } else {
       var matchData = _potentialMatches.first;
       body = new Padding(
           padding: EdgeInsets.all(10.0),
           child: new Dismissible(
-            key: new ObjectKey(matchData),
-            child: new ProfileCard(matchData),
-            background: new Container(
-                child: new Icon(Icons.thumb_down), color: Colors.red),
-            secondaryBackground: new Container(
-                child: new Icon(Icons.thumb_up), color: Colors.green),
-            onDismissed: (dismissed) => _respondToChoice(matchData, dismissed)));
+              key: new ObjectKey(matchData),
+              child: new ProfileCard(matchData),
+              background: new Container(
+                  child: new Icon(Icons.thumb_down), color: Colors.red),
+              secondaryBackground: new Container(
+                  child: new Icon(Icons.thumb_up), color: Colors.green),
+              onDismissed: (dismissed) =>
+                  _respondToChoice(matchData, dismissed)));
     }
 
     return new Scaffold(
@@ -122,11 +123,12 @@ class MatchPageState extends State<MatchPage> {
       _nonMatches.add(matchData.id);
       if (_potentialMatches.isEmpty) fetchMatchData();
     } else {
-      Navigator.of(context).push(new MaterialPageRoute<Null>(
-          builder: (BuildContext context) {
-            return new FinderPage(
-                matchData.targetLatitude, matchData.targetLongitude);
-          }));
+      Navigator
+          .of(context)
+          .push(new MaterialPageRoute<Null>(builder: (BuildContext context) {
+        return new FinderPage(
+            matchData.targetLatitude, matchData.targetLongitude);
+      }));
     }
   }
 }
@@ -147,10 +149,7 @@ class ProfileCard extends StatelessWidget {
           padding: const EdgeInsets.only(left: 15.0),
           child: new Column(
             children: <Widget>[
-              _showData('Name', data.name, Icons.person),
-              _showData('Favorite Music', data.favoriteMusic, Icons.music_note),
-              _showData(
-                  'Favorite pH level', data.favoritePh, Icons.beach_access),
+              _showData(data.name, data.favoriteMusic, data.favoritePh)
             ],
           ),
         ),
@@ -158,9 +157,19 @@ class ProfileCard extends StatelessWidget {
     );
   }
 
-  Widget _showData(String label, String text, IconData iconData) {
-    // TODO(emshack): Help me make this less ugly!
-    return new Text('$label: $text');
+  Widget _showData(String name, String music, String pH) {
+    Text nameWidget = new Text(name,
+        style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0));
+    Text musicWidget = new Text('Favorite music: $music',
+        style: new TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
+    Text phWidget = new Text('Favorite pH: $pH',
+        style: new TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
+    List<Widget> children = [nameWidget, musicWidget, phWidget];
+    return new Column(
+        children: children
+            .map((child) =>
+                new Padding(child: child, padding: new EdgeInsets.all(8.0)))
+            .toList());
   }
 
   Widget showProfilePictures(MatchData matchData) {

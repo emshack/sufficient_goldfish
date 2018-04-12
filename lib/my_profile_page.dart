@@ -43,7 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<Null> _updateProfile() async {
     // Get GPS data just before sending.
     Map<String, double> currentLocation =
-    await new LocationTools().getLocation();
+        await new LocationTools().getLocation();
     _myData.targetLongitude = currentLocation['latitude'];
     _myData.targetLatitude = currentLocation['longitude'];
     _profile.setData(_myData.serialize(), SetOptions.merge);
@@ -58,15 +58,15 @@ class _ProfilePageState extends State<ProfilePage> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: _showFab
             ? new FloatingActionButton(
-          onPressed: () {
-            _updateProfile();
-            setState(() {
-              _editing = !_editing;
-            });
-          },
-          tooltip: _editing ? 'Edit Profile' : 'Save Changes',
-          child: new Icon(_editing ? Icons.check : Icons.edit),
-        )
+                onPressed: () {
+                  _updateProfile();
+                  setState(() {
+                    _editing = !_editing;
+                  });
+                },
+                tooltip: _editing ? 'Edit Profile' : 'Save Changes',
+                child: new Icon(_editing ? Icons.check : Icons.edit),
+              )
             : null,
         body: new SimpleProfile(_myData, _editing, _focus));
   }
@@ -94,9 +94,9 @@ class _ProfilePictureState extends State<ProfilePicture> {
         child: _imageFile == null
             ? new Image.asset('assets/fish-silhouette.png')
             : (_imageFile.toString().startsWith('http')
-            ? new Image.network(_imageFile.toString(), fit: BoxFit.cover)
-            : new Image.file(new File.fromUri(_imageFile),
-            fit: BoxFit.cover)));
+                ? new Image.network(_imageFile.toString(), fit: BoxFit.cover)
+                : new Image.file(new File.fromUri(_imageFile),
+                    fit: BoxFit.cover)));
     if (widget.editing) {
       return new Stack(
         children: [
@@ -146,36 +146,36 @@ class SimpleProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(shrinkWrap: true, children: <Widget>[
-        new Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: scrollableProfilePictures(editing, data),
+      new Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: scrollableProfilePictures(editing, data),
+      ),
+      new Padding(
+        padding: const EdgeInsets.only(left: 15.0),
+        child: new Column(
+          children: <Widget>[
+            _showData('Name', data.name, 'e.g. Frank', Icons.person, editing,
+                focus, (changed) => data.name = changed),
+            _showData(
+                'Favorite Music',
+                data.favoriteMusic,
+                'e.g. Blubstep',
+                Icons.music_note,
+                editing,
+                focus,
+                (changed) => data.favoriteMusic = changed),
+            _showData(
+                'Favorite pH level',
+                data.favoritePh,
+                'e.g. 5',
+                Icons.beach_access,
+                editing,
+                focus,
+                (changed) => data.favoritePh = changed),
+          ],
         ),
-        new Padding(
-          padding: const EdgeInsets.only(left: 15.0),
-          child: new Column(
-            children: <Widget>[
-              _showData('Name', data.name, 'e.g. Frank', Icons.person, editing,
-                  focus, (changed) => data.name = changed),
-              _showData(
-                  'Favorite Music',
-                  data.favoriteMusic,
-                  'e.g. Blubstep',
-                  Icons.music_note,
-                  editing,
-                  focus,
-                      (changed) => data.favoriteMusic = changed),
-              _showData(
-                  'Favorite pH level',
-                  data.favoritePh,
-                  'e.g. 5',
-                  Icons.beach_access,
-                  editing,
-                  focus,
-                      (changed) => data.favoritePh = changed),
-            ],
-          ),
-        ),
-      ]);
+      ),
+    ]);
   }
 
   Widget _showData(String label, String text, String hintText,
@@ -199,11 +199,11 @@ class SimpleProfile extends StatelessWidget {
   Widget scrollableProfilePictures(bool editable, MatchData matchData) {
     var tiles = new List.generate(
         4,
-            (i) => new Expanded(
+        (i) => new Expanded(
             flex: i == 0 ? 0 : 1,
             child: new ProfilePicture(
                 editable,
-                    (value) => matchData.setImageData(i, value),
+                (value) => matchData.setImageData(i, value),
                 matchData.getImage(i))));
 
     var mainImage = tiles.removeAt(0);
