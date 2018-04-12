@@ -85,7 +85,8 @@ class MatchPageState extends State<MatchPage> {
               new Text('Gone Fishing...'),
             ]));
     } else {
-      var matchData = _potentialMatches.first;
+      body = new CoverFlow(_potentialMatches);
+      /*var matchData = _potentialMatches.first;
       body = new Padding(
           padding: EdgeInsets.all(10.0),
           child: new Dismissible(
@@ -95,22 +96,13 @@ class MatchPageState extends State<MatchPage> {
                 child: new Icon(Icons.thumb_down), color: Colors.red),
             secondaryBackground: new Container(
                 child: new Icon(Icons.thumb_up), color: Colors.green),
-            onDismissed: (dismissed) => _respondToChoice(matchData, dismissed)));
+            onDismissed: (dismissed) => _respondToChoice(matchData, dismissed)));*/
     }
 
     return new Scaffold(
         appBar: new AppBar(
           title: new Text('Sufficient Goldfish'),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: new FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                  new MaterialPageRoute<Null>(builder: (BuildContext context) {
-                return new ProfilePage();
-              }));
-            },
-            child: new Icon(Icons.person)),
         body: body);
   }
 
@@ -138,7 +130,7 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Card(
-      child: new ListView(shrinkWrap: true, children: <Widget>[
+      child: new Column( children: <Widget>[
         new Padding(
           padding: const EdgeInsets.all(8.0),
           child: showProfilePictures(data),
@@ -151,6 +143,18 @@ class ProfileCard extends StatelessWidget {
               _showData('Favorite Music', data.favoriteMusic, Icons.music_note),
               _showData(
                   'Favorite pH level', data.favoritePh, Icons.beach_access),
+              new RaisedButton.icon(
+                color: Colors.green,
+                icon: new Icon(Icons.check),
+                label: new Text('Meet'),
+                onPressed: () {
+                  Navigator.of(context).push(new MaterialPageRoute<Null>(
+                      builder: (BuildContext context) {
+                        return new FinderPage(
+                            data.targetLatitude, data.targetLongitude);
+                      }));
+                }
+              )
             ],
           ),
         ),
@@ -164,18 +168,8 @@ class ProfileCard extends StatelessWidget {
   }
 
   Widget showProfilePictures(MatchData matchData) {
-    var tiles = new List.generate(
-        4,
-        (i) => new Expanded(
-            flex: i == 0 ? 0 : 1,
-            child: new Card(
-                child: new Image.network(matchData.getImage(i).toString(),
-                    fit: BoxFit.cover))));
-    var mainImage = tiles.removeAt(0);
-    return new Column(children: <Widget>[
-      mainImage,
-      new Row(children: tiles),
-    ]);
+    return new Card(child: new Image.network(matchData.getImage(0).toString(),
+                    fit: BoxFit.cover));
   }
 }
 
@@ -271,6 +265,77 @@ class _FinderPageState extends State<FinderPage> {
               },
             ),
           ]),
+    );
+  }
+}
+
+
+class CoverFlow extends StatefulWidget {
+  List<MatchData> potentialMatches;
+  CoverFlow(this.potentialMatches);
+
+  @override
+  _CoverFlowState createState() => new _CoverFlowState();
+}
+
+class _CoverFlowState extends State<CoverFlow> {
+  PageController controller;
+  int currentpage = 0;
+
+
+  @override
+  initState() {
+    super.initState();
+    controller = new PageController(viewportFraction: .65);
+  }
+
+  @override
+  dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new PageView.builder(
+        onPageChanged: (value) {
+          setState(() {
+            currentpage = value;
+          });
+        },
+        controller: controller,
+        itemBuilder: (context, index) => builder(index));
+  }
+
+  builder(int index) {
+    return new AnimatedBuilder(
+      animation: controller,
+      builder: (context, Widget child) {
+        double result = 0.0;
+        try {
+          result = controller.page;
+          double value = result - index;
+
+          value = (1 - (value.abs() * .5)).clamp(0.0, 1.0);
+
+          return new Dismissible(
+            key: ObjectKey(child),
+            direction: DismissDirection.vertical,
+            child: new Center(
+              child: new SizedBox(
+                height: Curves.easeOut.transform(value) * 300,
+                width: Curves.easeOut.transform(value) * 400,
+                child: child,
+              ),
+            ),
+          );
+        } catch (ArgumentError) {
+          // Trying to build before everything has been initialized
+          return new Container();
+        }
+
+      },
+      child: new ProfileCard(widget.potentialMatches[index % widget.potentialMatches.length]),
     );
   }
 }
