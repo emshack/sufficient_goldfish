@@ -137,9 +137,9 @@ class _ProfilePictureState extends State<ProfilePicture> {
 }
 
 class SimpleProfile extends StatelessWidget {
-  MatchData data;
-  bool editing;
-  FocusNode focus;
+  final MatchData data;
+  final bool editing;
+  final FocusNode focus;
 
   SimpleProfile(this.data, this.editing, [this.focus]);
 

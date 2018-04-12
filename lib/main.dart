@@ -3,29 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'utils.dart';
 import 'my_profile_page.dart';
-
-// From Hans:
-// In a couple of days, I hope a more complete version of this will be the
-// value of new ThemeData.day(), the M2 "light" theme. There will also
-// be a new ThemeData.night().
-final ThemeData m2Theme = new ThemeData(
-  primarySwatch: Colors.blue,
-  scaffoldBackgroundColor: Colors.white,
-  backgroundColor: Colors.white,
-  dividerColor: const Color(0xFFAAF7FE),
-  buttonColor: Colors.blue[500],
-  buttonTheme: new ButtonThemeData(
-    textTheme: ButtonTextTheme.primary,
-  ),
-  errorColor: const Color(0xFFFF1744),
-  highlightColor: Colors.transparent,
-  splashColor: Colors.white24,
-  splashFactory: InkRipple.splashFactory,
-);
 
 void main() => runApp(new MyApp());
 
@@ -34,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Sufficient Goldfish',
-      theme: m2Theme,
+      theme: new ThemeData.light(), // switch to ThemeData.day() when available
       home: new MatchPage(),
     );
   }
@@ -46,7 +26,6 @@ class MatchPage extends StatefulWidget {
 }
 
 class MatchPageState extends State<MatchPage> {
-  DocumentReference _profile;
   List<MatchData> _potentialMatches;
   Set<String> _nonMatches;
   final String cloudFunctionUrl =
@@ -134,7 +113,8 @@ class MatchPageState extends State<MatchPage> {
 }
 
 class ProfileCard extends StatelessWidget {
-  MatchData data;
+  final MatchData data;
+
   ProfileCard(this.data);
 
   @override
