@@ -64,7 +64,7 @@ class MatchPageState extends State<MatchPage> {
             new Text('Gone Fishing...'),
           ]));
     } else {
-      body = new CoverFlow(_potentialMatches);
+      body = new CoverFlow(widgetBuilder, disposeDismissed);
     }
 
     return new Scaffold(
@@ -85,21 +85,18 @@ class MatchPageState extends State<MatchPage> {
     );
   }
 
-  _respondToChoice(MatchData matchData, DismissDirection direction) {
-    setState(() {
-      _potentialMatches.removeAt(0);
-    });
-    if (direction == DismissDirection.startToEnd) {
-      _nonMatches.add(matchData.id);
-      if (_potentialMatches.isEmpty) fetchMatchData();
+  Widget widgetBuilder(BuildContext context, int index) {
+    if (_potentialMatches.length == 0) {
+      return new Container();
     } else {
-      Navigator
-          .of(context)
-          .push(new MaterialPageRoute<Null>(builder: (BuildContext context) {
-        return new FinderPage(
-            matchData.targetLatitude, matchData.targetLongitude);
-      }));
+      return new ProfileCard(
+          _potentialMatches[index % _potentialMatches.length]);
     }
+  }
+
+
+  disposeDismissed(int index, DismissDirection direction) {
+    _potentialMatches.removeAt(index);
   }
 }
 
@@ -250,9 +247,13 @@ class _FinderPageState extends State<FinderPage> {
   }
 }
 
+typedef void OnDismissedCallback(int itemDismissedIndex, DismissDirection direction);
+
 class CoverFlow extends StatefulWidget {
-  List<MatchData> potentialMatches;
-  CoverFlow(this.potentialMatches);
+  IndexedWidgetBuilder itemBuilder;
+  OnDismissedCallback dismissedCallback;
+
+  CoverFlow(this.itemBuilder, this.dismissedCallback);
 
   @override
   _CoverFlowState createState() => new _CoverFlowState();
@@ -260,7 +261,7 @@ class CoverFlow extends StatefulWidget {
 
 class _CoverFlowState extends State<CoverFlow> {
   PageController controller;
-  int currentpage = 0;
+  int currentPage = 0;
   bool _pageHasChanged = false;
 
   @override
@@ -281,7 +282,7 @@ class _CoverFlowState extends State<CoverFlow> {
         onPageChanged: (value) {
           setState(() {
             _pageHasChanged = true;
-            currentpage = value;
+            currentPage = value;
           });
         },
         controller: controller,
@@ -309,15 +310,15 @@ class _CoverFlowState extends State<CoverFlow> {
           ),
           onDismissed: (direction) {
             setState(() {
-              controller.nextPage(
-                  duration: new Duration(seconds: 1), curve: Curves.easeOut);
-              widget.potentialMatches.removeAt(0);
+              widget.dismissedCallback(currentPage, direction);
+              controller.animateToPage(currentPage,
+                  duration: new Duration(seconds: 2), curve: Curves.easeOut);
             });
           },
         );
       },
-      child: new ProfileCard(
-          widget.potentialMatches[index % widget.potentialMatches.length]),
+      child: widget.itemBuilder(context, index)
     );
   }
 }
+
