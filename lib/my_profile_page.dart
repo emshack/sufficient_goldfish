@@ -46,6 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
     await new LocationTools().getLocation();
     _myData.targetLongitude = currentLocation['latitude'];
     _myData.targetLatitude = currentLocation['longitude'];
+    print('about to write ${_myData.serialize()}');
     _profile.setData(_myData.serialize(), SetOptions.merge);
   }
 

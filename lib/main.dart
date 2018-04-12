@@ -86,24 +86,25 @@ class MatchPageState extends State<MatchPage> {
             ]));
     } else {
       body = new CoverFlow(_potentialMatches);
-      /*var matchData = _potentialMatches.first;
-      body = new Padding(
-          padding: EdgeInsets.all(10.0),
-          child: new Dismissible(
-            key: new ObjectKey(matchData),
-            child: new ProfileCard(matchData),
-            background: new Container(
-                child: new Icon(Icons.thumb_down), color: Colors.red),
-            secondaryBackground: new Container(
-                child: new Icon(Icons.thumb_up), color: Colors.green),
-            onDismissed: (dismissed) => _respondToChoice(matchData, dismissed)));*/
     }
 
     return new Scaffold(
         appBar: new AppBar(
           title: new Text('Sufficient Goldfish'),
         ),
-        body: body);
+        body: body,
+        // temporary addition for ease of adding more data. Feel free to make it a different type of button elsewhere.
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+                floatingActionButton: new FloatingActionButton(
+                    onPressed: () {
+                    Navigator.of(context).push(
+                            new MaterialPageRoute<Null>(builder: (BuildContext context) {
+                            return new ProfilePage();
+                          }));
+                },
+                child: new Icon(Icons.person)),
+
+    );
   }
 
   _respondToChoice(MatchData matchData, DismissDirection direction) {
@@ -282,6 +283,7 @@ class CoverFlow extends StatefulWidget {
 class _CoverFlowState extends State<CoverFlow> {
   PageController controller;
   int currentpage = 0;
+  bool _pageHasChanged = false;
 
 
   @override
@@ -301,6 +303,7 @@ class _CoverFlowState extends State<CoverFlow> {
     return new PageView.builder(
         onPageChanged: (value) {
           setState(() {
+            _pageHasChanged = true;
             currentpage = value;
           });
         },
@@ -312,37 +315,32 @@ class _CoverFlowState extends State<CoverFlow> {
     return new AnimatedBuilder(
       animation: controller,
       builder: (context, Widget child) {
-        double result = 0.0;
-        try {
-          result = controller.page;
-          double value = result - index;
+        double result = _pageHasChanged? controller.page : 0.0;
+        double value = result - index;
 
-          value = (1 - (value.abs() * .5)).clamp(0.0, 1.0);
+        value = (1 - (value.abs() * .5)).clamp(0.0, 1.0);
 
-          return new Dismissible(
-            key: ObjectKey(child),
-            direction: DismissDirection.vertical,
-            child: new Center(
-                child: new SizedBox(
-                  height: Curves.easeOut.transform(value) * 300,
-                  width: Curves.easeOut.transform(value) * 400,
-                  child: new Stack(children: [
-                    child,
-                    new Container(color: Colors.transparent), ]),
+        return new Dismissible(
+          key: ObjectKey(child),
+          direction: DismissDirection.vertical,
+          child: new Center(
+              child: new SizedBox(
+                height: Curves.easeOut.transform(value) * 300,
+                width: Curves.easeOut.transform(value) * 400,
+                child: new Stack(children: [
+                  child,
+                  new Container(color: Colors.transparent), ]),
 
-              ),
             ),
-            onDismissed: (direction) {
-              setState(() {
-                controller.nextPage(duration: new Duration(seconds: 1), curve: Curves.easeOut);
-                widget.potentialMatches.removeAt(0);
-              });
-            },
-          );
-        } catch (ArgumentError) {
-          // Trying to build before everything has been initialized
-          return new Container();
-        }
+          ),
+          onDismissed: (direction) {
+            setState(() {
+              controller.nextPage(duration: new Duration(seconds: 1), curve: Curves.easeOut);
+              widget.potentialMatches.removeAt(0);
+            });
+          },
+        );
+
 
       },
       child: new ProfileCard(widget.potentialMatches[index % widget.potentialMatches.length]),
