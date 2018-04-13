@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:location/location.dart';
 
 import 'dart:io';
 import 'dart:async';
@@ -25,7 +26,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 
 class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => new _ProfilePageState();
@@ -56,8 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<Null> _updateProfile() async {
     // Get GPS data just before sending.
-    Map<String, double> currentLocation =
-        await new LocationTools().getLocation();
+    Map<String, double> currentLocation = await new Location().getLocation;
     _myData.targetLongitude = currentLocation['latitude'];
     _myData.targetLatitude = currentLocation['longitude'];
     _profile.setData(_myData.serialize(), SetOptions.merge);
@@ -211,9 +210,7 @@ class SimpleProfile extends StatelessWidget {
   }
 
   Widget scrollableProfilePictures(bool editable, MatchData matchData) {
-    return new ProfilePicture(
-        editable,
-            (value) => matchData.profilePicture = value,
-        matchData.profilePicture);
+    return new ProfilePicture(editable,
+        (value) => matchData.profilePicture = value, matchData.profilePicture);
   }
 }
