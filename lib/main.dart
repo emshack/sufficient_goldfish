@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:simple_coverflow/simple_coverflow.dart';
 
 import 'utils.dart';
 import 'my_profile_page.dart';
@@ -64,7 +65,7 @@ class MatchPageState extends State<MatchPage> {
             new Text('Gone Fishing...'),
           ]));
     } else {
-      body = new CoverFlow(widgetBuilder, disposeDismissed);
+      body = new CoverFlow(widgetBuilder, dismissedCallback: disposeDismissed);
     }
 
     return new Scaffold(
@@ -87,7 +88,7 @@ class MatchPageState extends State<MatchPage> {
 
   Widget widgetBuilder(BuildContext context, int index) {
     if (_potentialMatches.length == 0) {
-      return new Container();
+      return new Center(child: new Text('You rejected all of your matches!'));
     } else {
       return new ProfileCard(
           _potentialMatches[index % _potentialMatches.length]);
@@ -95,8 +96,8 @@ class MatchPageState extends State<MatchPage> {
   }
 
 
-  disposeDismissed(int index, DismissDirection direction) {
-    _potentialMatches.removeAt(index);
+  disposeDismissed(int card, DismissDirection direction) {
+    _potentialMatches.removeAt(card % _potentialMatches.length);
   }
 }
 
@@ -246,79 +247,3 @@ class _FinderPageState extends State<FinderPage> {
     );
   }
 }
-
-typedef void OnDismissedCallback(int itemDismissedIndex, DismissDirection direction);
-
-class CoverFlow extends StatefulWidget {
-  IndexedWidgetBuilder itemBuilder;
-  OnDismissedCallback dismissedCallback;
-
-  CoverFlow(this.itemBuilder, this.dismissedCallback);
-
-  @override
-  _CoverFlowState createState() => new _CoverFlowState();
-}
-
-class _CoverFlowState extends State<CoverFlow> {
-  PageController controller;
-  int currentPage = 0;
-  bool _pageHasChanged = false;
-
-  @override
-  initState() {
-    super.initState();
-    controller = new PageController(viewportFraction: .65);
-  }
-
-  @override
-  dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new PageView.builder(
-        onPageChanged: (value) {
-          setState(() {
-            _pageHasChanged = true;
-            currentPage = value;
-          });
-        },
-        controller: controller,
-        itemBuilder: (context, index) => builder(index));
-  }
-
-  builder(int index) {
-    return new AnimatedBuilder(
-      animation: controller,
-      builder: (context, Widget child) {
-        double result = _pageHasChanged ? controller.page : 0.0;
-        double value = result - index;
-
-        value = (1 - (value.abs() * .5)).clamp(0.0, 1.0);
-
-        return new Dismissible(
-          key: ObjectKey(child),
-          direction: DismissDirection.vertical,
-          child: new Center(
-            child: new SizedBox(
-              height: Curves.easeOut.transform(value) * 525,
-              width: Curves.easeOut.transform(value) * 700,
-              child: child,
-            ),
-          ),
-          onDismissed: (direction) {
-            setState(() {
-              widget.dismissedCallback(currentPage, direction);
-              controller.animateToPage(currentPage,
-                  duration: new Duration(seconds: 2), curve: Curves.easeOut);
-            });
-          },
-        );
-      },
-      child: widget.itemBuilder(context, index)
-    );
-  }
-}
-
