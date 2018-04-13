@@ -13,6 +13,20 @@ import 'utils.dart';
 // between it and the match page for the sake of focusing on what we're
 // live-coding.
 
+void main() => runApp(new MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: 'Sufficient Goldfish',
+      theme: new ThemeData.light(), // switch to ThemeData.day() when available
+      home: new ProfilePage(),
+    );
+  }
+}
+
+
 class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => new _ProfilePageState();
 }
@@ -46,7 +60,6 @@ class _ProfilePageState extends State<ProfilePage> {
         await new LocationTools().getLocation();
     _myData.targetLongitude = currentLocation['latitude'];
     _myData.targetLatitude = currentLocation['longitude'];
-    print('about to write ${_myData.serialize()}');
     _profile.setData(_myData.serialize(), SetOptions.merge);
   }
 
@@ -198,19 +211,9 @@ class SimpleProfile extends StatelessWidget {
   }
 
   Widget scrollableProfilePictures(bool editable, MatchData matchData) {
-    var tiles = new List.generate(
-        4,
-        (i) => new Expanded(
-            flex: i == 0 ? 0 : 1,
-            child: new ProfilePicture(
-                editable,
-                (value) => matchData.setImageData(i, value),
-                matchData.getImage(i))));
-
-    var mainImage = tiles.removeAt(0);
-    return new Column(children: <Widget>[
-      mainImage,
-      new Row(children: tiles),
-    ]);
+    return new ProfilePicture(
+        editable,
+            (value) => matchData.profilePicture = value,
+        matchData.profilePicture);
   }
 }

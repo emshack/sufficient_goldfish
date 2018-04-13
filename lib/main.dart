@@ -1,12 +1,12 @@
-import 'package:http/http.dart' as http;
-
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_coverflow/simple_coverflow.dart';
+import 'package:http/http.dart' as http;
 
 import 'utils.dart';
-import 'my_profile_page.dart';
+import 'dart:async';
 
 void main() => runApp(new MyApp());
 
@@ -27,6 +27,7 @@ class MatchPage extends StatefulWidget {
 }
 
 class MatchPageState extends State<MatchPage> {
+  DocumentReference _myProfile;
   List<MatchData> _potentialMatches;
   Set<String> _nonMatches;
   final String cloudFunctionUrl =
@@ -37,6 +38,7 @@ class MatchPageState extends State<MatchPage> {
     super.initState();
     _potentialMatches = [];
     _nonMatches = new Set<String>();
+    _myProfile = Firestore.instance.collection('profiles').document();
     fetchMatchData();
   }
 
@@ -73,17 +75,29 @@ class MatchPageState extends State<MatchPage> {
         title: new Text('Sufficient Goldfish'),
       ),
       body: body,
-      // temporary addition for ease of adding more data. Feel free to make it a different type of button elsewhere.
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: new FloatingActionButton(
-          onPressed: () {
-            Navigator.of(context).push(
-                new MaterialPageRoute<Null>(builder: (BuildContext context) {
-              return new ProfilePage();
-            }));
-          },
-          child: new Icon(Icons.person)),
+      floatingActionButton: new Builder(builder: buildFab),
     );
+  }
+
+  Widget buildFab(BuildContext context) {
+    return new FloatingActionButton(
+        onPressed: () {
+          _saveLocation(context);
+        },
+        child: new Icon(Icons.add_location));
+  }
+
+  Future<Null> _saveLocation(BuildContext context) async {
+    Map<String, double> currentLocation =
+    await new LocationTools().getLocation();
+    // Make dummy profile data.
+    var myData = new MatchData(_myProfile.documentID);
+    myData.targetLongitude = currentLocation['latitude'];
+    myData.targetLatitude = currentLocation['longitude'];
+
+    await _myProfile.setData(myData.serialize(), SetOptions.merge);
+    Scaffold.of(context).showSnackBar(new SnackBar(content: new Text('Location saved!')));
   }
 
   Widget widgetBuilder(BuildContext context, int index) {
@@ -112,7 +126,7 @@ class ProfileCard extends StatelessWidget {
         child: new Container(
       padding: new EdgeInsets.all(16.0),
       child: new Column(children: <Widget>[
-        new Expanded(flex: 1, child: showProfilePictures(data)),
+        new Expanded(flex: 1, child: showProfilePicture(data)),
         _showData(data.name, data.favoriteMusic, data.favoritePh),
         new RaisedButton.icon(
             color: Colors.green,
@@ -144,9 +158,9 @@ class ProfileCard extends StatelessWidget {
             .toList());
   }
 
-  Widget showProfilePictures(MatchData matchData) {
+  Widget showProfilePicture(MatchData matchData) {
     return new Image.network(
-      matchData.getImage(0).toString(),
+      matchData.profilePicture.toString(),
       fit: BoxFit.cover,
     );
   }
