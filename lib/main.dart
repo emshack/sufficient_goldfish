@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_coverflow/simple_coverflow.dart';
 import 'package:http/http.dart' as http;
+import 'package:location/location.dart';
 
 import 'utils.dart';
 import 'dart:async';
@@ -89,15 +90,16 @@ class MatchPageState extends State<MatchPage> {
   }
 
   Future<Null> _saveLocation(BuildContext context) async {
-    Map<String, double> currentLocation =
-    await new LocationTools().getLocation();
+    Map<String, double> currentLocation = await new Location().getLocation;
     // Make dummy profile data.
     var myData = new MatchData(_myProfile.documentID);
     myData.targetLongitude = currentLocation['latitude'];
     myData.targetLatitude = currentLocation['longitude'];
 
     await _myProfile.setData(myData.serialize(), SetOptions.merge);
-    Scaffold.of(context).showSnackBar(new SnackBar(content: new Text('Location saved!')));
+    Scaffold
+        .of(context)
+        .showSnackBar(new SnackBar(content: new Text('Location saved!')));
   }
 
   Widget widgetBuilder(BuildContext context, int index) {
@@ -108,7 +110,6 @@ class MatchPageState extends State<MatchPage> {
           _potentialMatches[index % _potentialMatches.length]);
     }
   }
-
 
   disposeDismissed(int card, DismissDirection direction) {
     _potentialMatches.removeAt(card % _potentialMatches.length);
@@ -178,7 +179,6 @@ class FinderPage extends StatefulWidget {
 }
 
 class _FinderPageState extends State<FinderPage> {
-  LocationTools locationTools;
   AudioTools audioTools;
   double latitude = 0.0;
   double longitude = 0.0;
@@ -189,11 +189,13 @@ class _FinderPageState extends State<FinderPage> {
       'https://freesound.org/data/previews/397/397354_4284968-lq.mp3';
 
   _FinderPageState(this.audioTools) {
-    locationTools = new LocationTools();
-    locationTools.getLocation().then((Map<String, double> currentLocation) {
+    Location location = new Location();
+    location.getLocation.then((Map<String, double> currentLocation) {
       _updateLocation(currentLocation);
     });
-    locationTools.initListener(_updateLocation);
+    location.onLocationChanged.listen((Map<String, double> currentLocation) {
+      _updateLocation(currentLocation);
+    });
     audioTools.initAudioLoop(searchingAudio);
   }
 
