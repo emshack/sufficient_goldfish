@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Sufficient Goldfish',
       theme: new ThemeData.light(), // switch to ThemeData.day() when available
       home: new MatchPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
