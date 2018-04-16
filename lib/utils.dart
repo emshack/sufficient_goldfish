@@ -22,7 +22,7 @@ class MatchData {
   double targetLatitude;
   double targetLongitude;
   final String defaultImage =
-      'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/fish-silhouette.png?alt=media&token=27fed5f3-9a70-4355-a3d7-7ec378c40acd';
+      'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
 
   factory MatchData(String id) => new MatchData.data(id);
 
