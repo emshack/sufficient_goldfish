@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:simple_coverflow/simple_coverflow.dart';
-import 'package:http/http.dart' as http;
 
 import 'utils.dart';
 
@@ -51,8 +48,6 @@ class FishPage extends StatefulWidget {
 class FishPageState extends State<FishPage> {
   DocumentReference _myProfile;
   bool _audioToolsReady = false;
-  final String cloudFunctionUrl =
-      'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=';
 
   FishPageState(this._myProfile);
 
@@ -93,17 +88,14 @@ class FishPageState extends State<FishPage> {
               return snapshot.documents.where((DocumentSnapshot aDoc) =>
                 !aDoc.data.containsKey('reservedBy')).toList();
             } else {
+              // TODO(efortuna): for responsiveness, consider building two streams (one for the reserved and one for the shopping) and just swap them out.
               return snapshot.documents.where((DocumentSnapshot aDoc) => aDoc.data['reservedBy'] == _myProfile.documentID).toList();
             }
           }),
           builder: (BuildContext context, AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
-            if (!snapshot.hasData || snapshot.data.length == 0) return const Text('There are plenty of fish in the sea...');
+            if (!snapshot.hasData || snapshot.data.length == 0) return new Center(child: const Text('There are plenty of fish in the sea...'));
             return new CoverFlow((_, int index) {
-                var data = new FishData.data(snapshot.data[index % snapshot.data.length].documentID,
-                    snapshot.data[index % snapshot.data.length]['Field.name'],
-                    snapshot.data[index % snapshot.data.length]['Field.favoriteMusic'],
-                    snapshot.data[index % snapshot.data.length]['Field.phValue'],
-                    snapshot.data[index % snapshot.data.length]['Field.profilePicture']);
+                var data = new FishData.parse(snapshot.data[index % snapshot.data.length]);
                 return new ProfileCard(data, widget.pageType);
             }, dismissedCallback: (int card, DismissDirection direction) => onDismissed(card, direction, snapshot.data));
           });

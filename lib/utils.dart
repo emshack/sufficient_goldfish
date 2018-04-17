@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -44,6 +45,13 @@ class FishData {
           response[Field.favoriteMusic.toString()],
           response[Field.phValue.toString()],
           response[Field.profilePicture.toString()]);
+
+  factory FishData.parse(DocumentSnapshot document) =>
+      FishData.data(document.data[Field.id.toString()],
+          document.data[Field.name.toString()],
+          document.data[Field.favoriteMusic.toString()],
+          document.data[Field.phValue.toString()],
+          document.data[Field.profilePicture.toString()]);
 
   Map<String, dynamic> serialize() {
     return {
