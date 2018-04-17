@@ -100,20 +100,16 @@ class FishPageState extends State<FishPage> {
             new Text('Gone Fishing...'),
           ]));
     } else {
-      body = new StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance.collection('profiles').snapshots,
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (!snapshot.hasData) return const Text('Loading...');
+      body = new StreamBuilder<DocumentSnapshot>(
+          stream: Firestore.instance.collection('profiles').snapshots.map((QuerySnapshot snapshot) =>
+            snapshot.documents).expand((List<DocumentSnapshot> docs) => docs).where((DocumentSnapshot aDoc) =>
+              !aDoc.data.containsKey('reservedBy')),
+          builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+            if (!snapshot.hasData) return const Text('There are plenty of fish in the sea...');
             return new CoverFlow((_, int index) {
-              if (_fishList.length == 0) {
-                return new Center(
-                    child: new Text('There are plenty of fish in the sea...'));
-              } else {
-                final DocumentSnapshot document = snapshot.data.documents[index];
-                var data = new FishData.data(document.documentID, document['Field.name']);
+                var data = new FishData.data(snapshot.data.documentID, snapshot.data['Field.name'], snapshot.data['Field.favoriteMusic'], snapshot.data['Field.phValue'], snapshot.data['Field.profilePicture']);
                 return new ProfileCard(data, widget.pageType);
-              }
-            }, dismissedCallback: onDismissed);
+            }, dismissedCallback: (int card, DismissDirection direction) => onDismissed(card, direction, snapshot.data));
           });
       if (widget.pageType == PageType.shopping)
         audioTools.initAudioLoop(baseName);
@@ -150,12 +146,12 @@ class FishPageState extends State<FishPage> {
     }
   }
 
-  onDismissed(int card, DismissDirection direction) {
+  onDismissed(int card, DismissDirection direction, DocumentSnapshot fishOfInterest) {
     audioTools.playAudio(dismissedName);
     // TODO: If widget.pageType == PageType.reserved, write this fish back to
     // the list of available fish in Firebase
-    FishData savedFish = _fishList.removeAt(card % _fishList.length);
-    _myProfile.setData({'savedFish': savedFish.id}, SetOptions.merge);
+    fishOfInterest.reference.setData({'reservedBy': _myProfile.documentID}, SetOptions.merge);
+    _myProfile.setData({'savedFish': fishOfInterest.documentID}, SetOptions.merge);
   }
 }
 
