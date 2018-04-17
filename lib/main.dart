@@ -7,6 +7,16 @@ import 'package:http/http.dart' as http;
 
 import 'utils.dart';
 
+// TODO (emshack): Replace these with local files to load faster?
+const baseAudio =
+    'https://freesound.org/data/previews/400/400632_5121236-lq.mp3';
+const dismissedAudio =
+    'http://freesound.org/data/previews/261/261597_4486188-lq.mp3';
+const savedAudio =
+    'http://freesound.org/data/previews/416/416710_5121236-lq.mp3';
+
+AudioTools audioTools = new AudioTools();
+
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
@@ -75,6 +85,7 @@ class FishPageState extends State<FishPage> {
           ]));
     } else {
       body = new CoverFlow(widgetBuilder, dismissedCallback: disposeDismissed);
+      audioTools.initAudioLoop(baseAudio);
     }
 
     return new Scaffold(
@@ -103,11 +114,13 @@ class FishPageState extends State<FishPage> {
       return new Center(
           child: new Text('There are plenty of fish in the sea...'));
     } else {
-      return new ProfileCard(_fishList[index % _fishList.length]);
+      return new ProfileCard(
+          _fishList[index % _fishList.length], widget.pageType);
     }
   }
 
   disposeDismissed(int card, DismissDirection direction) {
+    audioTools.playAudio(dismissedAudio);
     _fishList.removeAt(card % _fishList.length);
     // TODO: If widget.pageType == PageType.reserved, write this fish back to
     // the list of available fish in Firebase
@@ -116,8 +129,9 @@ class FishPageState extends State<FishPage> {
 
 class ProfileCard extends StatelessWidget {
   final FishData data;
+  final PageType pageType;
 
-  ProfileCard(this.data);
+  ProfileCard(this.data, this.pageType);
 
   @override
   Widget build(BuildContext context) {
@@ -127,13 +141,16 @@ class ProfileCard extends StatelessWidget {
       child: new Column(children: <Widget>[
         new Expanded(flex: 1, child: showProfilePicture(data)),
         _showData(data.name, data.favoriteMusic, data.favoritePh),
-        new RaisedButton.icon(
-            color: Colors.green,
-            icon: new Icon(Icons.check),
-            label: new Text('Save'),
-            onPressed: () {
-              //TODO
-            }),
+        pageType == PageType.shopping
+            ? new RaisedButton.icon(
+                color: Colors.green,
+                icon: new Icon(Icons.check),
+                label: new Text('Save'),
+                onPressed: () {
+                  audioTools.playAudio(savedAudio);
+                  //TODO
+                })
+            : null,
       ]),
     ));
   }

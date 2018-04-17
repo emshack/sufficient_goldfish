@@ -56,23 +56,16 @@ class AudioTools {
   AudioTools() : _audioPlayer = new AudioPlayer();
 
   void initAudioLoop(String audioFile) {
-    // restart audio if it has been playing for at least 3 seconds
-    _audioPlayer.setPositionHandler((Duration d) {
-      if (d.inSeconds > 3) {
-        playNewAudio(audioFile);
-      }
+    // restart audio if it has finished
+    _audioPlayer.setCompletionHandler(() {
+      playAudio(audioFile);
     });
     _audioPlayer.play(audioFile);
   }
 
-  void playNewAudio(String audioFile) {
+  void playAudio(String audioFile) {
     _audioPlayer.stop().then((result) {
       _audioPlayer.play(audioFile);
     });
-  }
-
-  void stopAudio() {
-    _audioPlayer.setPositionHandler((Duration d) {});
-    _audioPlayer.stop();
   }
 }
