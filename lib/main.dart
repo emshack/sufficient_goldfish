@@ -49,7 +49,6 @@ class FishPage extends StatefulWidget {
 
 class FishPageState extends State<FishPage> {
   DocumentReference _myProfile;
-  List<FishData> _fishList;
   Set<String> _rejectedFish;
   bool _audioToolsReady = false;
   final String cloudFunctionUrl =
@@ -58,11 +57,9 @@ class FishPageState extends State<FishPage> {
   @override
   void initState() {
     super.initState();
-    _fishList = [];
     _rejectedFish = new Set<String>();
     _myProfile = Firestore.instance.collection('buyers').document();
     if (!_audioToolsReady) populateAudioTools();
-    fetchFishData();
   }
 
   Future<Null> populateAudioTools() async {
@@ -74,24 +71,10 @@ class FishPageState extends State<FishPage> {
     });
   }
 
-  fetchFishData() {
-    // TODO: Pull down reserved fish if widget.pageType == PageType.reserved
-    // and pull down list of available fish if widget.pageType == PageType.shopping
-    String query = _rejectedFish.join('&id=');
-    http.get(cloudFunctionUrl + query).then((response) {
-      var suggestedMatches = json.decode(response.body);
-      setState(() {
-        _fishList = suggestedMatches
-            .map<FishData>((fishData) => new FishData.parseResponse(fishData))
-            .toList();
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget body;
-    if (_fishList.isEmpty || !_audioToolsReady) {
+    if (!_audioToolsReady) {
       body = new Center(
           child: new Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -101,11 +84,10 @@ class FishPageState extends State<FishPage> {
           ]));
     } else {
       body = new StreamBuilder<DocumentSnapshot>(
-          stream: Firestore.instance.collection('profiles').snapshots.map((QuerySnapshot snapshot) =>
-            snapshot.documents).expand((List<DocumentSnapshot> docs) => docs).where((DocumentSnapshot aDoc) =>
-              !aDoc.data.containsKey('reservedBy')),
+          stream: Firestore.instance.collection('profiles').snapshots.expand((QuerySnapshot snapshot) => snapshot.documents).where((DocumentSnapshot aDoc) => !aDoc.data.containsKey('reservedBy')),
           builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (!snapshot.hasData) return const Text('There are plenty of fish in the sea...');
+            print('A SNAPSHOT! ${snapshot.data['Field.name']}');
             return new CoverFlow((_, int index) {
                 var data = new FishData.data(snapshot.data.documentID, snapshot.data['Field.name'], snapshot.data['Field.favoriteMusic'], snapshot.data['Field.phValue'], snapshot.data['Field.profilePicture']);
                 return new ProfileCard(data, widget.pageType);
@@ -134,16 +116,6 @@ class FishPageState extends State<FishPage> {
               })
           : null,
     );
-  }
-
-  Widget widgetBuilder(BuildContext context, int index) {
-    if (_fishList.length == 0) {
-      return new Center(
-          child: new Text('There are plenty of fish in the sea...'));
-    } else {
-      return new ProfileCard(
-          _fishList[index % _fishList.length], widget.pageType);
-    }
   }
 
   onDismissed(int card, DismissDirection direction, DocumentSnapshot fishOfInterest) {
