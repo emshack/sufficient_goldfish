@@ -21,7 +21,6 @@ AudioTools audioTools = new AudioTools();
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -82,22 +81,38 @@ class FishPageState extends State<FishPage> {
           ]));
     } else {
       body = new StreamBuilder<List<DocumentSnapshot>>(
-          stream: Firestore.instance.collection('profiles').snapshots.map((QuerySnapshot snapshot) {
+          stream: Firestore.instance
+              .collection('profiles')
+              .snapshots
+              .map((QuerySnapshot snapshot) {
             if (widget.pageType == PageType.shopping) {
               // Filter out results that are already reserved.
-              return snapshot.documents.where((DocumentSnapshot aDoc) =>
-                !aDoc.data.containsKey('reservedBy')).toList();
+              return snapshot.documents
+                  .where((DocumentSnapshot aDoc) =>
+                      !aDoc.data.containsKey('reservedBy'))
+                  .toList();
             } else {
-              // TODO(efortuna): for responsiveness, consider building two streams (one for the reserved and one for the shopping) and just swap them out.
-              return snapshot.documents.where((DocumentSnapshot aDoc) => aDoc.data['reservedBy'] == _myProfile.documentID).toList();
+              // TODO(efortuna): for responsiveness, consider building two
+              // streams (one for the reserved and one for the shopping) and
+              // just swap them out. (this would eliminate Navigator.of though)
+              return snapshot.documents
+                  .where((DocumentSnapshot aDoc) =>
+                      aDoc.data['reservedBy'] == _myProfile.documentID)
+                  .toList();
             }
           }),
-          builder: (BuildContext context, AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
-            if (!snapshot.hasData || snapshot.data.length == 0) return new Center(child: const Text('There are plenty of fish in the sea...'));
+          builder: (BuildContext context,
+              AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
+            if (!snapshot.hasData || snapshot.data.length == 0)
+              return new Center(
+                  child: const Text('There are plenty of fish in the sea...'));
             return new CoverFlow((_, int index) {
-                var data = new FishData.parse(snapshot.data[index % snapshot.data.length]);
-                return new ProfileCard(data, widget.pageType);
-            }, dismissedCallback: (int card, DismissDirection direction) => onDismissed(card, direction, snapshot.data));
+              var data = new FishData.parse(
+                  snapshot.data[index % snapshot.data.length]);
+              return new ProfileCard(data, widget.pageType);
+            },
+                dismissedCallback: (int card, DismissDirection direction) =>
+                    onDismissed(card, direction, snapshot.data));
           });
       if (widget.pageType == PageType.shopping)
         audioTools.initAudioLoop(baseName);
@@ -124,12 +139,13 @@ class FishPageState extends State<FishPage> {
     );
   }
 
-  onDismissed(int card, DismissDirection direction, List<DocumentSnapshot> allFish) {
+  onDismissed(
+      int card, DismissDirection direction, List<DocumentSnapshot> allFish) {
     audioTools.playAudio(dismissedName);
     DocumentSnapshot fishOfInterest = allFish[card % allFish.length];
     if (widget.pageType == PageType.shopping) {
-      fishOfInterest.reference.setData(
-          {'reservedBy': _myProfile.documentID}, SetOptions.merge);
+      fishOfInterest.reference
+          .setData({'reservedBy': _myProfile.documentID}, SetOptions.merge);
     } else {
       // If widget.pageType == PageType.reserved, write this fish back to
       // the list of available fish in Firebase
