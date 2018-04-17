@@ -48,7 +48,6 @@ class FishPage extends StatefulWidget {
 class FishPageState extends State<FishPage> {
   DocumentReference _myProfile;
   bool _audioToolsReady = false;
-  StreamSubscription<AccelerometerEvent> _accelerometerEvents;
   DocumentSnapshot _lastFish;
 
   FishPageState(this._myProfile);
@@ -60,7 +59,7 @@ class FishPageState extends State<FishPage> {
       _myProfile = Firestore.instance.collection('buyers').document();
     }
     if (!_audioToolsReady) populateAudioTools();
-    _accelerometerEvents = accelerometerEvents.listen((AccelerometerEvent event) {
+    accelerometerEvents.listen((AccelerometerEvent event) {
       if (event.y.abs() >= 20 && _lastFish != null) {
         // Shake-to-undo last action.
         if (widget.pageType == PageType.shopping) {
@@ -108,7 +107,8 @@ class FishPageState extends State<FishPage> {
             } else {
               // TODO(efortuna): for responsiveness, consider building two
               // streams (one for the reserved and one for the shopping) and
-              // just swap them out. (this would eliminate Navigator.of though)
+              // just swap them out. (this would result in just one page and
+              // eliminate Navigator.of though...)
               return snapshot.documents
                   .where((DocumentSnapshot aDoc) =>
                       aDoc.data['reservedBy'] == _myProfile.documentID)
@@ -121,9 +121,10 @@ class FishPageState extends State<FishPage> {
               return new Center(
                   child: const Text('There are plenty of fish in the sea...'));
             return new CoverFlow((_, int index) {
-              var data = new FishData.parse(
-                  snapshot.data[index % snapshot.data.length]);
-              return new ProfileCard(data, widget.pageType);
+              var fishOfInterest = snapshot.data[index % snapshot.data.length];
+              var data = new FishData.parse(fishOfInterest);
+              return new ProfileCard(
+                  data, widget.pageType, () => _reserveFish(fishOfInterest));
             },
                 dismissedCallback: (int card, DismissDirection direction) =>
                     onDismissed(card, direction, snapshot.data));
@@ -157,11 +158,8 @@ class FishPageState extends State<FishPage> {
       int card, DismissDirection direction, List<DocumentSnapshot> allFish) {
     audioTools.playAudio(dismissedName);
     DocumentSnapshot fishOfInterest = allFish[card % allFish.length];
-    if (widget.pageType == PageType.shopping) {
-      _reserveFish(fishOfInterest);
-    } else {
-      // If widget.pageType == PageType.reserved, write this fish back to
-      // the list of available fish in Firebase
+    if (widget.pageType == PageType.reserved) {
+      // Write this fish back to the list of available fish in Firebase.
       _removeFish(fishOfInterest);
     }
     _lastFish = fishOfInterest;
@@ -182,8 +180,9 @@ class FishPageState extends State<FishPage> {
 class ProfileCard extends StatelessWidget {
   final FishData data;
   final PageType pageType;
+  final Function onSavedCallback;
 
-  ProfileCard(this.data, this.pageType);
+  ProfileCard(this.data, this.pageType, this.onSavedCallback);
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +205,7 @@ class ProfileCard extends StatelessWidget {
           label: new Text('Save'),
           onPressed: () {
             audioTools.playAudio(savedName);
-            //TODO
+            onSavedCallback();
           }));
     }
     return contents;
