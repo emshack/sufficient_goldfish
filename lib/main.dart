@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:simple_coverflow/simple_coverflow.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,6 +24,7 @@ AudioTools audioTools = new AudioTools();
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -58,7 +60,7 @@ class FishPageState extends State<FishPage> {
     super.initState();
     _fishList = [];
     _rejectedFish = new Set<String>();
-    _myProfile = Firestore.instance.collection('profiles').document();
+    _myProfile = Firestore.instance.collection('buyers').document();
     if (!_audioToolsReady) populateAudioTools();
     fetchFishData();
   }
@@ -98,7 +100,21 @@ class FishPageState extends State<FishPage> {
             new Text('Gone Fishing...'),
           ]));
     } else {
-      body = new CoverFlow(widgetBuilder, dismissedCallback: disposeDismissed);
+      body = new StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance.collection('profiles').snapshots,
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (!snapshot.hasData) return const Text('Loading...');
+            return new CoverFlow((_, int index) {
+              if (_fishList.length == 0) {
+                return new Center(
+                    child: new Text('There are plenty of fish in the sea...'));
+              } else {
+                final DocumentSnapshot document = snapshot.data.documents[index];
+                var data = new FishData.data(document.documentID, document['Field.name']);
+                return new ProfileCard(data, widget.pageType);
+              }
+            }, dismissedCallback: onDismissed);
+          });
       if (widget.pageType == PageType.shopping)
         audioTools.initAudioLoop(baseName);
     }
@@ -134,11 +150,12 @@ class FishPageState extends State<FishPage> {
     }
   }
 
-  disposeDismissed(int card, DismissDirection direction) {
+  onDismissed(int card, DismissDirection direction) {
     audioTools.playAudio(dismissedName);
-    _fishList.removeAt(card % _fishList.length);
     // TODO: If widget.pageType == PageType.reserved, write this fish back to
     // the list of available fish in Firebase
+    FishData savedFish = _fishList.removeAt(card % _fishList.length);
+    _myProfile.setData({'savedFish': savedFish.id}, SetOptions.merge);
   }
 }
 
