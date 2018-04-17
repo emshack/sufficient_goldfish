@@ -5,7 +5,6 @@ dependencies:
   flutter:
     sdk: flutter
   cloud_firestore:
-  location:
   audioplayer:
   image_picker:
   firebase_storage:

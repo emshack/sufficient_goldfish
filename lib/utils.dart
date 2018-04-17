@@ -9,8 +9,6 @@ enum Field {
   favoriteMusic,
   phValue,
   profilePicture, // the main profile picture
-  lastSeenLatitude,
-  lastSeenLongitude
 }
 
 class MatchData {
@@ -19,8 +17,6 @@ class MatchData {
   String name;
   String favoriteMusic;
   String favoritePh;
-  double targetLatitude;
-  double targetLongitude;
   final String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
 
@@ -30,9 +26,7 @@ class MatchData {
       [this.name,
       this.favoriteMusic,
       this.favoritePh,
-      String profilePicture1,
-      this.targetLatitude,
-      this.targetLongitude]) {
+      String profilePicture1]) {
     this.name ??= 'Frank';
     this.favoriteMusic ??= 'Blubstep';
     this.favoritePh ??= '7.0';
@@ -46,9 +40,7 @@ class MatchData {
           response[Field.name.toString()],
           response[Field.favoriteMusic.toString()],
           response[Field.phValue.toString()],
-          response[Field.profilePicture.toString()],
-          response[Field.lastSeenLatitude.toString()],
-          response[Field.lastSeenLongitude.toString()]);
+          response[Field.profilePicture.toString()]);
 
   Map<String, dynamic> serialize() {
     return {
@@ -56,9 +48,7 @@ class MatchData {
       Field.profilePicture.toString(): profilePicture.toString(),
       Field.name.toString(): name,
       Field.favoriteMusic.toString(): favoriteMusic,
-      Field.phValue.toString(): favoritePh,
-      Field.lastSeenLatitude.toString(): targetLatitude,
-      Field.lastSeenLongitude.toString(): targetLongitude
+      Field.phValue.toString(): favoritePh
     };
   }
 }

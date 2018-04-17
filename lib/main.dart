@@ -76,29 +76,7 @@ class MatchPageState extends State<MatchPage> {
         title: new Text('Sufficient Goldfish'),
       ),
       body: body,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: new Builder(builder: buildFab),
     );
-  }
-
-  Widget buildFab(BuildContext context) {
-    return new FloatingActionButton(
-        onPressed: () {
-          _saveLocation(context);
-        },
-        child: new Icon(Icons.add_location));
-  }
-
-  Future<Null> _saveLocation(BuildContext context) async {
-    Map<String, double> currentLocation =
-    await new LocationTools().getLocation();
-    // Make dummy profile data.
-    var myData = new MatchData(_myProfile.documentID);
-    myData.targetLongitude = currentLocation['latitude'];
-    myData.targetLatitude = currentLocation['longitude'];
-
-    await _myProfile.setData(myData.serialize(), SetOptions.merge);
-    Scaffold.of(context).showSnackBar(new SnackBar(content: new Text('Location saved!')));
   }
 
   Widget widgetBuilder(BuildContext context, int index) {
@@ -132,13 +110,9 @@ class ProfileCard extends StatelessWidget {
         new RaisedButton.icon(
             color: Colors.green,
             icon: new Icon(Icons.check),
-            label: new Text('Meet'),
+            label: new Text('Save'),
             onPressed: () {
-              Navigator.of(context).push(
-                  new MaterialPageRoute<Null>(builder: (BuildContext context) {
-                return new FinderPage(
-                    data.targetLatitude, data.targetLongitude);
-              }));
+              //TODO
             }),
       ]),
     ));
@@ -163,102 +137,6 @@ class ProfileCard extends StatelessWidget {
     return new Image.network(
       matchData.profilePicture.toString(),
       fit: BoxFit.cover,
-    );
-  }
-}
-
-class FinderPage extends StatefulWidget {
-  final double targetLatitude;
-  final double targetLongitude;
-  final AudioTools audioTools = new AudioTools();
-
-  FinderPage(this.targetLatitude, this.targetLongitude);
-
-  @override
-  _FinderPageState createState() => new _FinderPageState(audioTools);
-}
-
-class _FinderPageState extends State<FinderPage> {
-  LocationTools locationTools;
-  AudioTools audioTools;
-  double latitude = 0.0;
-  double longitude = 0.0;
-  double accuracy = 0.0;
-  final String searchingAudio =
-      'https://freesound.org/data/previews/28/28693_98464-lq.mp3';
-  final String foundAudio =
-      'https://freesound.org/data/previews/397/397354_4284968-lq.mp3';
-
-  _FinderPageState(this.audioTools) {
-    locationTools = new LocationTools();
-    locationTools.getLocation().then((Map<String, double> currentLocation) {
-      _updateLocation(currentLocation);
-    });
-    locationTools.initListener(_updateLocation);
-    audioTools.initAudioLoop(searchingAudio);
-  }
-
-  void _updateLocation(Map<String, double> currentLocation) {
-    setState(() {
-      latitude = currentLocation['latitude'];
-      longitude = currentLocation['longitude'];
-      accuracy = currentLocation['accuracy'];
-    });
-  }
-
-  double _getLocationDiff() {
-    int milesBetweenLines = 69;
-    int feetInMile = 5280;
-    int desiredFeetRange = 15;
-    double multiplier = 2 * milesBetweenLines * feetInMile / desiredFeetRange;
-    double latitudeDiff = (latitude - widget.targetLatitude).abs() * multiplier;
-    double longitudeDiff =
-        (longitude - widget.targetLongitude).abs() * multiplier;
-    if (latitudeDiff > 1) {
-      latitudeDiff = 1.0;
-    }
-    if (longitudeDiff > 1) {
-      longitudeDiff = 1.0;
-    }
-    double diff = (latitudeDiff + longitudeDiff) / 2;
-    if (diff < 0.1) {
-      audioTools.stopAudio();
-      audioTools.playNewAudio(foundAudio);
-    }
-    return diff;
-  }
-
-  Color _colorFromLocationDiff() {
-    return Color.lerp(Colors.red, Colors.blue, _getLocationDiff());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Container(
-      color: _colorFromLocationDiff(),
-      child: new Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            new Text(
-              'Locate your match!',
-              style: new TextStyle(
-                  color: Colors.black,
-                  fontSize: 32.0,
-                  decoration: TextDecoration.none),
-            ),
-            new Image.asset('assets/location_ping.gif'),
-            new FloatingActionButton.extended(
-              icon: new Icon(Icons.cancel, color: Colors.black),
-              label: new Text(
-                'Cancel',
-                style: new TextStyle(color: Colors.black, fontSize: 24.0),
-              ),
-              onPressed: () {
-                audioTools.stopAudio();
-                Navigator.pop(context);
-              },
-            ),
-          ]),
     );
   }
 }
