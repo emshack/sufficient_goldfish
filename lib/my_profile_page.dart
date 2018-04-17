@@ -26,7 +26,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => new _ProfilePageState();
 }
@@ -54,15 +53,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _myData = new MatchData(_profile.documentID);
   }
 
-  Future<Null> _updateProfile() async {
-    // Get GPS data just before sending.
-    Map<String, double> currentLocation =
-        await new LocationTools().getLocation();
-    _myData.targetLongitude = currentLocation['latitude'];
-    _myData.targetLatitude = currentLocation['longitude'];
-    _profile.setData(_myData.serialize(), SetOptions.merge);
-  }
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -73,7 +63,6 @@ class _ProfilePageState extends State<ProfilePage> {
         floatingActionButton: _showFab
             ? new FloatingActionButton(
                 onPressed: () {
-                  _updateProfile();
                   setState(() {
                     _editing = !_editing;
                   });
@@ -211,9 +200,7 @@ class SimpleProfile extends StatelessWidget {
   }
 
   Widget scrollableProfilePictures(bool editable, MatchData matchData) {
-    return new ProfilePicture(
-        editable,
-            (value) => matchData.profilePicture = value,
-        matchData.profilePicture);
+    return new ProfilePicture(editable,
+        (value) => matchData.profilePicture = value, matchData.profilePicture);
   }
 }
