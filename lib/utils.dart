@@ -1,4 +1,10 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:http/http.dart';
+
 import 'package:audioplayer/audioplayer.dart';
+import 'package:path_provider/path_provider.dart';
 
 enum Field {
   id, // unique id to separate candidates (the document id)
@@ -52,20 +58,29 @@ class FishData {
 
 class AudioTools {
   final AudioPlayer _audioPlayer;
+  final Map<String, String> _nameToPath = {};
 
   AudioTools() : _audioPlayer = new AudioPlayer();
 
-  void initAudioLoop(String audioFile) {
-    // restart audio if it has finished
-    _audioPlayer.setCompletionHandler(() {
-      playAudio(audioFile);
-    });
-    _audioPlayer.play(audioFile);
+  Future loadFile(String url, String name) async {
+    final bytes = await readBytes(url);
+    final dir = await getApplicationDocumentsDirectory();
+    final file = new File('${dir.path}/$name.mp3');
+
+    await file.writeAsBytes(bytes);
+    if (await file.exists()) _nameToPath[name] = file.path;
   }
 
-  void playAudio(String audioFile) {
-    _audioPlayer.stop().then((result) {
-      _audioPlayer.play(audioFile);
+  void initAudioLoop(String name) {
+    // restart audio if it has finished
+    _audioPlayer.setCompletionHandler(() {
+      playAudio(name);
     });
+    playAudio(name);
+  }
+
+  Future<Null> playAudio(String name) async {
+    await _audioPlayer.stop();
+    await _audioPlayer.play(_nameToPath[name], isLocal: true);
   }
 }
