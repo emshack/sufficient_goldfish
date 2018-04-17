@@ -109,8 +109,6 @@ PODS:
   - image_picker (0.0.1):
     - Flutter
   - leveldb-library (1.20)
-  - location (0.0.1):
-    - Flutter
   - nanopb (0.3.8):
     - nanopb/decode (= 0.3.8)
     - nanopb/encode (= 0.3.8)
@@ -126,7 +124,6 @@ DEPENDENCIES:
   - Flutter (from `Pods/.symlinks/flutter/ios`)
   - google_sign_in (from `Pods/.symlinks/plugins/google_sign_in-3.0.0/ios`)
   - image_picker (from `Pods/.symlinks/plugins/image_picker-0.4.1/ios`)
-  - location (from `Pods/.symlinks/plugins/flutterlocation-bd3731a3534a7d087ee607eebf0516ac5ed43b9d/ios`)
 
 EXTERNAL SOURCES:
   audioplayer:
@@ -143,8 +140,6 @@ EXTERNAL SOURCES:
     :path: Pods/.symlinks/plugins/google_sign_in-3.0.0/ios
   image_picker:
     :path: Pods/.symlinks/plugins/image_picker-0.4.1/ios
-  location:
-    :path: Pods/.symlinks/plugins/flutterlocation-bd3731a3534a7d087ee607eebf0516ac5ed43b9d/ios
 
 SPEC CHECKSUMS:
   audioplayer: 3cc64e4f5f3e231c715c8923a9bc26a19dc5da3b
@@ -172,7 +167,6 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 390ea358e5a0d0133153806f744662dad933d06b
   image_picker: ee00aab0487cedc80a304085219503cc6d0f2e22
   leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
-  location: 26c90953ad5916331d0d1d913898779910416487
   nanopb: 5601e6bca2dbf1ed831b519092ec110f66982ca3
   Protobuf: 8a9838fba8dae3389230e1b7f8c104aa32389c03
 

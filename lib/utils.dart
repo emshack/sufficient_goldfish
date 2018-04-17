@@ -1,7 +1,4 @@
-import 'package:location/location.dart';
 import 'package:audioplayer/audioplayer.dart';
-
-import 'dart:async';
 
 enum Field {
   id, // unique id to separate candidates (the document id)
@@ -50,22 +47,6 @@ class MatchData {
       Field.favoriteMusic.toString(): favoriteMusic,
       Field.phValue.toString(): favoritePh
     };
-  }
-}
-
-typedef void LocationCallback(Map<String, double> location);
-
-class LocationTools {
-  final Location location = new Location();
-
-  Future<Map<String, double>> getLocation() {
-    return location.getLocation;
-  }
-
-  void initListener(LocationCallback callback) {
-    location.onLocationChanged.listen((Map<String, double> currentLocation) {
-      callback(currentLocation);
-    });
   }
 }
 

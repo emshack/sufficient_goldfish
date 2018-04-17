@@ -6,7 +6,6 @@ import 'package:simple_coverflow/simple_coverflow.dart';
 import 'package:http/http.dart' as http;
 
 import 'utils.dart';
-import 'dart:async';
 
 void main() => runApp(new MyApp());
 
@@ -76,6 +75,10 @@ class MatchPageState extends State<MatchPage> {
         title: new Text('Sufficient Goldfish'),
       ),
       body: body,
+      floatingActionButton: new FloatingActionButton.extended(
+          icon: new Icon(Icons.shopping_cart),
+          label: new Text("Reserved"),
+          onPressed: null),
     );
   }
 
@@ -87,7 +90,6 @@ class MatchPageState extends State<MatchPage> {
           _potentialMatches[index % _potentialMatches.length]);
     }
   }
-
 
   disposeDismissed(int card, DismissDirection direction) {
     _potentialMatches.removeAt(card % _potentialMatches.length);
