@@ -83,13 +83,20 @@ class FishPageState extends State<FishPage> {
             new Text('Gone Fishing...'),
           ]));
     } else {
-      body = new StreamBuilder<DocumentSnapshot>(
-          stream: Firestore.instance.collection('profiles').snapshots.expand((QuerySnapshot snapshot) => snapshot.documents).where((DocumentSnapshot aDoc) => !aDoc.data.containsKey('reservedBy')),
-          builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (!snapshot.hasData) return const Text('There are plenty of fish in the sea...');
-            print('A SNAPSHOT! ${snapshot.data['Field.name']}');
+      body = new StreamBuilder<List<DocumentSnapshot>>(
+          stream: Firestore.instance.collection('profiles').snapshots.map((QuerySnapshot snapshot) {
+            // Filter out results that are already reserved.
+            return snapshot.documents.where((DocumentSnapshot aDoc) => !aDoc.data.containsKey('reservedBy')).toList();
+          }),
+          //.expand((QuerySnapshot snapshot) => snapshot.documents).where((DocumentSnapshot aDoc) => !aDoc.data.containsKey('reservedBy')),
+          builder: (BuildContext context, AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
+            if (!snapshot.hasData || snapshot.data.length == 0) return const Text('There are plenty of fish in the sea...');
             return new CoverFlow((_, int index) {
-                var data = new FishData.data(snapshot.data.documentID, snapshot.data['Field.name'], snapshot.data['Field.favoriteMusic'], snapshot.data['Field.phValue'], snapshot.data['Field.profilePicture']);
+                var data = new FishData.data(snapshot.data[index % snapshot.data.length].documentID,
+                    snapshot.data[index % snapshot.data.length]['Field.name'],
+                    snapshot.data[index % snapshot.data.length]['Field.favoriteMusic'],
+                    snapshot.data[index % snapshot.data.length]['Field.phValue'],
+                    snapshot.data[index % snapshot.data.length]['Field.profilePicture']);
                 return new ProfileCard(data, widget.pageType);
             }, dismissedCallback: (int card, DismissDirection direction) => onDismissed(card, direction, snapshot.data));
           });
@@ -118,8 +125,9 @@ class FishPageState extends State<FishPage> {
     );
   }
 
-  onDismissed(int card, DismissDirection direction, DocumentSnapshot fishOfInterest) {
+  onDismissed(int card, DismissDirection direction, List<DocumentSnapshot> allFish) {
     audioTools.playAudio(dismissedName);
+    DocumentSnapshot fishOfInterest = allFish[card % allFish.length];
     // TODO: If widget.pageType == PageType.reserved, write this fish back to
     // the list of available fish in Firebase
     fishOfInterest.reference.setData({'reservedBy': _myProfile.documentID}, SetOptions.merge);
