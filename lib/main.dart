@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_coverflow/simple_coverflow.dart';
+import 'package:sensors/sensors.dart';
 
 import 'utils.dart';
 
@@ -47,6 +48,8 @@ class FishPage extends StatefulWidget {
 class FishPageState extends State<FishPage> {
   DocumentReference _myProfile;
   bool _audioToolsReady = false;
+  StreamSubscription<AccelerometerEvent> _accelerometerEvents;
+  DocumentSnapshot _lastFish;
 
   FishPageState(this._myProfile);
 
@@ -57,6 +60,17 @@ class FishPageState extends State<FishPage> {
       _myProfile = Firestore.instance.collection('buyers').document();
     }
     if (!_audioToolsReady) populateAudioTools();
+    _accelerometerEvents = accelerometerEvents.listen((AccelerometerEvent event) {
+      if (event.y.abs() >= 20 && _lastFish != null) {
+        // Shake-to-undo last action.
+        if (widget.pageType == PageType.shopping) {
+          _removeFish(_lastFish);
+        } else {
+          _reserveFish(_lastFish);
+        }
+        _lastFish = null;
+      }
+    });
   }
 
   Future<Null> populateAudioTools() async {
@@ -144,15 +158,24 @@ class FishPageState extends State<FishPage> {
     audioTools.playAudio(dismissedName);
     DocumentSnapshot fishOfInterest = allFish[card % allFish.length];
     if (widget.pageType == PageType.shopping) {
-      fishOfInterest.reference
-          .setData({'reservedBy': _myProfile.documentID}, SetOptions.merge);
+      _reserveFish(fishOfInterest);
     } else {
       // If widget.pageType == PageType.reserved, write this fish back to
       // the list of available fish in Firebase
-      var existingData = fishOfInterest.data;
-      existingData.remove('reservedBy');
-      fishOfInterest.reference.setData(existingData);
+      _removeFish(fishOfInterest);
     }
+    _lastFish = fishOfInterest;
+  }
+
+  void _removeFish(DocumentSnapshot fishOfInterest) {
+    var existingData = fishOfInterest.data;
+    existingData.remove('reservedBy');
+    fishOfInterest.reference.setData(existingData);
+  }
+
+  void _reserveFish(DocumentSnapshot fishOfInterest) {
+    fishOfInterest.reference
+        .setData({'reservedBy': _myProfile.documentID}, SetOptions.merge);
   }
 }
 
