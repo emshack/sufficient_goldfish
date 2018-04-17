@@ -7,6 +7,7 @@ dependencies:
   cloud_firestore:
   audioplayer:
   image_picker:
+  path_provider:
   firebase_storage:
   google_sign_in:
   simple_coverflow:

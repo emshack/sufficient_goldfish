@@ -114,6 +114,8 @@ PODS:
     - nanopb/encode (= 0.3.8)
   - nanopb/decode (0.3.8)
   - nanopb/encode (0.3.8)
+  - path_provider (0.0.1):
+    - Flutter
   - Protobuf (3.5.0)
 
 DEPENDENCIES:
@@ -124,6 +126,7 @@ DEPENDENCIES:
   - Flutter (from `Pods/.symlinks/flutter/ios`)
   - google_sign_in (from `Pods/.symlinks/plugins/google_sign_in-3.0.0/ios`)
   - image_picker (from `Pods/.symlinks/plugins/image_picker-0.4.1/ios`)
+  - path_provider (from `Pods/.symlinks/plugins/path_provider-0.4.0/ios`)
 
 EXTERNAL SOURCES:
   audioplayer:
@@ -140,6 +143,8 @@ EXTERNAL SOURCES:
     :path: Pods/.symlinks/plugins/google_sign_in-3.0.0/ios
   image_picker:
     :path: Pods/.symlinks/plugins/image_picker-0.4.1/ios
+  path_provider:
+    :path: Pods/.symlinks/plugins/path_provider-0.4.0/ios
 
 SPEC CHECKSUMS:
   audioplayer: 3cc64e4f5f3e231c715c8923a9bc26a19dc5da3b
@@ -168,6 +173,7 @@ SPEC CHECKSUMS:
   image_picker: ee00aab0487cedc80a304085219503cc6d0f2e22
   leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
   nanopb: 5601e6bca2dbf1ed831b519092ec110f66982ca3
+  path_provider: 09407919825bfe3c2deae39453b7a5b44f467873
   Protobuf: 8a9838fba8dae3389230e1b7f8c104aa32389c03
 
 PODFILE CHECKSUM: 0420ab312a523ae0eecfb1fc19ea51dd82cc17c7

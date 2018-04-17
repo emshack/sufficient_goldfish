@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,13 +8,15 @@ import 'package:http/http.dart' as http;
 
 import 'utils.dart';
 
-// TODO (emshack): Replace these with local files to load faster?
 const baseAudio =
-    'https://freesound.org/data/previews/400/400632_5121236-lq.mp3';
+    'http://freesound.org/data/previews/243/243953_1565498-lq.mp3';
 const dismissedAudio =
-    'http://freesound.org/data/previews/261/261597_4486188-lq.mp3';
+    'http://freesound.org/data/previews/398/398025_7586736-lq.mp3';
 const savedAudio =
-    'http://freesound.org/data/previews/416/416710_5121236-lq.mp3';
+    'http://freesound.org/data/previews/189/189499_1970026-lq.mp3';
+const baseName = 'base';
+const dismissedName = 'dismissed';
+const savedName = 'saved';
 
 AudioTools audioTools = new AudioTools();
 
@@ -46,6 +49,7 @@ class FishPageState extends State<FishPage> {
   DocumentReference _myProfile;
   List<FishData> _fishList;
   Set<String> _rejectedFish;
+  bool _audioToolsReady = false;
   final String cloudFunctionUrl =
       'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=';
 
@@ -55,7 +59,17 @@ class FishPageState extends State<FishPage> {
     _fishList = [];
     _rejectedFish = new Set<String>();
     _myProfile = Firestore.instance.collection('profiles').document();
+    if (!_audioToolsReady) populateAudioTools();
     fetchFishData();
+  }
+
+  Future<Null> populateAudioTools() async {
+    await audioTools.loadFile(baseAudio, baseName);
+    await audioTools.loadFile(dismissedAudio, dismissedName);
+    await audioTools.loadFile(savedAudio, savedName);
+    setState(() {
+      _audioToolsReady = true;
+    });
   }
 
   fetchFishData() {
@@ -75,7 +89,7 @@ class FishPageState extends State<FishPage> {
   @override
   Widget build(BuildContext context) {
     Widget body;
-    if (_fishList.isEmpty) {
+    if (_fishList.isEmpty || !_audioToolsReady) {
       body = new Center(
           child: new Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -85,7 +99,8 @@ class FishPageState extends State<FishPage> {
           ]));
     } else {
       body = new CoverFlow(widgetBuilder, dismissedCallback: disposeDismissed);
-      audioTools.initAudioLoop(baseAudio);
+      if (widget.pageType == PageType.shopping)
+        audioTools.initAudioLoop(baseName);
     }
 
     return new Scaffold(
@@ -120,7 +135,7 @@ class FishPageState extends State<FishPage> {
   }
 
   disposeDismissed(int card, DismissDirection direction) {
-    audioTools.playAudio(dismissedAudio);
+    audioTools.playAudio(dismissedName);
     _fishList.removeAt(card % _fishList.length);
     // TODO: If widget.pageType == PageType.reserved, write this fish back to
     // the list of available fish in Firebase
@@ -138,21 +153,26 @@ class ProfileCard extends StatelessWidget {
     return new Card(
         child: new Container(
       padding: new EdgeInsets.all(16.0),
-      child: new Column(children: <Widget>[
-        new Expanded(flex: 1, child: showProfilePicture(data)),
-        _showData(data.name, data.favoriteMusic, data.favoritePh),
-        pageType == PageType.shopping
-            ? new RaisedButton.icon(
-                color: Colors.green,
-                icon: new Icon(Icons.check),
-                label: new Text('Save'),
-                onPressed: () {
-                  audioTools.playAudio(savedAudio);
-                  //TODO
-                })
-            : null,
-      ]),
+      child: new Column(children: _getCardContents()),
     ));
+  }
+
+  List<Widget> _getCardContents() {
+    List<Widget> contents = <Widget>[
+      new Expanded(flex: 1, child: showProfilePicture(data)),
+      _showData(data.name, data.favoriteMusic, data.favoritePh),
+    ];
+    if (pageType == PageType.shopping) {
+      contents.add(new RaisedButton.icon(
+          color: Colors.green,
+          icon: new Icon(Icons.check),
+          label: new Text('Save'),
+          onPressed: () {
+            audioTools.playAudio(savedName);
+            //TODO
+          }));
+    }
+    return contents;
   }
 
   Widget _showData(String name, String music, String pH) {
