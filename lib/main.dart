@@ -15,41 +15,48 @@ class MyApp extends StatelessWidget {
     return new MaterialApp(
       title: 'Sufficient Goldfish',
       theme: new ThemeData.light(), // switch to ThemeData.day() when available
-      home: new MatchPage(),
+      home: new FishPage(PageType.shopping),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MatchPage extends StatefulWidget {
+enum PageType { shopping, reserved }
+
+class FishPage extends StatefulWidget {
+  final PageType pageType;
+
+  FishPage(this.pageType);
+
   @override
-  State<MatchPage> createState() => new MatchPageState();
+  State<FishPage> createState() => new FishPageState();
 }
 
-class MatchPageState extends State<MatchPage> {
+class FishPageState extends State<FishPage> {
   DocumentReference _myProfile;
-  List<MatchData> _potentialMatches;
-  Set<String> _nonMatches;
+  List<FishData> _fishList;
+  Set<String> _rejectedFish;
   final String cloudFunctionUrl =
       'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=';
 
   @override
   void initState() {
     super.initState();
-    _potentialMatches = [];
-    _nonMatches = new Set<String>();
+    _fishList = [];
+    _rejectedFish = new Set<String>();
     _myProfile = Firestore.instance.collection('profiles').document();
-    fetchMatchData();
+    fetchFishData();
   }
 
-  fetchMatchData() {
-    String query = _nonMatches.join('&id=');
+  fetchFishData() {
+    // TODO: Pull down reserved fish if widget.pageType == PageType.reserved
+    // and pull down list of available fish if widget.pageType == PageType.shopping
+    String query = _rejectedFish.join('&id=');
     http.get(cloudFunctionUrl + query).then((response) {
       var suggestedMatches = json.decode(response.body);
       setState(() {
-        _potentialMatches = suggestedMatches
-            .map<MatchData>(
-                (matchData) => new MatchData.parseResponse(matchData))
+        _fishList = suggestedMatches
+            .map<FishData>((fishData) => new FishData.parseResponse(fishData))
             .toList();
       });
     });
@@ -58,7 +65,7 @@ class MatchPageState extends State<MatchPage> {
   @override
   Widget build(BuildContext context) {
     Widget body;
-    if (_potentialMatches.isEmpty) {
+    if (_fishList.isEmpty) {
       body = new Center(
           child: new Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -72,32 +79,43 @@ class MatchPageState extends State<MatchPage> {
 
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Sufficient Goldfish'),
+        title: new Text(widget.pageType == PageType.shopping
+            ? 'Sufficient Goldfish'
+            : 'Your Reserved Fish'),
       ),
       body: body,
-      floatingActionButton: new FloatingActionButton.extended(
-          icon: new Icon(Icons.shopping_cart),
-          label: new Text("Reserved"),
-          onPressed: null),
+      floatingActionButton: widget.pageType == PageType.shopping
+          ? new FloatingActionButton.extended(
+              icon: new Icon(Icons.shopping_cart),
+              label: new Text("Reserved"),
+              onPressed: () {
+                Navigator.of(context).push(new MaterialPageRoute<Null>(
+                    builder: (BuildContext context) {
+                  return new FishPage(PageType.reserved);
+                }));
+              })
+          : null,
     );
   }
 
   Widget widgetBuilder(BuildContext context, int index) {
-    if (_potentialMatches.length == 0) {
-      return new Center(child: new Text('You rejected all of your matches!'));
+    if (_fishList.length == 0) {
+      return new Center(
+          child: new Text('There are plenty of fish in the sea...'));
     } else {
-      return new ProfileCard(
-          _potentialMatches[index % _potentialMatches.length]);
+      return new ProfileCard(_fishList[index % _fishList.length]);
     }
   }
 
   disposeDismissed(int card, DismissDirection direction) {
-    _potentialMatches.removeAt(card % _potentialMatches.length);
+    _fishList.removeAt(card % _fishList.length);
+    // TODO: If widget.pageType == PageType.reserved, write this fish back to
+    // the list of available fish in Firebase
   }
 }
 
 class ProfileCard extends StatelessWidget {
-  final MatchData data;
+  final FishData data;
 
   ProfileCard(this.data);
 
@@ -135,9 +153,9 @@ class ProfileCard extends StatelessWidget {
             .toList());
   }
 
-  Widget showProfilePicture(MatchData matchData) {
+  Widget showProfilePicture(FishData fishData) {
     return new Image.network(
-      matchData.profilePicture.toString(),
+      fishData.profilePicture.toString(),
       fit: BoxFit.cover,
     );
   }

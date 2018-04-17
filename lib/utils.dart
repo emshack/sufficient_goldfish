@@ -8,7 +8,7 @@ enum Field {
   profilePicture, // the main profile picture
 }
 
-class MatchData {
+class FishData {
   String id;
   Uri profilePicture;
   String name;
@@ -17,9 +17,9 @@ class MatchData {
   final String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
 
-  factory MatchData(String id) => new MatchData.data(id);
+  factory FishData(String id) => new FishData.data(id);
 
-  MatchData.data(this.id,
+  FishData.data(this.id,
       [this.name,
       this.favoriteMusic,
       this.favoritePh,
@@ -31,8 +31,8 @@ class MatchData {
         Uri.parse(profilePicture1 == null ? defaultImage : profilePicture1);
   }
 
-  factory MatchData.parseResponse(Map<String, dynamic> response) =>
-      MatchData.data(
+  factory FishData.parseResponse(Map<String, dynamic> response) =>
+      FishData.data(
           response[Field.id.toString()],
           response[Field.name.toString()],
           response[Field.favoriteMusic.toString()],
