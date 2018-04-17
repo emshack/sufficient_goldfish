@@ -187,10 +187,8 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Card(
-        child: new Container(
-      padding: new EdgeInsets.all(16.0),
       child: new Column(children: _getCardContents()),
-    ));
+    );
   }
 
   List<Widget> _getCardContents() {
@@ -199,21 +197,30 @@ class ProfileCard extends StatelessWidget {
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
     if (pageType == PageType.shopping) {
-      contents.add(new RaisedButton.icon(
-          color: Colors.green,
-          icon: new Icon(Icons.check),
-          label: new Text('Save'),
-          onPressed: () {
-            audioTools.playAudio(savedName);
-            onSavedCallback();
-          }));
+      contents.add(new Row(children: [
+        new Expanded(
+            flex: 1,
+            child: new FlatButton.icon(
+                color: Colors.green,
+                icon: new Icon(Icons.check),
+                label: new Text('Save'),
+                onPressed: () {
+                  audioTools.playAudio(savedName);
+                  onSavedCallback();
+                }))
+      ]));
     }
     return contents;
   }
 
   Widget _showData(String name, String music, String pH) {
-    Text nameWidget = new Text(name,
-        style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0));
+    Widget nameWidget = new Padding(
+        padding: new EdgeInsets.all(16.0),
+        child: new Text(
+          name,
+          style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
+          textAlign: TextAlign.center,
+        ));
     Text musicWidget = new Text('Favorite music: $music',
         style: new TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
     Text phWidget = new Text('Favorite pH: $pH',
@@ -221,8 +228,9 @@ class ProfileCard extends StatelessWidget {
     List<Widget> children = [nameWidget, musicWidget, phWidget];
     return new Column(
         children: children
-            .map((child) =>
-                new Padding(child: child, padding: new EdgeInsets.all(8.0)))
+            .map((child) => new Padding(
+                child: child,
+                padding: new EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0)))
             .toList());
   }
 
