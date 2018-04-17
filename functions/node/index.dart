@@ -20,20 +20,24 @@ void matchFish(interop.ExpressHttpRequest request) async {
   final admin = FirebaseAdmin.instance;
   final cert = admin.certFromPath(serviceAccountKeyFilename);
   final app = admin.initializeApp(new AppOptions(
-    credential: cert,
-    databaseURL: "https://sufficientgoldfish.firebaseio.com"));
+      credential: cert,
+      databaseURL: "https://sufficientgoldfish.firebaseio.com"));
 
   QuerySnapshot response = await app.firestore().collection('profiles').get();
   List<DocumentSnapshot> profiles = response.documents;
 
   // Remove nonmatches.
-  profiles = profiles.where((DocumentSnapshot snapshot) => !nonMatches.contains(snapshot.documentID)).toList();
+  profiles = profiles
+      .where((DocumentSnapshot snapshot) =>
+          !nonMatches.contains(snapshot.documentID))
+      .toList();
 
   // SUPER SECRET MATCH SELECTION ALGORITHM!
   profiles.shuffle(new Random());
 
-  request.response.writeln(json.encode(profiles.map(
-          (DocumentSnapshot snapshot) => snapshot.data.toMap()).toList()));
+  request.response.writeln(json.encode(profiles
+      .map((DocumentSnapshot snapshot) => snapshot.data.toMap())
+      .toList()));
 
   request.response.close();
 }

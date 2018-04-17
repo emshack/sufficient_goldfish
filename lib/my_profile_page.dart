@@ -33,7 +33,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   DocumentReference _profile;
   bool _editing;
-  MatchData _myData;
+  FishData _myData;
   bool _showFab;
   FocusNode _focus;
 
@@ -50,7 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
       else
         setState(() => _showFab = true);
     });
-    _myData = new MatchData(_profile.documentID);
+    _myData = new FishData(_profile.documentID);
   }
 
   @override
@@ -140,7 +140,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
 }
 
 class SimpleProfile extends StatelessWidget {
-  final MatchData data;
+  final FishData data;
   final bool editing;
   final FocusNode focus;
 
@@ -199,8 +199,8 @@ class SimpleProfile extends StatelessWidget {
     );
   }
 
-  Widget scrollableProfilePictures(bool editable, MatchData matchData) {
+  Widget scrollableProfilePictures(bool editable, FishData fishData) {
     return new ProfilePicture(editable,
-        (value) => matchData.profilePicture = value, matchData.profilePicture);
+        (value) => fishData.profilePicture = value, fishData.profilePicture);
   }
 }
