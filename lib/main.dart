@@ -40,25 +40,28 @@ enum PageType { shopping, reserved }
 
 class FishPage extends StatefulWidget {
   final PageType pageType;
+  final DocumentReference userProfile;
 
-  FishPage(this.pageType);
+  FishPage(this.pageType, [this.userProfile]);
 
   @override
-  State<FishPage> createState() => new FishPageState();
+  State<FishPage> createState() => new FishPageState(userProfile);
 }
 
 class FishPageState extends State<FishPage> {
   DocumentReference _myProfile;
-  Set<String> _rejectedFish;
   bool _audioToolsReady = false;
   final String cloudFunctionUrl =
       'https://us-central1-sufficientgoldfish.cloudfunctions.net/matchFish?id=';
 
+  FishPageState(this._myProfile);
+
   @override
   void initState() {
     super.initState();
-    _rejectedFish = new Set<String>();
-    _myProfile = Firestore.instance.collection('buyers').document();
+    if (_myProfile == null) {
+      _myProfile = Firestore.instance.collection('buyers').document();
+    }
     if (!_audioToolsReady) populateAudioTools();
   }
 
@@ -85,10 +88,14 @@ class FishPageState extends State<FishPage> {
     } else {
       body = new StreamBuilder<List<DocumentSnapshot>>(
           stream: Firestore.instance.collection('profiles').snapshots.map((QuerySnapshot snapshot) {
-            // Filter out results that are already reserved.
-            return snapshot.documents.where((DocumentSnapshot aDoc) => !aDoc.data.containsKey('reservedBy')).toList();
+            if (widget.pageType == PageType.shopping) {
+              // Filter out results that are already reserved.
+              return snapshot.documents.where((DocumentSnapshot aDoc) =>
+                !aDoc.data.containsKey('reservedBy')).toList();
+            } else {
+              return snapshot.documents.where((DocumentSnapshot aDoc) => aDoc.data['reservedBy'] == _myProfile.documentID).toList();
+            }
           }),
-          //.expand((QuerySnapshot snapshot) => snapshot.documents).where((DocumentSnapshot aDoc) => !aDoc.data.containsKey('reservedBy')),
           builder: (BuildContext context, AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
             if (!snapshot.hasData || snapshot.data.length == 0) return const Text('There are plenty of fish in the sea...');
             return new CoverFlow((_, int index) {
@@ -118,7 +125,7 @@ class FishPageState extends State<FishPage> {
               onPressed: () {
                 Navigator.of(context).push(new MaterialPageRoute<Null>(
                     builder: (BuildContext context) {
-                  return new FishPage(PageType.reserved);
+                  return new FishPage(PageType.reserved, _myProfile);
                 }));
               })
           : null,
@@ -128,10 +135,16 @@ class FishPageState extends State<FishPage> {
   onDismissed(int card, DismissDirection direction, List<DocumentSnapshot> allFish) {
     audioTools.playAudio(dismissedName);
     DocumentSnapshot fishOfInterest = allFish[card % allFish.length];
-    // TODO: If widget.pageType == PageType.reserved, write this fish back to
-    // the list of available fish in Firebase
-    fishOfInterest.reference.setData({'reservedBy': _myProfile.documentID}, SetOptions.merge);
-    _myProfile.setData({'savedFish': fishOfInterest.documentID}, SetOptions.merge);
+    if (widget.pageType == PageType.shopping) {
+      fishOfInterest.reference.setData(
+          {'reservedBy': _myProfile.documentID}, SetOptions.merge);
+    } else {
+      // If widget.pageType == PageType.reserved, write this fish back to
+      // the list of available fish in Firebase
+      var existingData = fishOfInterest.data;
+      existingData.remove('reservedBy');
+      fishOfInterest.reference.setData(existingData);
+    }
   }
 }
 
