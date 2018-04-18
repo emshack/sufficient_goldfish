@@ -19,15 +19,21 @@ const savedName = 'saved';
 
 AudioTools audioTools = new AudioTools();
 
-void main() => runApp(new MyApp());
+Future<void> main() async {
+  var deviceId = await DeviceTools.getDeviceId();
+  runApp(new MyApp(deviceId));
+}
 
 class MyApp extends StatelessWidget {
+  final String deviceId;
+  MyApp(this.deviceId);
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Sufficient Goldfish',
       theme: new ThemeData.light(), // switch to ThemeData.day() when available
-      home: new FishPage(PageType.shopping),
+      home: new FishPage(PageType.shopping, deviceId),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -37,27 +43,23 @@ enum PageType { shopping, reserved }
 
 class FishPage extends StatefulWidget {
   final PageType pageType;
-  final DocumentReference userProfile;
+  final String deviceId;
 
-  FishPage(this.pageType, [this.userProfile]);
+  FishPage(this.pageType, this.deviceId);
 
   @override
-  State<FishPage> createState() => new FishPageState(userProfile);
+  State<FishPage> createState() => new FishPageState();
 }
 
 class FishPageState extends State<FishPage> {
-  DocumentReference _myProfile;
   bool _audioToolsReady = false;
   DocumentSnapshot _lastFish;
 
-  FishPageState(this._myProfile);
+  FishPageState();
 
   @override
   void initState() {
     super.initState();
-    if (_myProfile == null) {
-      _myProfile = Firestore.instance.collection('buyers').document();
-    }
     if (!_audioToolsReady) populateAudioTools();
     accelerometerEvents.listen((AccelerometerEvent event) {
       if (event.y.abs() >= 20 && _lastFish != null) {
@@ -111,7 +113,7 @@ class FishPageState extends State<FishPage> {
               // eliminate Navigator.of though...)
               return snapshot.documents
                   .where((DocumentSnapshot aDoc) =>
-                      aDoc.data['reservedBy'] == _myProfile.documentID)
+                      aDoc.data['reservedBy'] == widget.deviceId)
                   .toList();
             }
           }),
@@ -147,7 +149,7 @@ class FishPageState extends State<FishPage> {
               onPressed: () {
                 Navigator.of(context).push(new MaterialPageRoute<Null>(
                     builder: (BuildContext context) {
-                  return new FishPage(PageType.reserved, _myProfile);
+                  return new FishPage(PageType.reserved, widget.deviceId);
                 }));
               })
           : null,
@@ -173,7 +175,7 @@ class FishPageState extends State<FishPage> {
 
   void _reserveFish(DocumentSnapshot fishOfInterest) {
     fishOfInterest.reference
-        .setData({'reservedBy': _myProfile.documentID}, SetOptions.merge);
+        .setData({'reservedBy': widget.deviceId}, SetOptions.merge);
   }
 }
 

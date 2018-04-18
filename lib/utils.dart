@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 
+import 'package:device_info/device_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:path_provider/path_provider.dart';
@@ -90,5 +91,20 @@ class AudioTools {
   Future<Null> playAudio(String name) async {
     await _audioPlayer.stop();
     await _audioPlayer.play(_nameToPath[name], isLocal: true);
+  }
+}
+
+class DeviceTools {
+  static Future<String> getDeviceId() async {
+    var deviceInfo = new DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      var info = await deviceInfo.androidInfo;
+      return info.fingerprint;
+    } else if (Platform.isIOS){
+      var info = await deviceInfo.iosInfo;
+      return info.identifierForVendor;
+    } else {
+      return 'nonIosOrAndroidDevice-${deviceInfo.hashCode}';
+    }
   }
 }
