@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_coverflow/simple_coverflow.dart';
 import 'package:sensors/sensors.dart';
+import 'dart:ui';
 
 import 'utils.dart';
 
@@ -167,7 +168,14 @@ class FishPageState extends State<FishPage> {
           )
         ],
       ),
-      body: body,
+      body: Container(
+        child: body,
+        decoration: new BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            colors: [Colors.blue, Colors.lightBlueAccent]
+          )),
+      )
     );
   }
 

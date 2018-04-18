@@ -30,6 +30,7 @@ dev_dependencies:
 flutter:
   assets:
     - assets/fish-silhouette.png
+    - assets/bubbles.jpg
 
 
   # The following line ensures that the Material Icons font is
