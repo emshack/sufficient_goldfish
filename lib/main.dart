@@ -86,9 +86,7 @@ class FishPageState extends State<FishPage> {
     await audioTools.loadFile(baseAudio, baseName);
     await audioTools.loadFile(dismissedAudio, dismissedName);
     await audioTools.loadFile(savedAudio, savedName);
-    setState(() {
-      _audioToolsReady = true;
-    });
+    setState(() => _audioToolsReady = true);
   }
 
   Stream<List<DocumentSnapshot>> _createStream(ViewType viewType) {
@@ -121,7 +119,14 @@ class FishPageState extends State<FishPage> {
     return CoverFlow((_, int index) {
       var fishOfInterest = fishList[index % fishList.length];
       var data = FishData.parse(fishOfInterest);
-      return ProfileCard(data, viewType, () => _reserveFish(fishOfInterest));
+      var isReserved = false;
+      for (DocumentSnapshot fish in reservedFish) {
+        if (fish.documentID == fishOfInterest.documentID) {
+          isReserved = true;
+        }
+      }
+      return ProfileCard(data, viewType, () => _reserveFish(fishOfInterest),
+          () => _removeFish(fishOfInterest), isReserved);
     },
         viewportFraction: .85,
         dismissedCallback: (int card, DismissDirection direction) =>
@@ -147,25 +152,18 @@ class FishPageState extends State<FishPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: new Icon(Icons.home),
-          onPressed: () {
-            setState(() {
-              viewType = ViewType.available;
-            });
-          },
+          onPressed: () => setState(() => viewType = ViewType.available),
         ),
         title: Text(viewType == ViewType.available
             ? 'Sufficient Goldfish'
             : 'Your Shopping Cart'),
         actions: <Widget>[
           FlatButton.icon(
-              icon: Icon(Icons.shopping_cart),
-              label: Text(reservedFish?.length.toString()),
-              textColor: Colors.white,
-              onPressed: () {
-                setState(() {
-                  viewType = ViewType.reserved;
-                });
-              }),
+            icon: Icon(Icons.shopping_cart),
+            label: Text(reservedFish?.length.toString()),
+            textColor: Colors.white,
+            onPressed: () => setState(() => viewType = ViewType.reserved),
+          )
         ],
       ),
       body: body,
@@ -198,13 +196,19 @@ class FishPageState extends State<FishPage> {
 class ProfileCard extends StatelessWidget {
   final FishData data;
   final ViewType viewType;
-  final Function onSavedCallback;
+  final Function onAddedCallback;
+  final Function onRemovedCallback;
+  final bool isReserved;
 
-  ProfileCard(this.data, this.viewType, this.onSavedCallback);
+  ProfileCard(this.data, this.viewType, this.onAddedCallback,
+      this.onRemovedCallback, this.isReserved);
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: isReserved && viewType == ViewType.available
+          ? Colors.white30
+          : Colors.white,
       child: Column(children: _getCardContents()),
     );
   }
@@ -219,12 +223,12 @@ class ProfileCard extends StatelessWidget {
         Expanded(
             flex: 1,
             child: FlatButton.icon(
-                color: Colors.green,
-                icon: Icon(Icons.check),
-                label: Text('Save'),
+                color: isReserved ? Colors.red : Colors.green,
+                icon: Icon(isReserved ? Icons.not_interested : Icons.check),
+                label: Text(isReserved ? 'Remove' : 'Add'),
                 onPressed: () {
                   audioTools.playAudio(savedName);
-                  onSavedCallback();
+                  isReserved ? onRemovedCallback() : onAddedCallback();
                 }))
       ]));
     }
