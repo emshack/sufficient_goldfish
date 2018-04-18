@@ -128,9 +128,9 @@ class FishPageState extends State<FishPage> {
       return ProfileCard(data, viewType, () => _reserveFish(fishOfInterest),
           () => _removeFish(fishOfInterest), isReserved);
     },
-        viewportFraction: .85,
         dismissedCallback: (int card, DismissDirection direction) =>
-            onDismissed(card, direction, fishList));
+            onDismissed(card, direction, fishList),
+    itemCount: fishList.length);
   }
 
   @override
