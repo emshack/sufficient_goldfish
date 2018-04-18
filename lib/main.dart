@@ -115,7 +115,7 @@ class FishPageState extends State<FishPage> {
   Widget _displayFish() {
     List<DocumentSnapshot> fishList =
         viewType == ViewType.available ? availableFish : reservedFish;
-    if (fishList.length == 0)
+    if (fishList == null || fishList.length == 0)
       return Center(
           child: const Text('There are plenty of fish in the sea...'));
     return CoverFlow((_, int index) {
@@ -156,6 +156,7 @@ class FishPageState extends State<FishPage> {
         title: Text(viewType == ViewType.available
             ? 'Sufficient Goldfish'
             : 'Your Shopping Cart'),
+        backgroundColor: Colors.indigo,
         actions: <Widget>[
           FlatButton.icon(
               icon: Icon(Icons.shopping_cart),
