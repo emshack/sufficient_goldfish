@@ -33,19 +33,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Sufficient Goldfish',
       theme: ThemeData.light(), // switch to ThemeData.day() when available
-      home: FishPage(PageType.shopping, deviceId),
+      home: FishPage(deviceId),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-enum PageType { shopping, reserved }
+enum ViewType { available, reserved }
 
 class FishPage extends StatefulWidget {
-  final PageType pageType;
   final String deviceId;
 
-  FishPage(this.pageType, this.deviceId);
+  FishPage(this.deviceId);
 
   @override
   State<FishPage> createState() => FishPageState();
@@ -54,17 +53,26 @@ class FishPage extends StatefulWidget {
 class FishPageState extends State<FishPage> {
   bool _audioToolsReady = false;
   DocumentSnapshot _lastFish;
+  List<DocumentSnapshot> availableFish;
+  List<DocumentSnapshot> reservedFish;
+  ViewType viewType;
 
-  FishPageState();
+  FishPageState() : viewType = ViewType.available;
 
   @override
   void initState() {
     super.initState();
     if (!_audioToolsReady) populateAudioTools();
+    _createStream(ViewType.available).listen((data) {
+      setState(() => availableFish = data);
+    });
+    _createStream(ViewType.reserved).listen((data) {
+      setState(() => reservedFish = data);
+    });
     accelerometerEvents.listen((AccelerometerEvent event) {
       if (event.y.abs() >= 20 && _lastFish != null) {
         // Shake-to-undo last action.
-        if (widget.pageType == PageType.shopping) {
+        if (viewType == ViewType.available) {
           _removeFish(_lastFish);
         } else {
           _reserveFish(_lastFish);
@@ -83,88 +91,84 @@ class FishPageState extends State<FishPage> {
     });
   }
 
+  Stream<List<DocumentSnapshot>> _createStream(ViewType viewType) {
+    return Firestore.instance
+        .collection('profiles')
+        .snapshots
+        .map((QuerySnapshot snapshot) {
+      if (viewType == ViewType.available) {
+        // Filter out results that are already reserved.
+        return snapshot.documents
+            .where((DocumentSnapshot aDoc) =>
+                !aDoc.data.containsKey('reservedBy') ||
+                aDoc.data['reservedBy'] == widget.deviceId)
+            .toList();
+      } else {
+        return snapshot.documents
+            .where((DocumentSnapshot aDoc) =>
+                aDoc.data['reservedBy'] == widget.deviceId)
+            .toList();
+      }
+    });
+  }
+
+  Widget _displayFish() {
+    List<DocumentSnapshot> fishList =
+        viewType == ViewType.available ? availableFish : reservedFish;
+    if (fishList.length == 0)
+      return Center(
+          child: const Text('There are plenty of fish in the sea...'));
+    return CoverFlow((_, int index) {
+      var fishOfInterest = fishList[index % fishList.length];
+      var data = FishData.parse(fishOfInterest);
+      return ProfileCard(data, viewType, () => _reserveFish(fishOfInterest));
+    },
+        viewportFraction: .85,
+        dismissedCallback: (int card, DismissDirection direction) =>
+            onDismissed(card, direction, fishList));
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget body;
     if (!_audioToolsReady) {
       body = Center(
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-            CircularProgressIndicator(),
-            Text('Gone Fishing...'),
-          ]));
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        CircularProgressIndicator(),
+        Text('Gone Fishing...'),
+      ]));
     } else {
-      body = StreamBuilder<List<DocumentSnapshot>>(
-          stream: Firestore.instance
-              .collection('profiles')
-              .snapshots
-              .map((QuerySnapshot snapshot) {
-            if (widget.pageType == PageType.shopping) {
-              // Filter out results that are already reserved.
-              return snapshot.documents
-                  .where((DocumentSnapshot aDoc) =>
-                      !aDoc.data.containsKey('reservedBy') || aDoc.data['reservedBy'] == widget.deviceId)
-                  .toList();
-            } else {
-              // TODO(efortuna): for responsiveness, consider building two
-              // streams (one for the reserved and one for the shopping) and
-              // just swap them out. (this would result in just one page and
-              // eliminate Navigator.of though...)
-              return snapshot.documents
-                  .where((DocumentSnapshot aDoc) =>
-                      aDoc.data['reservedBy'] == widget.deviceId)
-                  .toList();
-            }
-          }),
-          builder: (BuildContext context,
-              AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
-            if (!snapshot.hasData || snapshot.data.length == 0)
-              return Center(
-                  child: const Text('There are plenty of fish in the sea...'));
-            return CoverFlow((_, int index) {
-              var fishOfInterest = snapshot.data[index % snapshot.data.length];
-              var data = FishData.parse(fishOfInterest);
-              return ProfileCard(
-                  data, widget.pageType, () => _reserveFish(fishOfInterest));
-            },
-                viewportFraction: .85,
-                dismissedCallback: (int card, DismissDirection direction) =>
-                    onDismissed(card, direction, snapshot.data));
-          });
-      if (widget.pageType == PageType.shopping)
-        audioTools.initAudioLoop(baseName);
+      body = _displayFish();
+      audioTools.initAudioLoop(baseName);
     }
 
     return Scaffold(
-      appBar: widget.pageType == PageType.shopping
-          ? _getShoppingAppBar()
-          : _getReservedAppBar(),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: new Icon(Icons.home),
+          onPressed: () {
+            setState(() {
+              viewType = ViewType.available;
+            });
+          },
+        ),
+        title: Text(viewType == ViewType.available
+            ? 'Sufficient Goldfish'
+            : 'Your Shopping Cart'),
+        actions: <Widget>[
+          FlatButton.icon(
+              icon: Icon(Icons.shopping_cart),
+              label: Text(reservedFish?.length.toString()),
+              textColor: Colors.white,
+              onPressed: () {
+                setState(() {
+                  viewType = ViewType.reserved;
+                });
+              }),
+        ],
+      ),
       body: body,
-    );
-  }
-
-  AppBar _getShoppingAppBar() {
-    return AppBar(
-      title: Text('Sufficient Goldfish'),
-      actions: <Widget>[
-        FlatButton.icon(
-            icon: Icon(Icons.shopping_cart),
-            label: Text("2"), // TODO: Update with number in cart
-            textColor: Colors.white,
-            onPressed: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute<Null>(builder: (BuildContext context) {
-                return FishPage(PageType.reserved, widget.deviceId);
-              }));
-            }),
-      ],
-    );
-  }
-
-  AppBar _getReservedAppBar() {
-    return AppBar(
-      title: Text('Your Reserved Fish'),
     );
   }
 
@@ -172,7 +176,7 @@ class FishPageState extends State<FishPage> {
       int card, DismissDirection direction, List<DocumentSnapshot> allFish) {
     audioTools.playAudio(dismissedName);
     DocumentSnapshot fishOfInterest = allFish[card % allFish.length];
-    if (widget.pageType == PageType.reserved) {
+    if (viewType == ViewType.reserved) {
       // Write this fish back to the list of available fish in Firebase.
       _removeFish(fishOfInterest);
     }
@@ -193,10 +197,10 @@ class FishPageState extends State<FishPage> {
 
 class ProfileCard extends StatelessWidget {
   final FishData data;
-  final PageType pageType;
+  final ViewType viewType;
   final Function onSavedCallback;
 
-  ProfileCard(this.data, this.pageType, this.onSavedCallback);
+  ProfileCard(this.data, this.viewType, this.onSavedCallback);
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +214,7 @@ class ProfileCard extends StatelessWidget {
       Expanded(flex: 1, child: showProfilePicture(data)),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
-    if (pageType == PageType.shopping) {
+    if (viewType == ViewType.available) {
       contents.add(Row(children: [
         Expanded(
             flex: 1,
@@ -243,8 +247,7 @@ class ProfileCard extends StatelessWidget {
     return Column(
         children: children
             .map((child) => Padding(
-                child: child,
-                padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0)))
+                child: child, padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0)))
             .toList());
   }
 
