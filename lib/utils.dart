@@ -25,7 +25,7 @@ class FishData {
   final String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
 
-  factory FishData(String id) => new FishData.data(id);
+  factory FishData(String id) => FishData.data(id);
 
   FishData.data(this.id,
       [this.name,
@@ -67,7 +67,7 @@ class FishData {
 
 class DeviceTools {
   static Future<String> getDeviceId() async {
-    var deviceInfo = new DeviceInfoPlugin();
+    var deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
       var info = await deviceInfo.androidInfo;
       return info.fingerprint;
@@ -84,12 +84,12 @@ class AudioTools {
   final AudioPlayer _audioPlayer;
   final Map<String, String> _nameToPath = {};
 
-  AudioTools() : _audioPlayer = new AudioPlayer();
+  AudioTools() : _audioPlayer = AudioPlayer();
 
   Future loadFile(String url, String name) async {
     final bytes = await readBytes(url);
     final dir = await getApplicationDocumentsDirectory();
-    final file = new File('${dir.path}/$name.mp3');
+    final file = File('${dir.path}/$name.mp3');
 
     await file.writeAsBytes(bytes);
     if (await file.exists()) _nameToPath[name] = file.path;

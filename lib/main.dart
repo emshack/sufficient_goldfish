@@ -17,11 +17,11 @@ const baseName = 'base';
 const dismissedName = 'dismissed';
 const savedName = 'saved';
 
-AudioTools audioTools = new AudioTools();
+AudioTools audioTools = AudioTools();
 
 Future<void> main() async {
   var deviceId = await DeviceTools.getDeviceId();
-  runApp(new MyApp(deviceId));
+  runApp(MyApp(deviceId));
 }
 
 class MyApp extends StatelessWidget {
@@ -30,10 +30,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'Sufficient Goldfish',
-      theme: new ThemeData.light(), // switch to ThemeData.day() when available
-      home: new FishPage(PageType.shopping, deviceId),
+      theme: ThemeData.light(), // switch to ThemeData.day() when available
+      home: FishPage(PageType.shopping, deviceId),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -48,7 +48,7 @@ class FishPage extends StatefulWidget {
   FishPage(this.pageType, this.deviceId);
 
   @override
-  State<FishPage> createState() => new FishPageState();
+  State<FishPage> createState() => FishPageState();
 }
 
 class FishPageState extends State<FishPage> {
@@ -87,15 +87,15 @@ class FishPageState extends State<FishPage> {
   Widget build(BuildContext context) {
     Widget body;
     if (!_audioToolsReady) {
-      body = new Center(
-          child: new Row(
+      body = Center(
+          child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-            new CircularProgressIndicator(),
-            new Text('Gone Fishing...'),
+            CircularProgressIndicator(),
+            Text('Gone Fishing...'),
           ]));
     } else {
-      body = new StreamBuilder<List<DocumentSnapshot>>(
+      body = StreamBuilder<List<DocumentSnapshot>>(
           stream: Firestore.instance
               .collection('profiles')
               .snapshots
@@ -104,7 +104,7 @@ class FishPageState extends State<FishPage> {
               // Filter out results that are already reserved.
               return snapshot.documents
                   .where((DocumentSnapshot aDoc) =>
-                      !aDoc.data.containsKey('reservedBy'))
+                      !aDoc.data.containsKey('reservedBy') || aDoc.data['reservedBy'] == widget.deviceId)
                   .toList();
             } else {
               // TODO(efortuna): for responsiveness, consider building two
@@ -120,12 +120,12 @@ class FishPageState extends State<FishPage> {
           builder: (BuildContext context,
               AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
             if (!snapshot.hasData || snapshot.data.length == 0)
-              return new Center(
+              return Center(
                   child: const Text('There are plenty of fish in the sea...'));
-            return new CoverFlow((_, int index) {
+            return CoverFlow((_, int index) {
               var fishOfInterest = snapshot.data[index % snapshot.data.length];
-              var data = new FishData.parse(fishOfInterest);
-              return new ProfileCard(
+              var data = FishData.parse(fishOfInterest);
+              return ProfileCard(
                   data, widget.pageType, () => _reserveFish(fishOfInterest));
             },
                 viewportFraction: .85,
@@ -136,7 +136,7 @@ class FishPageState extends State<FishPage> {
         audioTools.initAudioLoop(baseName);
     }
 
-    return new Scaffold(
+    return Scaffold(
       appBar: widget.pageType == PageType.shopping
           ? _getShoppingAppBar()
           : _getReservedAppBar(),
@@ -145,17 +145,17 @@ class FishPageState extends State<FishPage> {
   }
 
   AppBar _getShoppingAppBar() {
-    return new AppBar(
-      title: new Text('Sufficient Goldfish'),
+    return AppBar(
+      title: Text('Sufficient Goldfish'),
       actions: <Widget>[
-        new FlatButton.icon(
-            icon: new Icon(Icons.shopping_cart),
-            label: new Text("2"), // TODO: Update with number in cart
+        FlatButton.icon(
+            icon: Icon(Icons.shopping_cart),
+            label: Text("2"), // TODO: Update with number in cart
             textColor: Colors.white,
             onPressed: () {
               Navigator.of(context).push(
-                  new MaterialPageRoute<Null>(builder: (BuildContext context) {
-                return new FishPage(PageType.reserved, widget.deviceId);
+                  MaterialPageRoute<Null>(builder: (BuildContext context) {
+                return FishPage(PageType.reserved, widget.deviceId);
               }));
             }),
       ],
@@ -163,8 +163,8 @@ class FishPageState extends State<FishPage> {
   }
 
   AppBar _getReservedAppBar() {
-    return new AppBar(
-      title: new Text('Your Reserved Fish'),
+    return AppBar(
+      title: Text('Your Reserved Fish'),
     );
   }
 
@@ -200,24 +200,24 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Card(
-      child: new Column(children: _getCardContents()),
+    return Card(
+      child: Column(children: _getCardContents()),
     );
   }
 
   List<Widget> _getCardContents() {
     List<Widget> contents = <Widget>[
-      new Expanded(flex: 1, child: showProfilePicture(data)),
+      Expanded(flex: 1, child: showProfilePicture(data)),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
     if (pageType == PageType.shopping) {
-      contents.add(new Row(children: [
-        new Expanded(
+      contents.add(Row(children: [
+        Expanded(
             flex: 1,
-            child: new FlatButton.icon(
+            child: FlatButton.icon(
                 color: Colors.green,
-                icon: new Icon(Icons.check),
-                label: new Text('Save'),
+                icon: Icon(Icons.check),
+                label: Text('Save'),
                 onPressed: () {
                   audioTools.playAudio(savedName);
                   onSavedCallback();
@@ -228,28 +228,28 @@ class ProfileCard extends StatelessWidget {
   }
 
   Widget _showData(String name, String music, String pH) {
-    Widget nameWidget = new Padding(
-        padding: new EdgeInsets.all(16.0),
-        child: new Text(
+    Widget nameWidget = Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text(
           name,
-          style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
           textAlign: TextAlign.center,
         ));
-    Text musicWidget = new Text('Favorite music: $music',
-        style: new TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
-    Text phWidget = new Text('Favorite pH: $pH',
-        style: new TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
+    Text musicWidget = Text('Favorite music: $music',
+        style: TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
+    Text phWidget = Text('Favorite pH: $pH',
+        style: TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
     List<Widget> children = [nameWidget, musicWidget, phWidget];
-    return new Column(
+    return Column(
         children: children
-            .map((child) => new Padding(
+            .map((child) => Padding(
                 child: child,
-                padding: new EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0)))
+                padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0)))
             .toList());
   }
 
   Widget showProfilePicture(FishData fishData) {
-    return new Image.network(
+    return Image.network(
       fishData.profilePicture.toString(),
       fit: BoxFit.cover,
     );
