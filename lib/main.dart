@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-enum PageType { shopping, reserved }
+enum ListType { available, reserved }
 
 class FishPage extends StatefulWidget {
   final String deviceId;
@@ -53,42 +53,38 @@ class FishPage extends StatefulWidget {
 class FishPageState extends State<FishPage> {
   bool _audioToolsReady = false;
   DocumentSnapshot _lastFish;
-  Stream available;
-  Stream reservedStream;
   List<DocumentSnapshot> availableFish;
   List<DocumentSnapshot> reservedFish;
-  PageType currentPageType;
+  ListType listType;
 
   FishPageState() {
-    currentPageType = PageType.shopping;
+    listType = ListType.available;
   }
 
   @override
   void initState() {
     super.initState();
     if (!_audioToolsReady) populateAudioTools();
-    available = _createStream(PageType.shopping);
-    reservedStream = _createStream(PageType.reserved);
+    _createStream(ListType.available).listen((data) {
+      setState(() {
+        availableFish = data;
+      });
+    });
+    _createStream(ListType.reserved).listen((data) {
+      setState(() {
+        reservedFish = data;
+      });
+    });
     accelerometerEvents.listen((AccelerometerEvent event) {
       if (event.y.abs() >= 20 && _lastFish != null) {
         // Shake-to-undo last action.
-        if (currentPageType == PageType.shopping) {
+        if (listType == ListType.available) {
           _removeFish(_lastFish);
         } else {
           _reserveFish(_lastFish);
         }
         _lastFish = null;
       }
-    });
-    available.listen((data) {
-      setState(() {
-        availableFish = data;
-      });
-    });
-    reservedStream.listen((data) {
-      setState(() {
-        reservedFish = data;
-      });
     });
   }
 
@@ -101,12 +97,12 @@ class FishPageState extends State<FishPage> {
     });
   }
 
-  Stream<List<DocumentSnapshot>> _createStream(PageType pageType) {
+  Stream<List<DocumentSnapshot>> _createStream(ListType listType) {
     return Firestore.instance
         .collection('profiles')
         .snapshots
         .map((QuerySnapshot snapshot) {
-      if (pageType == PageType.shopping) {
+      if (listType == ListType.available) {
         // Filter out results that are already reserved.
         return snapshot.documents
             .where((DocumentSnapshot aDoc) =>
@@ -124,21 +120,18 @@ class FishPageState extends State<FishPage> {
 
   Widget _displayFish() {
     List<DocumentSnapshot> fishList =
-        currentPageType == PageType.shopping ? availableFish : reservedFish;
-    if (fishList.length == 0) {
+        listType == ListType.available ? availableFish : reservedFish;
+    if (fishList.length == 0)
       return Center(
           child: const Text('There are plenty of fish in the sea...'));
-    } else {
-      return CoverFlow((_, int index) {
-        var fishOfInterest = fishList[index % fishList.length];
-        var data = FishData.parse(fishOfInterest);
-        return ProfileCard(
-            data, currentPageType, () => _reserveFish(fishOfInterest));
-      },
-          viewportFraction: .85,
-          dismissedCallback: (int card, DismissDirection direction) =>
-              onDismissed(card, direction, fishList));
-    }
+    return CoverFlow((_, int index) {
+      var fishOfInterest = fishList[index % fishList.length];
+      var data = FishData.parse(fishOfInterest);
+      return ProfileCard(data, listType, () => _reserveFish(fishOfInterest));
+    },
+        viewportFraction: .85,
+        dismissedCallback: (int card, DismissDirection direction) =>
+            onDismissed(card, direction, fishList));
   }
 
   @override
@@ -153,8 +146,7 @@ class FishPageState extends State<FishPage> {
       ]));
     } else {
       body = _displayFish();
-      if (currentPageType == PageType.shopping)
-        audioTools.initAudioLoop(baseName);
+      audioTools.initAudioLoop(baseName);
     }
 
     return Scaffold(
@@ -163,22 +155,21 @@ class FishPageState extends State<FishPage> {
           icon: new Icon(Icons.home),
           onPressed: () {
             setState(() {
-              currentPageType = PageType.shopping;
+              listType = ListType.available;
             });
           },
         ),
-        title: Text(currentPageType == PageType.shopping
+        title: Text(listType == ListType.available
             ? 'Sufficient Goldfish'
             : 'Your Shopping Cart'),
         actions: <Widget>[
           FlatButton.icon(
               icon: Icon(Icons.shopping_cart),
-              label: Text(
-                  reservedFish != null ? reservedFish.length.toString() : ''),
+              label: Text(reservedFish?.length.toString()),
               textColor: Colors.white,
               onPressed: () {
                 setState(() {
-                  currentPageType = PageType.reserved;
+                  listType = ListType.reserved;
                 });
               }),
         ],
@@ -191,7 +182,7 @@ class FishPageState extends State<FishPage> {
       int card, DismissDirection direction, List<DocumentSnapshot> allFish) {
     audioTools.playAudio(dismissedName);
     DocumentSnapshot fishOfInterest = allFish[card % allFish.length];
-    if (currentPageType == PageType.reserved) {
+    if (listType == ListType.reserved) {
       // Write this fish back to the list of available fish in Firebase.
       _removeFish(fishOfInterest);
     }
@@ -212,10 +203,10 @@ class FishPageState extends State<FishPage> {
 
 class ProfileCard extends StatelessWidget {
   final FishData data;
-  final PageType pageType;
+  final ListType listType;
   final Function onSavedCallback;
 
-  ProfileCard(this.data, this.pageType, this.onSavedCallback);
+  ProfileCard(this.data, this.listType, this.onSavedCallback);
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +220,7 @@ class ProfileCard extends StatelessWidget {
       Expanded(flex: 1, child: showProfilePicture(data)),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
-    if (pageType == PageType.shopping) {
+    if (listType == ListType.available) {
       contents.add(Row(children: [
         Expanded(
             flex: 1,

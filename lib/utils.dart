@@ -96,15 +96,15 @@ class AudioTools {
   }
 
   void initAudioLoop(String name) {
-//    // restart audio if it has finished
-//    _audioPlayer.setCompletionHandler(() {
-//      playAudio(name);
-//    });
-//    playAudio(name);
+    // restart audio if it has finished
+    _audioPlayer.setCompletionHandler(() {
+      playAudio(name);
+    });
+    playAudio(name);
   }
 
   Future<Null> playAudio(String name) async {
-//    await _audioPlayer.stop();
-//    await _audioPlayer.play(_nameToPath[name], isLocal: true);
+    await _audioPlayer.stop();
+    await _audioPlayer.play(_nameToPath[name], isLocal: true);
   }
 }
