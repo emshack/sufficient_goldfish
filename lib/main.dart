@@ -134,23 +134,34 @@ class FishPageState extends State<FishPage> {
     }
 
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.pageType == PageType.shopping
-            ? 'Sufficient Goldfish'
-            : 'Your Reserved Fish'),
-      ),
+      appBar: widget.pageType == PageType.shopping
+          ? _getShoppingAppBar()
+          : _getReservedAppBar(),
       body: body,
-      floatingActionButton: widget.pageType == PageType.shopping
-          ? new FloatingActionButton.extended(
-              icon: new Icon(Icons.shopping_cart),
-              label: new Text("Reserved"),
-              onPressed: () {
-                Navigator.of(context).push(new MaterialPageRoute<Null>(
-                    builder: (BuildContext context) {
-                  return new FishPage(PageType.reserved, _myProfile);
-                }));
-              })
-          : null,
+    );
+  }
+
+  AppBar _getShoppingAppBar() {
+    return new AppBar(
+      title: new Text('Sufficient Goldfish'),
+      actions: <Widget>[
+        new FlatButton.icon(
+            icon: new Icon(Icons.shopping_cart),
+            label: new Text("2"), // TODO: Update with number in cart
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.of(context).push(
+                  new MaterialPageRoute<Null>(builder: (BuildContext context) {
+                return new FishPage(PageType.reserved, _myProfile);
+              }));
+            }),
+      ],
+    );
+  }
+
+  AppBar _getReservedAppBar() {
+    return new AppBar(
+      title: new Text('Your Reserved Fish'),
     );
   }
 
