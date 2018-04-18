@@ -47,12 +47,12 @@ class FishData {
           response[Field.phValue.toString()],
           response[Field.profilePicture.toString()]);
 
-  factory FishData.parse(DocumentSnapshot document) =>
-      FishData.data(document.data[Field.id.toString()],
-          document.data[Field.name.toString()],
-          document.data[Field.favoriteMusic.toString()],
-          document.data[Field.phValue.toString()],
-          document.data[Field.profilePicture.toString()]);
+  factory FishData.parse(DocumentSnapshot document) => FishData.data(
+      document.data[Field.id.toString()],
+      document.data[Field.name.toString()],
+      document.data[Field.favoriteMusic.toString()],
+      document.data[Field.phValue.toString()],
+      document.data[Field.profilePicture.toString()]);
 
   Map<String, dynamic> serialize() {
     return {
@@ -100,7 +100,7 @@ class DeviceTools {
     if (Platform.isAndroid) {
       var info = await deviceInfo.androidInfo;
       return info.fingerprint;
-    } else if (Platform.isIOS){
+    } else if (Platform.isIOS) {
       var info = await deviceInfo.iosInfo;
       return info.identifierForVendor;
     } else {
