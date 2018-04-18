@@ -65,6 +65,21 @@ class FishData {
   }
 }
 
+class DeviceTools {
+  static Future<String> getDeviceId() async {
+    var deviceInfo = new DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      var info = await deviceInfo.androidInfo;
+      return info.fingerprint;
+    } else if (Platform.isIOS) {
+      var info = await deviceInfo.iosInfo;
+      return info.identifierForVendor;
+    } else {
+      return 'nonIosOrAndroidDevice-${deviceInfo.hashCode}';
+    }
+  }
+}
+
 class AudioTools {
   final AudioPlayer _audioPlayer;
   final Map<String, String> _nameToPath = {};
@@ -91,20 +106,5 @@ class AudioTools {
   Future<Null> playAudio(String name) async {
     await _audioPlayer.stop();
     await _audioPlayer.play(_nameToPath[name], isLocal: true);
-  }
-}
-
-class DeviceTools {
-  static Future<String> getDeviceId() async {
-    var deviceInfo = new DeviceInfoPlugin();
-    if (Platform.isAndroid) {
-      var info = await deviceInfo.androidInfo;
-      return info.fingerprint;
-    } else if (Platform.isIOS) {
-      var info = await deviceInfo.iosInfo;
-      return info.identifierForVendor;
-    } else {
-      return 'nonIosOrAndroidDevice-${deviceInfo.hashCode}';
-    }
   }
 }
