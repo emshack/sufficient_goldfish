@@ -128,6 +128,7 @@ class FishPageState extends State<FishPage> {
               return new ProfileCard(
                   data, widget.pageType, () => _reserveFish(fishOfInterest));
             },
+                viewportFraction: .85,
                 dismissedCallback: (int card, DismissDirection direction) =>
                     onDismissed(card, direction, snapshot.data));
           });
