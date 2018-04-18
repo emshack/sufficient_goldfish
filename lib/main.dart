@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-enum ListType { available, reserved }
+enum ViewType { available, reserved }
 
 class FishPage extends StatefulWidget {
   final String deviceId;
@@ -55,30 +55,24 @@ class FishPageState extends State<FishPage> {
   DocumentSnapshot _lastFish;
   List<DocumentSnapshot> availableFish;
   List<DocumentSnapshot> reservedFish;
-  ListType listType;
+  ViewType viewType;
 
-  FishPageState() {
-    listType = ListType.available;
-  }
+  FishPageState() : viewType = ViewType.available;
 
   @override
   void initState() {
     super.initState();
     if (!_audioToolsReady) populateAudioTools();
-    _createStream(ListType.available).listen((data) {
-      setState(() {
-        availableFish = data;
-      });
+    _createStream(ViewType.available).listen((data) {
+      setState(() => availableFish = data);
     });
-    _createStream(ListType.reserved).listen((data) {
-      setState(() {
-        reservedFish = data;
-      });
+    _createStream(ViewType.reserved).listen((data) {
+      setState(() => reservedFish = data);
     });
     accelerometerEvents.listen((AccelerometerEvent event) {
       if (event.y.abs() >= 20 && _lastFish != null) {
         // Shake-to-undo last action.
-        if (listType == ListType.available) {
+        if (viewType == ViewType.available) {
           _removeFish(_lastFish);
         } else {
           _reserveFish(_lastFish);
@@ -97,12 +91,12 @@ class FishPageState extends State<FishPage> {
     });
   }
 
-  Stream<List<DocumentSnapshot>> _createStream(ListType listType) {
+  Stream<List<DocumentSnapshot>> _createStream(ViewType viewType) {
     return Firestore.instance
         .collection('profiles')
         .snapshots
         .map((QuerySnapshot snapshot) {
-      if (listType == ListType.available) {
+      if (viewType == ViewType.available) {
         // Filter out results that are already reserved.
         return snapshot.documents
             .where((DocumentSnapshot aDoc) =>
@@ -120,14 +114,14 @@ class FishPageState extends State<FishPage> {
 
   Widget _displayFish() {
     List<DocumentSnapshot> fishList =
-        listType == ListType.available ? availableFish : reservedFish;
+        viewType == ViewType.available ? availableFish : reservedFish;
     if (fishList.length == 0)
       return Center(
           child: const Text('There are plenty of fish in the sea...'));
     return CoverFlow((_, int index) {
       var fishOfInterest = fishList[index % fishList.length];
       var data = FishData.parse(fishOfInterest);
-      return ProfileCard(data, listType, () => _reserveFish(fishOfInterest));
+      return ProfileCard(data, viewType, () => _reserveFish(fishOfInterest));
     },
         viewportFraction: .85,
         dismissedCallback: (int card, DismissDirection direction) =>
@@ -155,11 +149,11 @@ class FishPageState extends State<FishPage> {
           icon: new Icon(Icons.home),
           onPressed: () {
             setState(() {
-              listType = ListType.available;
+              viewType = ViewType.available;
             });
           },
         ),
-        title: Text(listType == ListType.available
+        title: Text(viewType == ViewType.available
             ? 'Sufficient Goldfish'
             : 'Your Shopping Cart'),
         actions: <Widget>[
@@ -169,7 +163,7 @@ class FishPageState extends State<FishPage> {
               textColor: Colors.white,
               onPressed: () {
                 setState(() {
-                  listType = ListType.reserved;
+                  viewType = ViewType.reserved;
                 });
               }),
         ],
@@ -182,7 +176,7 @@ class FishPageState extends State<FishPage> {
       int card, DismissDirection direction, List<DocumentSnapshot> allFish) {
     audioTools.playAudio(dismissedName);
     DocumentSnapshot fishOfInterest = allFish[card % allFish.length];
-    if (listType == ListType.reserved) {
+    if (viewType == ViewType.reserved) {
       // Write this fish back to the list of available fish in Firebase.
       _removeFish(fishOfInterest);
     }
@@ -203,10 +197,10 @@ class FishPageState extends State<FishPage> {
 
 class ProfileCard extends StatelessWidget {
   final FishData data;
-  final ListType listType;
+  final ViewType viewType;
   final Function onSavedCallback;
 
-  ProfileCard(this.data, this.listType, this.onSavedCallback);
+  ProfileCard(this.data, this.viewType, this.onSavedCallback);
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +214,7 @@ class ProfileCard extends StatelessWidget {
       Expanded(flex: 1, child: showProfilePicture(data)),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
-    if (listType == ListType.available) {
+    if (viewType == ViewType.available) {
       contents.add(Row(children: [
         Expanded(
             flex: 1,
