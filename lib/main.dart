@@ -221,7 +221,6 @@ class ProfileCard extends StatelessWidget {
     if (viewType == ViewType.available) {
       contents.add(Row(children: [
         Expanded(
-            flex: 1,
             child: FlatButton.icon(
                 color: isReserved ? Colors.red : Colors.green,
                 icon: Icon(isReserved ? Icons.not_interested : Icons.check),
@@ -236,6 +235,8 @@ class ProfileCard extends StatelessWidget {
   }
 
   Widget _showData(String name, String music, String pH) {
+    var subHeadingStyle =
+        TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0);
     Widget nameWidget = Padding(
         padding: EdgeInsets.all(16.0),
         child: Text(
@@ -243,15 +244,13 @@ class ProfileCard extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
           textAlign: TextAlign.center,
         ));
-    Text musicWidget = Text('Favorite music: $music',
-        style: TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
-    Text phWidget = Text('Favorite pH: $pH',
-        style: TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0));
+    Text musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
+    Text phWidget = Text('Favorite pH: $pH', style: subHeadingStyle);
     List<Widget> children = [nameWidget, musicWidget, phWidget];
     return Column(
         children: children
             .map((child) => Padding(
-                child: child, padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0)))
+                child: child, padding: EdgeInsets.only(bottom: 8.0)))
             .toList());
   }
 
