@@ -109,16 +109,17 @@ class FishPageState extends State<FishPage> {
     if (fishList == null || fishList.length == 0)
       return Center(
           child: const Text('There are plenty of fish in the sea...'));
-    return CoverFlow((_, int index) {
-      var fishOfInterest = fishList[index];
-      var isReserved = fishOfInterest.data[reservedBy] == widget.deviceId;
-      return ProfileCard(
-          FishData.parseData(fishOfInterest),
-          _viewType,
-          () => _reserveFish(fishOfInterest),
-          () => _removeFish(fishOfInterest),
-          isReserved);
-    },
+    return CoverFlow(
+        itemBuilder: (_, int index) {
+          var fishOfInterest = fishList[index];
+          var isReserved = fishOfInterest.data[reservedBy] == widget.deviceId;
+          return ProfileCard(
+              FishData.parseData(fishOfInterest),
+              _viewType,
+              () => _reserveFish(fishOfInterest),
+              () => _removeFish(fishOfInterest),
+              isReserved);
+        },
         dismissedCallback: (int card, DismissDirection direction) =>
             onDismissed(card, direction, fishList),
         itemCount: fishList.length);
