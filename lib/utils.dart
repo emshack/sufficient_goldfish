@@ -18,7 +18,7 @@ enum Field {
 
 class FishData {
   String id;
-  Uri profilePicture;
+  String profilePicture;
   String name;
   String favoriteMusic;
   String favoritePh;
@@ -31,23 +31,14 @@ class FishData {
       [this.name,
       this.favoriteMusic,
       this.favoritePh,
-      String profilePicture1]) {
+      String profilePicture]) {
     this.name ??= 'Frank';
     this.favoriteMusic ??= 'Blubstep';
     this.favoritePh ??= '7.0';
-    this.profilePicture =
-        Uri.parse(profilePicture1 == null ? defaultImage : profilePicture1);
+    this.profilePicture = profilePicture == null ? defaultImage : profilePicture;
   }
 
-  factory FishData.parseResponse(Map<String, dynamic> response) =>
-      FishData.data(
-          response[Field.id.toString()],
-          response[Field.name.toString()],
-          response[Field.favoriteMusic.toString()],
-          response[Field.phValue.toString()],
-          response[Field.profilePicture.toString()]);
-
-  factory FishData.parse(DocumentSnapshot document) => FishData.data(
+  factory FishData.parseData(DocumentSnapshot document) => FishData.data(
       document.data[Field.id.toString()],
       document.data[Field.name.toString()],
       document.data[Field.favoriteMusic.toString()],
