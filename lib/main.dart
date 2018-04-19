@@ -111,15 +111,13 @@ class FishPageState extends State<FishPage> {
           child: const Text('There are plenty of fish in the sea...'));
     return CoverFlow((_, int index) {
       var fishOfInterest = fishList[index];
-      var data = FishData.parseData(fishOfInterest);
-      var isReserved = false;
-      for (DocumentSnapshot fish in _reservedFish) {
-        if (fish.documentID == fishOfInterest.documentID) {
-          isReserved = true;
-        }
-      }
-      return ProfileCard(data, _viewType, () => _reserveFish(fishOfInterest),
-          () => _removeFish(fishOfInterest), isReserved);
+      var isReserved = fishOfInterest.data[reservedBy] == widget.deviceId;
+      return ProfileCard(
+          FishData.parseData(fishOfInterest),
+          _viewType,
+          () => _reserveFish(fishOfInterest),
+          () => _removeFish(fishOfInterest),
+          isReserved);
     },
         dismissedCallback: (int card, DismissDirection direction) =>
             onDismissed(card, direction, fishList),
@@ -149,11 +147,11 @@ class FishPageState extends State<FishPage> {
           ),
           title: Text(_viewType == ViewType.available
               ? 'Sufficient Goldfish'
-              : 'Your Shopping Cart'),
+              : 'Saved Fish'),
           backgroundColor: Colors.indigo,
           actions: <Widget>[
             FlatButton.icon(
-              icon: Icon(Icons.shopping_cart),
+              icon: Icon(Icons.shopping_basket),
               label: Text(_reservedFish?.length.toString()),
               textColor: Colors.white,
               onPressed: () => setState(() => _viewType = ViewType.reserved),
@@ -161,16 +159,14 @@ class FishPageState extends State<FishPage> {
           ],
         ),
         body: Container(
-          child: body,
-          decoration: new BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  colors: [Colors.blue, Colors.lightBlueAccent])),
-        ));
+            decoration: new BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    colors: [Colors.blue, Colors.lightBlueAccent])),
+            child: body));
   }
 
-  onDismissed(
-      int card, DismissDirection direction, List<DocumentSnapshot> allFish) {
+  onDismissed(int card, _, List<DocumentSnapshot> allFish) {
     audioTools.playAudio(dismissedName);
     DocumentSnapshot fishOfInterest = allFish[card];
     if (_viewType == ViewType.reserved) {
@@ -215,7 +211,7 @@ class ProfileCard extends StatelessWidget {
 
   List<Widget> _getCardContents() {
     List<Widget> contents = <Widget>[
-      Expanded(flex: 1, child: showProfilePicture(data)),
+      _showProfilePicture(data),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
     if (viewType == ViewType.available) {
@@ -249,15 +245,17 @@ class ProfileCard extends StatelessWidget {
     List<Widget> children = [nameWidget, musicWidget, phWidget];
     return Column(
         children: children
-            .map((child) => Padding(
-                child: child, padding: EdgeInsets.only(bottom: 8.0)))
+            .map((child) =>
+                Padding(child: child, padding: EdgeInsets.only(bottom: 8.0)))
             .toList());
   }
 
-  Widget showProfilePicture(FishData fishData) {
-    return Image.network(
-      fishData.profilePicture,
-      fit: BoxFit.cover,
+  Widget _showProfilePicture(FishData fishData) {
+    return Expanded(
+      child: Image.network(
+        fishData.profilePicture,
+        fit: BoxFit.cover,
+      ),
     );
   }
 }
