@@ -54,20 +54,12 @@ class FishPage extends StatefulWidget {
 class FishPageState extends State<FishPage> {
   bool _audioToolsReady = false;
   DocumentSnapshot _undoData;
-  List<DocumentSnapshot> _availableFish;
-  List<DocumentSnapshot> _reservedFish;
   ViewType _viewType = ViewType.available;
 
   @override
   void initState() {
     super.initState();
     populateAudioTools();
-    _createStream(ViewType.available).listen((data) {
-      setState(() => _availableFish = data);
-    });
-    _createStream(ViewType.reserved).listen((data) {
-      setState(() => _reservedFish = data);
-    });
     accelerometerEvents.listen((AccelerometerEvent event) {
       if (event.y.abs() >= 20 && _undoData != null) {
         // Shake-to-undo last action.
@@ -88,39 +80,41 @@ class FishPageState extends State<FishPage> {
     setState(() => _audioToolsReady = true);
   }
 
-  Stream<List<DocumentSnapshot>> _createStream(ViewType viewType) {
-    return Firestore.instance.collection('profiles').snapshots.map(
-        (QuerySnapshot snapshot) =>
-            snapshot.documents.where((DocumentSnapshot aDoc) {
-              if (viewType == ViewType.available) {
+  Widget _displayFish() {
+    return StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection('profiles').snapshots,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasData) {
+            var fishList =
+                snapshot.data.documents.where((DocumentSnapshot aDoc) {
+              if (_viewType == ViewType.available) {
                 return aDoc.data[reservedBy] == widget.deviceId ||
                     !aDoc.data.containsKey(reservedBy);
               } else {
                 return aDoc.data[reservedBy] == widget.deviceId;
               }
-            }).toList());
-  }
-
-  Widget _displayFish() {
-    List<DocumentSnapshot> fishList =
-        _viewType == ViewType.available ? _availableFish : _reservedFish;
-    if (fishList == null || fishList.length == 0)
-      return Center(
-          child: const Text('There are plenty of fish in the sea...'));
-    return CoverFlow(
-        itemBuilder: (_, int index) {
-          var fishOfInterest = fishList[index];
-          var isReserved = fishOfInterest.data[reservedBy] == widget.deviceId;
-          return ProfileCard(
-              FishData.parseData(fishOfInterest),
-              _viewType,
-              () => _reserveFish(fishOfInterest),
-              () => _removeFish(fishOfInterest),
-              isReserved);
-        },
-        dismissedCallback: (int card, DismissDirection direction) =>
-            onDismissed(card, direction, fishList),
-        itemCount: fishList.length);
+            }).toList();
+            if (fishList.length > 0) {
+              return CoverFlow(
+                  itemBuilder: (_, int index) {
+                    var fishOfInterest = fishList[index];
+                    var isReserved =
+                        fishOfInterest.data[reservedBy] == widget.deviceId;
+                    return ProfileCard(
+                        FishData.parseData(fishOfInterest),
+                        _viewType,
+                        () => _reserveFish(fishOfInterest),
+                        () => _removeFish(fishOfInterest),
+                        isReserved);
+                  },
+                  dismissedCallback: (int card, DismissDirection direction) =>
+                      onDismissed(card, direction, fishList),
+                  itemCount: fishList.length);
+            }
+          }
+          return Center(
+              child: const Text('There are plenty of fish in the sea...'));
+        });
   }
 
   @override
@@ -149,10 +143,8 @@ class FishPageState extends State<FishPage> {
               : 'Saved Fish'),
           backgroundColor: Colors.indigo,
           actions: <Widget>[
-            FlatButton.icon(
-              icon: Icon(Icons.shopping_basket),
-              label: Text(_reservedFish?.length.toString()),
-              textColor: Colors.white,
+            IconButton(
+              icon: new Icon(Icons.shopping_basket),
               onPressed: () => setState(() => _viewType = ViewType.reserved),
             )
           ],
