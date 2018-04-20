@@ -56,14 +56,12 @@ class FishPageState extends State<FishPage> {
   DocumentSnapshot _undoData;
   List<DocumentSnapshot> _availableFish;
   List<DocumentSnapshot> _reservedFish;
-  ViewType _viewType;
-
-  FishPageState() : _viewType = ViewType.available;
+  ViewType _viewType = ViewType.available;
 
   @override
   void initState() {
     super.initState();
-    if (!_audioToolsReady) populateAudioTools();
+    populateAudioTools();
     _createStream(ViewType.available).listen((data) {
       setState(() => _availableFish = data);
     });
