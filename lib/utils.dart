@@ -22,6 +22,8 @@ class FishData {
   String name;
   String favoriteMusic;
   String favoritePh;
+  List rejectedBy;
+  String reservedBy;
   final String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
 
@@ -31,11 +33,17 @@ class FishData {
       [this.name,
       this.favoriteMusic,
       this.favoritePh,
-      String profilePicture]) {
+      this.profilePicture,
+      this.reservedBy,
+      this.rejectedBy]) {
+    // Set these rather than using the default value because Firebase returns
+    // null if the value is not specified.
     this.name ??= 'Frank';
     this.favoriteMusic ??= 'Blubstep';
     this.favoritePh ??= '7.0';
-    this.profilePicture = profilePicture == null ? defaultImage : profilePicture;
+    this.profilePicture ??= defaultImage;
+    this.rejectedBy ??= [];
+    this.rejectedBy = new List.from(rejectedBy);
   }
 
   factory FishData.parseData(DocumentSnapshot document) => FishData.data(
@@ -43,7 +51,9 @@ class FishData {
       document.data[Field.name.toString()],
       document.data[Field.favoriteMusic.toString()],
       document.data[Field.phValue.toString()],
-      document.data[Field.profilePicture.toString()]);
+      document.data[Field.profilePicture.toString()],
+      document.data['reservedBy'],
+      document.data['rejectedBy']);
 
   Map<String, dynamic> serialize() {
     return {
@@ -51,9 +61,13 @@ class FishData {
       Field.profilePicture.toString(): profilePicture.toString(),
       Field.name.toString(): name,
       Field.favoriteMusic.toString(): favoriteMusic,
-      Field.phValue.toString(): favoritePh
+      Field.phValue.toString(): favoritePh,
+      'rejectedBy': rejectedBy,
+      'reservedBy': reservedBy,
     };
   }
+
+  addRejectedBy(String identifier) => rejectedBy.add(identifier);
 }
 
 class DeviceTools {

@@ -9,9 +9,8 @@ import 'dart:math';
 
 import 'utils.dart';
 
-// This is written separately even though there is a lot of shared code
-// between it and the match page for the sake of focusing on what we're
-// live-coding.
+// Old file -- should be ignored. Left here for ease of populating the firebase
+// database, but will not stay in for I/O presentation.
 
 void main() => runApp(new MyApp());
 

@@ -17,6 +17,7 @@ const baseName = 'base';
 const dismissedName = 'dismissed';
 const savedName = 'saved';
 const reservedBy = 'reservedBy';
+const rejectedBy = 'rejectedBy';
 
 AudioTools audioTools = AudioTools();
 
@@ -89,7 +90,7 @@ class FishPageState extends State<FishPage> {
                 snapshot.data.documents.where((DocumentSnapshot aDoc) {
               if (_viewType == ViewType.available) {
                 return aDoc.data[reservedBy] == widget.deviceId ||
-                    !aDoc.data.containsKey(reservedBy);
+                    aDoc.data[reservedBy] == null && !aDoc.data[rejectedBy].contains(widget.deviceId);
               } else {
                 return aDoc.data[reservedBy] == widget.deviceId;
               }
@@ -163,6 +164,8 @@ class FishPageState extends State<FishPage> {
     if (_viewType == ViewType.reserved) {
       // Write this fish back to the list of available fish in Firebase.
       _removeFish(fishOfInterest);
+    } else {
+      _rejectFish(fishOfInterest);
     }
     _undoData = fishOfInterest;
   }
@@ -177,6 +180,12 @@ class FishPageState extends State<FishPage> {
     var fishData = fishOfInterest.data;
     fishData[reservedBy] = widget.deviceId;
     fishOfInterest.reference.setData(fishData);
+  }
+
+  void _rejectFish(DocumentSnapshot fishOfInterest) {
+    var fishData = new FishData.parseData(fishOfInterest);
+    fishData.addRejectedBy(widget.deviceId);
+    fishOfInterest.reference.setData(fishData.serialize());
   }
 }
 
