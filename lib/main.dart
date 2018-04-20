@@ -52,18 +52,12 @@ class FishPage extends StatefulWidget {
 }
 
 class FishPageState extends State<FishPage> {
-  bool _audioToolsReady = false;
   DocumentSnapshot _undoData;
-  List<DocumentSnapshot> _availableFish;
-  List<DocumentSnapshot> _reservedFish;
-  ViewType _viewType;
-
-  FishPageState() : _viewType = ViewType.available;
+  ViewType _viewType = ViewType.available;
 
   @override
   void initState() {
     super.initState();
-    populateAudioTools();
     accelerometerEvents.listen((AccelerometerEvent event) {
       if (event.y.abs() >= 20 && _undoData != null) {
         // Shake-to-undo last action.
@@ -77,45 +71,43 @@ class FishPageState extends State<FishPage> {
     });
   }
 
-  Future<Null> populateAudioTools() async {
-    await audioTools.loadFile(baseAudio, baseName);
-    await audioTools.loadFile(dismissedAudio, dismissedName);
-    await audioTools.loadFile(savedAudio, savedName);
-    setState(() => _audioToolsReady = true);
-  }
-
   @override
   Widget build(BuildContext context) {
-    Widget body;
-    if (!_audioToolsReady) {
-      body = Center(
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        CircularProgressIndicator(),
-        Text('Gone Fishing...'),
-      ]));
-    } else {
-      body = StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance.collection('profiles').snapshots,
-          builder: (BuildContext context,
-              AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasData) {
-              var fishList = snapshot.data.documents.where((DocumentSnapshot aDoc) {
-                if (_viewType == ViewType.available) {
-                  return aDoc.data[reservedBy] == widget.deviceId ||
-                      !aDoc.data.containsKey(reservedBy);
-                } else {
-                  return aDoc.data[reservedBy] == widget.deviceId;
+    Widget body = new FutureBuilder(future: new Future(() async {
+      await audioTools.loadFile(baseAudio, baseName);
+      await audioTools.loadFile(dismissedAudio, dismissedName);
+      await audioTools.loadFile(savedAudio, savedName);
+    }), builder: (context, AsyncSnapshot snapshot) {
+      switch(snapshot.connectionState) {
+        case ConnectionState.done:
+          audioTools.initAudioLoop(baseName);
+          return StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance.collection('profiles').snapshots,
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasData) {
+                  var fishList = snapshot.data.documents.where((DocumentSnapshot aDoc) {
+                    if (_viewType == ViewType.available) {
+                      return aDoc.data[reservedBy] == widget.deviceId ||
+                          !aDoc.data.containsKey(reservedBy);
+                    } else {
+                      return aDoc.data[reservedBy] == widget.deviceId;
+                    }
+                  }).toList();
+                  if (fishList.length > 0) return new FishOptionsView(fishList, widget.deviceId, _viewType, _reserveFish, _removeFish);
                 }
-              }).toList();
-              if (fishList.length > 0) return new FishOptionsView(fishList, widget.deviceId, _viewType, _reserveFish, _removeFish);
-            }
-            return Center(
-                  child: const Text('There are plenty of fish in the sea...'));
-          });
-
-      audioTools.initAudioLoop(baseName);
-    }
+                return Center(
+                    child: const Text('There are plenty of fish in the sea...'));
+              });
+        default:
+          return Center(
+              child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                CircularProgressIndicator(),
+                Text('Gone Fishing...'),
+              ]));
+      }
+    } );
 
     return Scaffold(
         appBar: AppBar(
@@ -130,7 +122,7 @@ class FishPageState extends State<FishPage> {
           actions: <Widget>[
             FlatButton.icon(
               icon: Icon(Icons.shopping_basket),
-              label: Text(_reservedFish?.length.toString()),
+              label: Text('Cart'),
               textColor: Colors.white,
               onPressed: () => setState(() => _viewType = ViewType.reserved),
             )
