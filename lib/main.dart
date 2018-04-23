@@ -8,27 +8,20 @@ import 'package:sensors/sensors.dart';
 
 import 'utils.dart';
 
-const baseAudio =
-    'http://freesound.org/data/previews/243/243953_1565498-lq.mp3';
-const dismissedAudio =
-    'http://freesound.org/data/previews/398/398025_7586736-lq.mp3';
-const savedAudio =
-    'http://freesound.org/data/previews/189/189499_1970026-lq.mp3';
-const baseName = 'base';
-const dismissedName = 'dismissed';
-const savedName = 'saved';
-const reservedBy = 'reservedBy';
+const backgroundAudio = 'background.mp3';
+const dismissedAudio = 'dismissed.mp3';
+const savedAudio = 'saved.mp3';
 
 AudioTools audioTools = AudioTools();
 FirebaseUser user;
 
 Future<void> main() async {
   user = await FirebaseAuth.instance.signInAnonymously();
-  audioTools.loadFile(baseAudio, baseName).then((_) {
-    audioTools.initAudioLoop(baseName);
+  audioTools.loadFile(backgroundAudio).then((_) {
+    audioTools.initAudioLoop(backgroundAudio);
   });
-  audioTools.loadFile(dismissedAudio, dismissedName);
-  audioTools.loadFile(savedAudio, savedName);
+  audioTools.loadFile(dismissedAudio);
+  audioTools.loadFile(savedAudio);
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
     theme: ThemeData.light(), // switch to ThemeData.day() when available
@@ -186,7 +179,7 @@ class FishOptionsView extends StatelessWidget {
   }
 
   onDismissed(int card, _) {
-    audioTools.playAudio(dismissedName);
+    audioTools.playAudio(dismissedAudio);
     FishData fishOfInterest = _fishList[card];
     if (_viewType == ViewType.reserved) {
       // Write this fish back to the list of available fish in Firebase.
@@ -229,7 +222,7 @@ class ProfileCard extends StatelessWidget {
                 icon: Icon(isReserved ? Icons.not_interested : Icons.check),
                 label: Text(isReserved ? 'Remove' : 'Add'),
                 onPressed: () {
-                  audioTools.playAudio(savedName);
+                  audioTools.playAudio(savedAudio);
                   isReserved ? onRemovedCallback() : onAddedCallback();
                 }))
       ]));

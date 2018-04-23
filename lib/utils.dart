@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:http/http.dart';
+import 'dart:typed_data';
 
-import 'package:device_info/device_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:audioplayer/audioplayer.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -68,12 +69,12 @@ class AudioTools {
 
   AudioTools() : _audioPlayer = AudioPlayer();
 
-  Future loadFile(String url, String name) async {
-    final bytes = await readBytes(url);
+  Future loadFile(String name) async {
+    final bytes = await rootBundle.load('assets/$name');
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$name.mp3');
+    final file = File('${dir.path}/$name');
 
-    await file.writeAsBytes(bytes);
+    await file.writeAsBytes(new Uint8List.view(bytes.buffer));
     if (await file.exists()) _nameToPath[name] = file.path;
   }
 
