@@ -68,9 +68,9 @@ class ShakeDetector extends StatelessWidget {
 enum ViewType { available, reserved }
 
 class FishPage extends StatefulWidget {
-  FishPage(this.fish);
+  FishPage(this.allFish);
 
-  final List<FishData> fish;
+  final List<FishData> allFish;
 
   @override
   State<FishPage> createState() => FishPageState();
@@ -82,6 +82,13 @@ class FishPageState extends State<FishPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<FishData> filteredFish = widget.allFish.where((FishData data) {
+      if (_viewType == ViewType.available) {
+        return data.reservedBy == null || data.reservedBy == user.uid;
+      } else {
+        return data.reservedBy == user.uid;
+      }
+    }).toList();
     return new ShakeDetector(
       onShake: () {
         if (_undoData != null) {
@@ -118,67 +125,60 @@ class FishPageState extends State<FishPage> {
               gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   colors: [Colors.blue, Colors.lightBlueAccent])),
-          child: FishOptionsView(
-            widget.fish.where((FishData data) {
-              if (_viewType == ViewType.available) {
-                return data.reservedBy == null || data.reservedBy == user.uid;
-              } else {
-                return data.reservedBy == user.uid;
-              }
-            }).toList(),
-            _viewType,
-            _reserveFish,
-            _removeFish,
-          ),
+          child: FishOptionsView(filteredFish, _viewType, _reserveFish, _removeFish),
         ),
       ),
     );
   }
 
   void _removeFish(FishData fishOfInterest) {
-    fishOfInterest.reservedBy = null;
+    setState(() {
+      fishOfInterest.reservedBy = null;
+    });
     fishOfInterest.save();
   }
 
   void _reserveFish(FishData fishOfInterest) {
-    fishOfInterest.reservedBy = user.uid;
+    setState(() {
+      fishOfInterest.reservedBy = user.uid;
+    });
     fishOfInterest.save();
   }
 }
 
 class FishOptionsView extends StatelessWidget {
-  final List<FishData> _fishList;
+  final List<FishData> fish;
   final Function onAddedCallback;
   final Function onRemovedCallback;
-  final ViewType _viewType;
+  final ViewType viewType;
 
-  // NB: This assumes _fishList != null && _fishList.length > 0.
-  FishOptionsView(this._fishList, this._viewType, this.onAddedCallback,
-      this.onRemovedCallback) : super(key: new ObjectKey(_fishList));
+  FishOptionsView(this.fish, this.viewType, this.onAddedCallback,
+      this.onRemovedCallback);
 
   @override
   Widget build(BuildContext context) {
     return CoverFlow(
-        dismissibleItems: _viewType == ViewType.reserved,
+        dismissibleItems: viewType == ViewType.reserved,
         itemBuilder: (_, int index) {
-          var fishOfInterest = _fishList[index];
+          var fishOfInterest = fish[index];
           var isReserved = fishOfInterest.reservedBy == user.uid;
           return ProfileCard(
-              fishOfInterest,
-              _viewType,
-              () => onAddedCallback(fishOfInterest),
-              () => onRemovedCallback(fishOfInterest),
-              isReserved);
+            fishOfInterest,
+            viewType,
+            () => onAddedCallback(fishOfInterest),
+            () => onRemovedCallback(fishOfInterest),
+            isReserved,
+          );
         },
         dismissedCallback: (int card, DismissDirection direction) =>
             onDismissed(card, direction),
-        itemCount: _fishList.length);
+        itemCount: fish.length);
   }
 
   onDismissed(int card, _) {
     audioTools.playAudio(dismissedAudio);
-    FishData fishOfInterest = _fishList[card];
-    if (_viewType == ViewType.reserved) {
+    FishData fishOfInterest = fish[card];
+    if (viewType == ViewType.reserved) {
       // Write this fish back to the list of available fish in Firebase.
       onRemovedCallback(fishOfInterest);
     }
@@ -205,7 +205,6 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      key: new ValueKey(data.id),
       color: isReserved && viewType == ViewType.available
           ? Colors.white30
           : Colors.white,
