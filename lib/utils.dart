@@ -27,6 +27,7 @@ class FishData {
   String reservedBy;
   final String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
+  final DocumentReference reference;
 
   factory FishData(String id) => FishData.data(id);
 
@@ -35,7 +36,8 @@ class FishData {
       this.favoriteMusic,
       this.favoritePh,
       String profilePicture,
-      String reservedBy,
+      this.reservedBy,
+      this.reference,
     ]) {
     this.name ??= 'Frank';
     this.favoriteMusic ??= 'Blubstep';
@@ -44,12 +46,17 @@ class FishData {
   }
 
   factory FishData.parseData(DocumentSnapshot document) => FishData.data(
-      document.data[Field.id.toString()],
+      document.reference.documentID,
       document.data[Field.name.toString()],
       document.data[Field.favoriteMusic.toString()],
       document.data[Field.phValue.toString()],
       document.data[Field.profilePicture.toString()],
-      document.data[Field.reservedBy.toString()]);
+      document.data[Field.reservedBy.toString()],
+      document.reference);
+
+  void save() {
+    reference.setData(serialize());
+  }
 
   Map<String, dynamic> serialize() {
     return {

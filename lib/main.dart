@@ -24,7 +24,7 @@ Future<void> main() async {
   audioTools.loadFile(savedAudio);
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
-    theme: ThemeData.light(), // switch to ThemeData.day() when available
+    theme: ThemeData(primarySwatch: Colors.indigo), // switch to ThemeData.day() when available
     home: MyApp(),
     debugShowCheckedModeBanner: false,
   ));
@@ -99,7 +99,6 @@ class FishPageState extends State<FishPage> {
       child: Scaffold(
         appBar: AppBar(
           title: new Text('Sufficient Goldfish'),
-          backgroundColor: Colors.indigo,
         ),
         bottomNavigationBar: new BottomNavigationBar(
           currentIndex: _viewType == ViewType.available ? 0 : 1,
@@ -140,16 +139,12 @@ class FishPageState extends State<FishPage> {
 
   void _removeFish(FishData fishOfInterest) {
     fishOfInterest.reservedBy = null;
-    DocumentReference reference =
-        Firestore.instance.collection('profiles').document(fishOfInterest.id);
-    reference.setData(fishOfInterest.serialize());
+    fishOfInterest.save();
   }
 
   void _reserveFish(FishData fishOfInterest) {
     fishOfInterest.reservedBy = user.uid;
-    DocumentReference reference =
-        Firestore.instance.collection('profiles').document(fishOfInterest.id);
-    reference.setData(fishOfInterest.serialize());
+    fishOfInterest.save();
   }
 }
 
@@ -161,7 +156,7 @@ class FishOptionsView extends StatelessWidget {
 
   // NB: This assumes _fishList != null && _fishList.length > 0.
   FishOptionsView(this._fishList, this._viewType, this.onAddedCallback,
-      this.onRemovedCallback);
+      this.onRemovedCallback) : super(key: new ObjectKey(_fishList));
 
   @override
   Widget build(BuildContext context) {
@@ -206,6 +201,7 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      key: new ValueKey(data.id),
       color: isReserved && viewType == ViewType.available
           ? Colors.white30
           : Colors.white,
