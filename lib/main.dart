@@ -89,17 +89,6 @@ class FishPageState extends State<FishPage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget body = Container();
-    var fishList = widget.fish.where((FishData data) {
-      if (_viewType == ViewType.available) {
-        return data.reservedBy != user.uid;
-      } else {
-        return data.reservedBy == user.uid;
-      }
-    }).toList();
-    if (fishList.length > 0)
-      body = FishOptionsView(fishList, _viewType, _reserveFish, _removeFish);
-
     return new ShakeDetector(
       onShake: () {
         if (_undoData != null) {
@@ -137,7 +126,18 @@ class FishPageState extends State<FishPage> {
               gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   colors: [Colors.blue, Colors.lightBlueAccent])),
-          child: body,
+          child: FishOptionsView(
+            widget.fish.where((FishData data) {
+              if (_viewType == ViewType.available) {
+                return data.reservedBy != user.uid;
+              } else {
+                return data.reservedBy == user.uid;
+              }
+            }).toList(),
+            _viewType,
+            _reserveFish,
+            _removeFish,
+          ),
         ),
       ),
     );
