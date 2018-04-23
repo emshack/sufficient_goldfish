@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:http/http.dart';
+import 'dart:typed_data';
 
-import 'package:device_info/device_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:audioplayer/audioplayer.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -13,7 +14,8 @@ enum Field {
   name,
   favoriteMusic,
   phValue,
-  profilePicture, // the main profile picture
+  profilePicture,
+  reservedBy, // the main profile picture
 }
 
 class FishData {
@@ -22,8 +24,10 @@ class FishData {
   String name;
   String favoriteMusic;
   String favoritePh;
+  String reservedBy;
   final String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
+  final DocumentReference reference;
 
   factory FishData(String id) => FishData.data(id);
 
@@ -31,7 +35,10 @@ class FishData {
       [this.name,
       this.favoriteMusic,
       this.favoritePh,
-      String profilePicture]) {
+      String profilePicture,
+      this.reservedBy,
+      this.reference,
+    ]) {
     this.name ??= 'Frank';
     this.favoriteMusic ??= 'Blubstep';
     this.favoritePh ??= '7.0';
@@ -39,11 +46,17 @@ class FishData {
   }
 
   factory FishData.parseData(DocumentSnapshot document) => FishData.data(
-      document.data[Field.id.toString()],
+      document.reference.documentID,
       document.data[Field.name.toString()],
       document.data[Field.favoriteMusic.toString()],
       document.data[Field.phValue.toString()],
-      document.data[Field.profilePicture.toString()]);
+      document.data[Field.profilePicture.toString()],
+      document.data[Field.reservedBy.toString()],
+      document.reference);
+
+  void save() {
+    reference.setData(serialize());
+  }
 
   Map<String, dynamic> serialize() {
     return {
@@ -51,23 +64,9 @@ class FishData {
       Field.profilePicture.toString(): profilePicture.toString(),
       Field.name.toString(): name,
       Field.favoriteMusic.toString(): favoriteMusic,
-      Field.phValue.toString(): favoritePh
+      Field.phValue.toString(): favoritePh,
+      Field.reservedBy.toString(): reservedBy,
     };
-  }
-}
-
-class DeviceTools {
-  static Future<String> getDeviceId() async {
-    var deviceInfo = DeviceInfoPlugin();
-    if (Platform.isAndroid) {
-      var info = await deviceInfo.androidInfo;
-      return info.fingerprint;
-    } else if (Platform.isIOS) {
-      var info = await deviceInfo.iosInfo;
-      return info.identifierForVendor;
-    } else {
-      return 'nonIosOrAndroidDevice-${deviceInfo.hashCode}';
-    }
   }
 }
 
@@ -77,12 +76,12 @@ class AudioTools {
 
   AudioTools() : _audioPlayer = AudioPlayer();
 
-  Future loadFile(String url, String name) async {
-    final bytes = await readBytes(url);
+  Future loadFile(String name) async {
+    final bytes = await rootBundle.load('assets/$name');
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$name.mp3');
+    final file = File('${dir.path}/$name');
 
-    await file.writeAsBytes(bytes);
+    await file.writeAsBytes(new Uint8List.view(bytes.buffer));
     if (await file.exists()) _nameToPath[name] = file.path;
   }
 
