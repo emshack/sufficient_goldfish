@@ -121,7 +121,7 @@ class FishPageState extends State<FishPage> {
           child: FishOptionsView(
             widget.fish.where((FishData data) {
               if (_viewType == ViewType.available) {
-                return data.reservedBy != user.uid;
+                return data.reservedBy == null || data.reservedBy == user.uid;
               } else {
                 return data.reservedBy == user.uid;
               }
