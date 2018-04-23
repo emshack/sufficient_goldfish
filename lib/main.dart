@@ -43,73 +43,41 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('profiles').snapshots,
-      builder: (BuildContext context,
-          AsyncSnapshot<QuerySnapshot> snapshot) {
-        List<DocumentSnapshot> documents = snapshot.data?.documents ?? [];
-        List<FishData> fish = documents.map((DocumentSnapshot snapshot) {
-          return FishData.parseData(snapshot);
-        }).toList();
-        return DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            appBar: AppBar(
-              title: new Text('Sufficient Goldfish'),
-              backgroundColor: Colors.indigo,
-              bottom: new TabBar(
-                tabs: <Tab>[
-                  new Tab(
-                    icon: Icon(Icons.home),
-                  ),
-                  new Tab(
-                    icon: Icon(Icons.shopping_basket),
-                  ),
-                ],
-              ),
-            ),
-            body: Container(
-                decoration: new BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        colors: [Colors.blue, Colors.lightBlueAccent])),
-                child: TabBarView(
-                  children: <Widget>[
-                    new FishPage(fish: fish, viewType: ViewType.available),
-                    new FishPage(fish: fish, viewType: ViewType.reserved),
-                  ],
-                ),
-              ),
-            ),
-        );
-      },
-    );
+        stream: Firestore.instance.collection('profiles').snapshots,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          List<DocumentSnapshot> documents = snapshot.data?.documents ?? [];
+          List<FishData> fish = documents.map((DocumentSnapshot snapshot) {
+            return FishData.parseData(snapshot);
+          }).toList();
+          return new FishPage(fish);
+        });
   }
 }
 
 class ShakeDetector extends StatelessWidget {
-  ShakeDetector({ this.onShake, this.child });
+  ShakeDetector({this.onShake, this.child});
+
   final VoidCallback onShake;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return new StreamBuilder(
-      stream: accelerometerEvents,
-      builder: (BuildContext context, AsyncSnapshot<AccelerometerEvent> snapshot) {
-        if (snapshot.hasData && snapshot.data.y.abs() >= 20)
-          onShake();
-        return child;
-      }
-    );
+        stream: accelerometerEvents,
+        builder:
+            (BuildContext context, AsyncSnapshot<AccelerometerEvent> snapshot) {
+          if (snapshot.hasData && snapshot.data.y.abs() >= 20) onShake();
+          return child;
+        });
   }
 }
 
 enum ViewType { available, reserved }
 
 class FishPage extends StatefulWidget {
-  FishPage({ this.fish, this.viewType });
+  FishPage(this.fish);
+
   final List<FishData> fish;
-  final ViewType viewType;
 
   @override
   State<FishPage> createState() => FishPageState();
@@ -117,25 +85,26 @@ class FishPage extends StatefulWidget {
 
 class FishPageState extends State<FishPage> {
   FishData _undoData;
+  ViewType _viewType = ViewType.available;
 
   @override
   Widget build(BuildContext context) {
-
     Widget body = Container();
     var fishList = widget.fish.where((FishData data) {
-      if (widget.viewType == ViewType.available) {
+      if (_viewType == ViewType.available) {
         return data.reservedBy != user.uid;
       } else {
         return data.reservedBy == user.uid;
       }
     }).toList();
-    if (fishList.length > 0) body = FishOptionsView(fishList, widget.viewType, _reserveFish, _removeFish);
+    if (fishList.length > 0)
+      body = FishOptionsView(fishList, _viewType, _reserveFish, _removeFish);
 
     return new ShakeDetector(
       onShake: () {
         if (_undoData != null) {
           // Shake-to-undo last action.
-          if (widget.viewType == ViewType.available) {
+          if (_viewType == ViewType.available) {
             _removeFish(_undoData);
           } else {
             _reserveFish(_undoData);
@@ -143,18 +112,47 @@ class FishPageState extends State<FishPage> {
           _undoData = null;
         }
       },
-      child: body,
+      child: Scaffold(
+        appBar: AppBar(
+          title: new Text('Sufficient Goldfish'),
+          backgroundColor: Colors.indigo,
+        ),
+        bottomNavigationBar: new BottomNavigationBar(
+          currentIndex: _viewType == ViewType.available ? 0 : 1,
+          onTap: (int index) {
+            setState(() {
+              _viewType = index == 0 ? ViewType.available : ViewType.reserved;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          items: <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+                title: Text('Available'), icon: Icon(Icons.home)),
+            BottomNavigationBarItem(
+                title: Text('Reserved'), icon: Icon(Icons.shopping_basket)),
+          ],
+        ),
+        body: Container(
+          decoration: new BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  colors: [Colors.blue, Colors.lightBlueAccent])),
+          child: body,
+        ),
+      ),
     );
   }
 
   void _removeFish(FishData fishOfInterest) {
-    DocumentReference reference = Firestore.instance.collection('profiles').document(fishOfInterest.id);
-    reference.setData({ reservedBy: null });
+    DocumentReference reference =
+        Firestore.instance.collection('profiles').document(fishOfInterest.id);
+    reference.setData({reservedBy: null});
   }
 
   void _reserveFish(FishData fishOfInterest) {
-    DocumentReference reference = Firestore.instance.collection('profiles').document(fishOfInterest.id);
-    reference.setData({ reservedBy: user.uid });
+    DocumentReference reference =
+        Firestore.instance.collection('profiles').document(fishOfInterest.id);
+    reference.setData({reservedBy: user.uid});
   }
 }
 
@@ -165,7 +163,8 @@ class FishOptionsView extends StatelessWidget {
   final ViewType _viewType;
 
   // NB: This assumes _fishList != null && _fishList.length > 0.
-  FishOptionsView(this._fishList, this._viewType, this.onAddedCallback, this.onRemovedCallback);
+  FishOptionsView(this._fishList, this._viewType, this.onAddedCallback,
+      this.onRemovedCallback);
 
   @override
   Widget build(BuildContext context) {
@@ -177,8 +176,8 @@ class FishOptionsView extends StatelessWidget {
           return ProfileCard(
               fishOfInterest,
               _viewType,
-                  () => onAddedCallback(fishOfInterest),
-                  () => onRemovedCallback(fishOfInterest),
+              () => onAddedCallback(fishOfInterest),
+              () => onRemovedCallback(fishOfInterest),
               isReserved);
         },
         dismissedCallback: (int card, DismissDirection direction) =>
@@ -195,7 +194,6 @@ class FishOptionsView extends StatelessWidget {
     }
     //_undoData = fishOfInterest;
   }
-
 }
 
 class ProfileCard extends StatelessWidget {
