@@ -36,14 +36,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance.collection('profiles').snapshots,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          List<DocumentSnapshot> documents = snapshot.data?.documents ?? [];
-          List<FishData> fish = documents.map((DocumentSnapshot snapshot) {
-            return FishData.parseData(snapshot);
-          }).toList();
-          return new FishPage(fish);
-        });
+      stream: Firestore.instance.collection('profiles').snapshots,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        List<DocumentSnapshot> documents = snapshot.data?.documents ?? [];
+        List<FishData> fish = documents.map((DocumentSnapshot snapshot) {
+          return FishData.parseData(snapshot);
+        }).toList();
+        return new FishPage(fish);
+      },
+    );
   }
 }
 
@@ -56,12 +57,13 @@ class ShakeDetector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new StreamBuilder(
-        stream: accelerometerEvents,
-        builder:
-            (BuildContext context, AsyncSnapshot<AccelerometerEvent> snapshot) {
-          if (snapshot.hasData && snapshot.data.y.abs() >= 20) onShake();
-          return child;
-        });
+      stream: accelerometerEvents,
+      builder:
+          (BuildContext context, AsyncSnapshot<AccelerometerEvent> snapshot) {
+        if (snapshot.hasData && snapshot.data.y.abs() >= 20) onShake();
+        return child;
+      },
+    );
   }
 }
 
@@ -137,15 +139,17 @@ class FishPageState extends State<FishPage> {
   }
 
   void _removeFish(FishData fishOfInterest) {
+    fishOfInterest.reservedBy = null;
     DocumentReference reference =
         Firestore.instance.collection('profiles').document(fishOfInterest.id);
-    reference.setData({reservedBy: null});
+    reference.setData(fishOfInterest.serialize());
   }
 
   void _reserveFish(FishData fishOfInterest) {
+    fishOfInterest.reservedBy = user.uid;
     DocumentReference reference =
         Firestore.instance.collection('profiles').document(fishOfInterest.id);
-    reference.setData({reservedBy: user.uid});
+    reference.setData(fishOfInterest.serialize());
   }
 }
 
