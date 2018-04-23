@@ -9,6 +9,7 @@ dependencies:
   device_info: '^0.2.0'
   audioplayer: '^0.4.0'
   path_provider: '^0.4.0'
+  firebase_auth: '^0.5.5'
   firebase_storage: '^0.2.2'
   simple_coverflow: '^0.0.6'
   firebase_core: '^0.2.1'
@@ -30,7 +31,9 @@ dev_dependencies:
 flutter:
   assets:
     - assets/fish-silhouette.png
-
+    - assets/background.mp3
+    - assets/dismissed.mp3
+    - assets/saved.mp3
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
