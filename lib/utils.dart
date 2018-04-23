@@ -13,8 +13,8 @@ enum Field {
   name,
   favoriteMusic,
   phValue,
-  profilePicture,
-  reservedBy, // the main profile picture
+  profilePicture, // the main profile picture
+  reservedBy,
 }
 
 class FishData {
