@@ -49,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
       else
         setState(() => _showFab = true);
     });
-    _myData = new FishData(_profile.documentID);
+    _myData = new FishData.data(_profile);
   }
 
   @override
