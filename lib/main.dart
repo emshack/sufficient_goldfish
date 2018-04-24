@@ -46,33 +46,12 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class ShakeDetector extends StatelessWidget {
-  ShakeDetector({this.onShake, this.child});
-
-  final VoidCallback onShake;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return new StreamBuilder(
-      stream: accelerometerEvents,
-      builder:
-          (BuildContext context, AsyncSnapshot<AccelerometerEvent> snapshot) {
-        if (snapshot.hasData && snapshot.data.y.abs() >= 20) {
-          new Future<void>.delayed(Duration.zero).then((_) => onShake());
-        }
-        return child;
-      },
-    );
-  }
-}
-
 enum ViewType { available, reserved }
 
 class FishPage extends StatefulWidget {
-  FishPage(this.allFish);
-
   final List<FishData> allFish;
+
+  FishPage(this.allFish);
 
   @override
   State<FishPage> createState() => FishPageState();
@@ -83,6 +62,20 @@ class FishPageState extends State<FishPage> {
   ViewType _viewType = ViewType.available;
 
   @override
+  initState() {
+    super.initState();
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      if (event.y.abs() >= 20 && _undoData != null) {
+        // Shake-to-undo last action.
+        if (_viewType == ViewType.reserved) {
+          _reserveFish(_undoData);
+          _undoData = null;
+        }
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<FishData> filteredFish = widget.allFish.where((FishData data) {
       if (_viewType == ViewType.available) {
@@ -91,19 +84,7 @@ class FishPageState extends State<FishPage> {
         return data.reservedBy == user.uid;
       }
     }).toList();
-    return new ShakeDetector(
-      onShake: () {
-        if (_undoData != null) {
-          // Shake-to-undo last action.
-          if (_viewType == ViewType.available) {
-            _removeFish(_undoData);
-          } else {
-            _reserveFish(_undoData);
-          }
-          _undoData = null;
-        }
-      },
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: new Text('Sufficient Goldfish'),
         ),
@@ -111,7 +92,6 @@ class FishPageState extends State<FishPage> {
           currentIndex: _viewType == ViewType.available ? 0 : 1,
           onTap: (int index) {
             setState(() {
-              _undoData = null;
               _viewType = index == 0 ? ViewType.available : ViewType.reserved;
             });
           },
@@ -130,8 +110,7 @@ class FishPageState extends State<FishPage> {
                   colors: [Colors.blue, Colors.lightBlueAccent])),
           child: FishOptionsView(filteredFish, _viewType, _reserveFish, _removeFish),
         ),
-      ),
-    );
+      );
   }
 
   void _removeFish(FishData fishOfInterest) {
@@ -144,7 +123,6 @@ class FishPageState extends State<FishPage> {
 
   void _reserveFish(FishData fishOfInterest) {
     setState(() {
-      _undoData = fishOfInterest;
       fishOfInterest.reservedBy = user.uid;
     });
     fishOfInterest.save();
@@ -188,12 +166,6 @@ class FishOptionsView extends StatelessWidget {
       onRemovedCallback(fishOfInterest);
     }
   }
-
-  /*void _rejectFish(DocumentSnapshot fishOfInterest) {
-    var fishData = new FishData.parseData(fishOfInterest);
-    fishData.addRejectedBy(widget.deviceId);
-    fishOfInterest.reference.setData(fishData.serialize());
-  }*/
 }
 
 class ProfileCard extends StatelessWidget {

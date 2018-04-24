@@ -23,7 +23,6 @@ class FishData {
   String name;
   String favoriteMusic;
   String favoritePh;
-  List rejectedBy;
   String reservedBy;
   final String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
@@ -37,7 +36,6 @@ class FishData {
       this.favoritePh,
       this.profilePicture,
       this.reservedBy,
-      this.rejectedBy,
       this.reference]) {
     // Set these rather than using the default value because Firebase returns
     // null if the value is not specified.
@@ -45,8 +43,6 @@ class FishData {
     this.favoriteMusic ??= 'Blubstep';
     this.favoritePh ??= '7.0';
     this.profilePicture ??= defaultImage;
-    this.rejectedBy ??= [];
-    this.rejectedBy = new List.from(rejectedBy);
   }
 
   factory FishData.parseData(DocumentSnapshot document) => FishData.data(
@@ -56,7 +52,6 @@ class FishData {
       document.data[Field.phValue.toString()],
       document.data[Field.profilePicture.toString()],
       document.data[Field.reservedBy.toString()],
-      document.data['rejectedBy'],
       document.reference);
 
   void save() {
@@ -71,11 +66,8 @@ class FishData {
       Field.favoriteMusic.toString(): favoriteMusic,
       Field.phValue.toString(): favoritePh,
       Field.reservedBy.toString(): reservedBy,
-      'reservedBy': reservedBy,
     };
   }
-
-  addRejectedBy(String identifier) => rejectedBy.add(identifier);
 }
 
 class AudioTools {
