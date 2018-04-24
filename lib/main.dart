@@ -58,7 +58,9 @@ class ShakeDetector extends StatelessWidget {
       stream: accelerometerEvents,
       builder:
           (BuildContext context, AsyncSnapshot<AccelerometerEvent> snapshot) {
-        if (snapshot.hasData && snapshot.data.y.abs() >= 20) onShake();
+        if (snapshot.hasData && snapshot.data.y.abs() >= 20) {
+          new Future<void>.delayed(Duration.zero).then((_) => onShake());
+        }
         return child;
       },
     );
@@ -109,6 +111,7 @@ class FishPageState extends State<FishPage> {
           currentIndex: _viewType == ViewType.available ? 0 : 1,
           onTap: (int index) {
             setState(() {
+              _undoData = null;
               _viewType = index == 0 ? ViewType.available : ViewType.reserved;
             });
           },
@@ -133,6 +136,7 @@ class FishPageState extends State<FishPage> {
 
   void _removeFish(FishData fishOfInterest) {
     setState(() {
+      _undoData = fishOfInterest;
       fishOfInterest.reservedBy = null;
     });
     fishOfInterest.save();
@@ -140,6 +144,7 @@ class FishPageState extends State<FishPage> {
 
   void _reserveFish(FishData fishOfInterest) {
     setState(() {
+      _undoData = fishOfInterest;
       fishOfInterest.reservedBy = user.uid;
     });
     fishOfInterest.save();
@@ -182,7 +187,6 @@ class FishOptionsView extends StatelessWidget {
       // Write this fish back to the list of available fish in Firebase.
       onRemovedCallback(fishOfInterest);
     }
-    //_undoData = fishOfInterest;
   }
 
   /*void _rejectFish(DocumentSnapshot fishOfInterest) {
