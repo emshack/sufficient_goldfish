@@ -8,8 +8,7 @@ import 'package:sensors/sensors.dart';
 
 import 'utils.dart';
 
-const backgroundAudio = 'background.mp3';
-const dismissedAudio = 'dismissed.mp3';
+const backgroundAudio = 'background.wav';
 const savedAudio = 'saved.mp3';
 
 AudioTools audioTools = AudioTools();
@@ -20,13 +19,10 @@ Future<void> main() async {
   audioTools.loadFile(backgroundAudio).then((_) {
     audioTools.initAudioLoop(backgroundAudio);
   });
-  audioTools.loadFile(dismissedAudio);
   audioTools.loadFile(savedAudio);
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
-    theme: ThemeData(
-        primarySwatch:
-            Colors.indigo), // switch to ThemeData.day() when available
+    theme: ThemeData(primarySwatch: Colors.indigo),
     home: MyApp(),
     debugShowCheckedModeBanner: false,
   ));
@@ -162,7 +158,6 @@ class FishOptionsView extends StatelessWidget {
   }
 
   onDismissed(int card, _) {
-    audioTools.playAudio(dismissedAudio);
     FishData fishOfInterest = fish[card];
     if (viewType == ViewType.reserved) {
       // Write this fish back to the list of available fish in Firebase.

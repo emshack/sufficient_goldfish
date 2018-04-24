@@ -199,7 +199,9 @@ class SimpleProfile extends StatelessWidget {
   }
 
   Widget scrollableProfilePictures(bool editable, FishData fishData) {
-    return new ProfilePicture(editable,
-        (value) => fishData.profilePicture = value, Uri.parse(fishData.profilePicture));
+    return new ProfilePicture(
+        editable,
+        (value) => fishData.profilePicture = value,
+        Uri.parse(fishData.profilePicture));
   }
 }
