@@ -24,7 +24,9 @@ Future<void> main() async {
   audioTools.loadFile(savedAudio);
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
-    theme: ThemeData(primarySwatch: Colors.indigo), // switch to ThemeData.day() when available
+    theme: ThemeData(
+        primarySwatch:
+            Colors.indigo), // switch to ThemeData.day() when available
     home: MyApp(),
     debugShowCheckedModeBanner: false,
   ));
@@ -85,32 +87,33 @@ class FishPageState extends State<FishPage> {
       }
     }).toList();
     return Scaffold(
-        appBar: AppBar(
-          title: new Text('Sufficient Goldfish'),
-        ),
-        bottomNavigationBar: new BottomNavigationBar(
-          currentIndex: _viewType == ViewType.available ? 0 : 1,
-          onTap: (int index) {
-            setState(() {
-              _viewType = index == 0 ? ViewType.available : ViewType.reserved;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-                title: Text('Available'), icon: Icon(Icons.home)),
-            BottomNavigationBarItem(
-                title: Text('Reserved'), icon: Icon(Icons.shopping_basket)),
-          ],
-        ),
-        body: Container(
-          decoration: new BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  colors: [Colors.blue, Colors.lightBlueAccent])),
-          child: FishOptionsView(filteredFish, _viewType, _reserveFish, _removeFish),
-        ),
-      );
+      appBar: AppBar(
+        title: new Text('Sufficient Goldfish'),
+      ),
+      bottomNavigationBar: new BottomNavigationBar(
+        currentIndex: _viewType == ViewType.available ? 0 : 1,
+        onTap: (int index) {
+          setState(() {
+            _viewType = index == 0 ? ViewType.available : ViewType.reserved;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+              title: Text('Available'), icon: Icon(Icons.home)),
+          BottomNavigationBarItem(
+              title: Text('Reserved'), icon: Icon(Icons.shopping_basket)),
+        ],
+      ),
+      body: Container(
+        decoration: new BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                colors: [Colors.blue, Colors.lightBlueAccent])),
+        child:
+            FishOptionsView(filteredFish, _viewType, _reserveFish, _removeFish),
+      ),
+    );
   }
 
   void _removeFish(FishData fishOfInterest) {
@@ -135,8 +138,8 @@ class FishOptionsView extends StatelessWidget {
   final Function onRemovedCallback;
   final ViewType viewType;
 
-  FishOptionsView(this.fish, this.viewType, this.onAddedCallback,
-      this.onRemovedCallback);
+  FishOptionsView(
+      this.fish, this.viewType, this.onAddedCallback, this.onRemovedCallback);
 
   @override
   Widget build(BuildContext context) {
