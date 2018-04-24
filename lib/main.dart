@@ -63,12 +63,11 @@ class FishPageState extends State<FishPage> {
   initState() {
     super.initState();
     accelerometerEvents.listen((AccelerometerEvent event) {
-      if (event.y.abs() >= 20 && _undoData != null) {
-        // Shake-to-undo last action.
-        if (_viewType == ViewType.reserved) {
-          _reserveFish(_undoData);
-          _undoData = null;
-        }
+      if (event.y.abs() >= 20 &&
+          _undoData != null &&
+          _viewType == ViewType.reserved) {
+        _reserveFish(_undoData);
+        _undoData = null;
       }
     });
   }
@@ -142,7 +141,8 @@ class FishOptionsView extends StatelessWidget {
     return CoverFlow(
         dismissibleItems: viewType == ViewType.reserved,
         itemBuilder: (_, int index) {
-          var fishOfInterest = fish[index];
+          var fishOfInterest =
+              fish.isEmpty ? new FishData.data(null) : fish[index];
           var isReserved = fishOfInterest.reservedBy == user.uid;
           return ProfileCard(
             fishOfInterest,
@@ -159,10 +159,7 @@ class FishOptionsView extends StatelessWidget {
 
   onDismissed(int card, _) {
     FishData fishOfInterest = fish[card];
-    if (viewType == ViewType.reserved) {
-      // Write this fish back to the list of available fish in Firebase.
-      onRemovedCallback(fishOfInterest);
-    }
+    onRemovedCallback(fishOfInterest);
   }
 }
 
@@ -182,11 +179,11 @@ class ProfileCard extends StatelessWidget {
       color: isReserved && viewType == ViewType.available
           ? Colors.white30
           : Colors.white,
-      child: Column(children: _getCardContents()),
+      child: _getCardContents(),
     );
   }
 
-  List<Widget> _getCardContents() {
+  Widget _getCardContents() {
     List<Widget> contents = <Widget>[
       _showProfilePicture(data),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
@@ -204,14 +201,14 @@ class ProfileCard extends StatelessWidget {
                 }))
       ]));
     }
-    return contents;
+    return Column(children: contents);
   }
 
   Widget _showData(String name, String music, String pH) {
     var subHeadingStyle =
         TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0);
     Widget nameWidget = Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(8.0),
         child: Text(
           name,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
@@ -220,11 +217,7 @@ class ProfileCard extends StatelessWidget {
     Text musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
     Text phWidget = Text('Favorite pH: $pH', style: subHeadingStyle);
     List<Widget> children = [nameWidget, musicWidget, phWidget];
-    return Column(
-        children: children
-            .map((child) =>
-                Padding(child: child, padding: EdgeInsets.only(bottom: 8.0)))
-            .toList());
+    return Column(children: children);
   }
 
   Widget _showProfilePicture(FishData fishData) {
