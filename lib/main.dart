@@ -133,7 +133,9 @@ class ProfileCard extends StatelessWidget {
             child: FlatButton.icon(
                 color: Colors.green,
                 icon: Icon( Icons.check),
-                label: Text('Add')))
+                label: Text('Add'),
+                onPressed: null,
+            ))
       ]));
     }
     return contents;
