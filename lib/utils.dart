@@ -46,7 +46,7 @@ class FishData {
 
   Map<String, dynamic> serialize() {
     return {
-      'profilePicture': profilePicture.toString(),
+      'profilePicture': profilePicture,
       'name': name,
       'favoriteMusic': favoriteMusic,
       'phValue': favoritePh,
