@@ -16,10 +16,6 @@ FirebaseUser user;
 
 Future<void> main() async {
   user = await FirebaseAuth.instance.signInAnonymously();
-  audioTools.loadFile(backgroundAudio).then((_) {
-    audioTools.initAudioLoop(backgroundAudio);
-  });
-  audioTools.loadFile(savedAudio);
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
     theme: ThemeData(primarySwatch: Colors.indigo),
@@ -31,16 +27,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('profiles').snapshots,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        List<DocumentSnapshot> documents = snapshot.data?.documents ?? [];
-        List<FishData> fish = documents.map((DocumentSnapshot snapshot) {
-          return FishData.parseData(snapshot);
-        }).toList();
-        return new FishPage(fish);
-      },
-    );
+    return new FishPage([]);
   }
 }
 
@@ -62,37 +49,17 @@ class FishPageState extends State<FishPage> {
   @override
   initState() {
     super.initState();
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      if (event.y.abs() >= 20 && _undoData != null) {
-        // Shake-to-undo last action.
-        if (_viewType == ViewType.reserved) {
-          _reserveFish(_undoData);
-          _undoData = null;
-        }
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    List<FishData> filteredFish = widget.allFish.where((FishData data) {
-      if (_viewType == ViewType.available) {
-        return data.reservedBy == null || data.reservedBy == user.uid;
-      } else {
-        return data.reservedBy == user.uid;
-      }
-    }).toList();
+    List<FishData> filteredFish = [];
     return Scaffold(
       appBar: AppBar(
         title: new Text('Sufficient Goldfish'),
       ),
       bottomNavigationBar: new BottomNavigationBar(
-        currentIndex: _viewType == ViewType.available ? 0 : 1,
-        onTap: (int index) {
-          setState(() {
-            _viewType = index == 0 ? ViewType.available : ViewType.reserved;
-          });
-        },
+        currentIndex:  0,
         type: BottomNavigationBarType.fixed,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -101,31 +68,13 @@ class FishPageState extends State<FishPage> {
               title: Text('Reserved'), icon: Icon(Icons.shopping_basket)),
         ],
       ),
-      body: Container(
-        decoration: new BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                colors: [Colors.blue, Colors.lightBlueAccent])),
-        child:
-            FishOptionsView(filteredFish, _viewType, _reserveFish, _removeFish),
-      ),
+      body: Container(),
     );
   }
 
-  void _removeFish(FishData fishOfInterest) {
-    setState(() {
-      _undoData = fishOfInterest;
-      fishOfInterest.reservedBy = null;
-    });
-    fishOfInterest.save();
-  }
+  void _removeFish(FishData fishOfInterest) {}
 
-  void _reserveFish(FishData fishOfInterest) {
-    setState(() {
-      fishOfInterest.reservedBy = user.uid;
-    });
-    fishOfInterest.save();
-  }
+  void _reserveFish(FishData fishOfInterest) {}
 }
 
 class FishOptionsView extends StatelessWidget {
@@ -139,30 +88,17 @@ class FishOptionsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CoverFlow(
-        dismissibleItems: viewType == ViewType.reserved,
-        itemBuilder: (_, int index) {
-          var fishOfInterest = fish[index];
-          var isReserved = fishOfInterest.reservedBy == user.uid;
-          return ProfileCard(
-            fishOfInterest,
-            viewType,
-            () => onAddedCallback(fishOfInterest),
-            () => onRemovedCallback(fishOfInterest),
-            isReserved,
-          );
-        },
-        dismissedCallback: (int card, DismissDirection direction) =>
-            onDismissed(card, direction),
-        itemCount: fish.length);
+    var fishOfInterest = new FishData.data(null);
+    return ProfileCard(
+      fishOfInterest,
+      viewType,
+      () => onAddedCallback(fishOfInterest),
+      () => onRemovedCallback(fishOfInterest),
+      fishOfInterest.reservedBy == user.uid,
+    );
   }
 
   onDismissed(int card, _) {
-    FishData fishOfInterest = fish[card];
-    if (viewType == ViewType.reserved) {
-      // Write this fish back to the list of available fish in Firebase.
-      onRemovedCallback(fishOfInterest);
-    }
   }
 }
 
@@ -195,13 +131,9 @@ class ProfileCard extends StatelessWidget {
       contents.add(Row(children: [
         Expanded(
             child: FlatButton.icon(
-                color: isReserved ? Colors.red : Colors.green,
-                icon: Icon(isReserved ? Icons.not_interested : Icons.check),
-                label: Text(isReserved ? 'Remove' : 'Add'),
-                onPressed: () {
-                  audioTools.playAudio(savedAudio);
-                  isReserved ? onRemovedCallback() : onAddedCallback();
-                }))
+                color: Colors.green,
+                icon: Icon( Icons.check),
+                label: Text('Add')))
       ]));
     }
     return contents;
@@ -210,29 +142,17 @@ class ProfileCard extends StatelessWidget {
   Widget _showData(String name, String music, String pH) {
     var subHeadingStyle =
         TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0);
-    Widget nameWidget = Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text(
-          name,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
-          textAlign: TextAlign.center,
-        ));
-    Text musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
-    Text phWidget = Text('Favorite pH: $pH', style: subHeadingStyle);
-    List<Widget> children = [nameWidget, musicWidget, phWidget];
-    return Column(
-        children: children
-            .map((child) =>
-                Padding(child: child, padding: EdgeInsets.only(bottom: 8.0)))
-            .toList());
+    var nameWidget = Text(
+      name,
+      style: subHeadingStyle,
+      textAlign: TextAlign.center,
+    );
+    var musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
+    var phWidget = Text('Favorite pH: $pH', style: subHeadingStyle);
+    return Container();
   }
 
   Widget _showProfilePicture(FishData fishData) {
-    return Expanded(
-      child: Image.network(
-        fishData.profilePicture,
-        fit: BoxFit.cover,
-      ),
-    );
+    return Container();
   }
 }

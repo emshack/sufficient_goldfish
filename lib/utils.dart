@@ -41,7 +41,6 @@ class FishData {
       document.data['reservedBy']);
 
   void save() {
-    reference.setData(serialize());
   }
 
   Map<String, dynamic> serialize() {
@@ -71,15 +70,8 @@ class AudioTools {
   }
 
   void initAudioLoop(String name) {
-    // restart audio if it has finished
-    _audioPlayer.setCompletionHandler(() {
-      playAudio(name);
-    });
-    playAudio(name);
   }
 
   Future<Null> playAudio(String name) async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(_nameToPath[name], isLocal: true);
   }
 }
