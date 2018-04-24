@@ -53,13 +53,18 @@ class FishPageState extends State<FishPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<FishData> filteredFish = [];
+    List<FishData> filteredFish = widget.allFish;
     return Scaffold(
       appBar: AppBar(
         title: new Text('Sufficient Goldfish'),
       ),
       bottomNavigationBar: new BottomNavigationBar(
-        currentIndex:  0,
+        currentIndex: _viewType == ViewType.available ? 0 : 1,
+        onTap: (int index) {
+          setState(() {
+            _viewType = index == 0 ? ViewType.available : ViewType.reserved;
+          });
+        },
         type: BottomNavigationBarType.fixed,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -98,8 +103,7 @@ class FishOptionsView extends StatelessWidget {
     );
   }
 
-  onDismissed(int card, _) {
-  }
+  onDismissed(int card, _) {}
 }
 
 class ProfileCard extends StatelessWidget {
@@ -118,11 +122,11 @@ class ProfileCard extends StatelessWidget {
       color: isReserved && viewType == ViewType.available
           ? Colors.white30
           : Colors.white,
-      child: Column(children: _getCardContents()),
+      child: _getCardContents(),
     );
   }
 
-  List<Widget> _getCardContents() {
+  Widget _getCardContents() {
     List<Widget> contents = <Widget>[
       _showProfilePicture(data),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
@@ -131,14 +135,14 @@ class ProfileCard extends StatelessWidget {
       contents.add(Row(children: [
         Expanded(
             child: FlatButton.icon(
-                color: Colors.green,
-                icon: Icon( Icons.check),
-                label: Text('Add'),
-                onPressed: null,
-            ))
+          color: Colors.green,
+          icon: Icon(Icons.check),
+          label: Text('Add'),
+          onPressed: null,
+        ))
       ]));
     }
-    return contents;
+    return Column(children: contents);
   }
 
   Widget _showData(String name, String music, String pH) {

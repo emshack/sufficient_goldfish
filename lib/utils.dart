@@ -40,8 +40,7 @@ class FishData {
       document.data['profilePicture'],
       document.data['reservedBy']);
 
-  void save() {
-  }
+  void save() {}
 
   Map<String, dynamic> serialize() {
     return {
@@ -69,9 +68,7 @@ class AudioTools {
     if (await file.exists()) _nameToPath[name] = file.path;
   }
 
-  void initAudioLoop(String name) {
-  }
+  void initAudioLoop(String name) {}
 
-  Future<Null> playAudio(String name) async {
-  }
+  Future<Null> playAudio(String name) async {}
 }
