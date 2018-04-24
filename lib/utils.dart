@@ -41,6 +41,7 @@ class FishData {
       document.data['reservedBy']);
 
   void save() {
+    reference.setData(serialize());
   }
 
   Map<String, dynamic> serialize() {

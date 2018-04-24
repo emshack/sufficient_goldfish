@@ -27,7 +27,16 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new FishPage([]);
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('profiles').snapshots,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        List<DocumentSnapshot> documents = snapshot.data?.documents ?? [];
+        List<FishData> fish = documents.map((DocumentSnapshot snapshot) {
+          return FishData.parseData(snapshot);
+        }).toList();
+        return new FishPage(fish);
+      }
+    );
   }
 }
 
@@ -53,7 +62,11 @@ class FishPageState extends State<FishPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<FishData> filteredFish = [];
+    List<FishData> filteredFish = widget.allFish.where((FishData data) {
+      if (_viewType == ViewType.available) {
+        return data.reservedBy == null || data.reservedBy == user.uid;
+      }
+    }).toList();
     return Scaffold(
       appBar: AppBar(
         title: new Text('Sufficient Goldfish'),
@@ -68,13 +81,23 @@ class FishPageState extends State<FishPage> {
               title: Text('Reserved'), icon: Icon(Icons.shopping_basket)),
         ],
       ),
-      body: Container(),
+      body: Container(color: Colors.lightBlueAccent, child: FishOptionsView(filteredFish, _viewType, _reserveFish, _removeFish)),
     );
   }
 
-  void _removeFish(FishData fishOfInterest) {}
+  void _removeFish(FishData fishOfInterest) {
+    setState(() {
+      fishOfInterest.reservedBy = null;
+    });
+    fishOfInterest.save();
+  }
 
-  void _reserveFish(FishData fishOfInterest) {}
+  void _reserveFish(FishData fishOfInterest) {
+    setState(() {
+      fishOfInterest.reservedBy = user.uid;
+    });
+    fishOfInterest.save();
+  }
 }
 
 class FishOptionsView extends StatelessWidget {
@@ -88,13 +111,18 @@ class FishOptionsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var fishOfInterest = new FishData.data(null);
-    return ProfileCard(
-      fishOfInterest,
-      viewType,
-      () => onAddedCallback(fishOfInterest),
-      () => onRemovedCallback(fishOfInterest),
-      fishOfInterest.reservedBy == user.uid,
+    return CoverFlow(
+      itemBuilder: (_, int index) {
+        var fishOfInterest = fish.isEmpty ? new FishData.data(null) : fish[index];
+        return ProfileCard(
+          fishOfInterest,
+          viewType,
+              () => onAddedCallback(fishOfInterest),
+              () => onRemovedCallback(fishOfInterest),
+          fishOfInterest.reservedBy == user.uid,
+        );
+      },
+      itemCount: fish.length
     );
   }
 
@@ -118,11 +146,11 @@ class ProfileCard extends StatelessWidget {
       color: isReserved && viewType == ViewType.available
           ? Colors.white30
           : Colors.white,
-      child: Column(children: _getCardContents()),
+      child: _getCardContents(),
     );
   }
 
-  List<Widget> _getCardContents() {
+  Widget _getCardContents() {
     List<Widget> contents = <Widget>[
       _showProfilePicture(data),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
@@ -131,30 +159,43 @@ class ProfileCard extends StatelessWidget {
       contents.add(Row(children: [
         Expanded(
             child: FlatButton.icon(
-                color: Colors.green,
-                icon: Icon( Icons.check),
-                label: Text('Add'),
-                onPressed: null,
+                color: isReserved ? Colors.red : Colors.green,
+                icon: Icon( isReserved ? Icons.not_interested : Icons.check),
+                label: Text(isReserved ? 'Remove' : 'Add'),
+                onPressed: () {
+                  isReserved ? onRemovedCallback() : onAddedCallback();
+                },
             ))
       ]));
     }
-    return contents;
+    return Column(children: contents);
   }
 
   Widget _showData(String name, String music, String pH) {
     var subHeadingStyle =
         TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0);
-    var nameWidget = Text(
-      name,
-      style: subHeadingStyle,
-      textAlign: TextAlign.center,
+    var nameWidget = new Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        name,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
+        textAlign: TextAlign.center,
+      ),
     );
     var musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
     var phWidget = Text('Favorite pH: $pH', style: subHeadingStyle);
-    return Container();
+    List<Widget> children = [nameWidget, musicWidget, phWidget];
+    return Column(
+      children: children
+    );
   }
 
   Widget _showProfilePicture(FishData fishData) {
-    return Container();
+    return Expanded(
+      child: Image.network(
+        fishData.profilePicture,
+        fit: BoxFit.cover,
+      )
+    );
   }
 }
