@@ -101,10 +101,7 @@ class FishPageState extends State<FishPage> {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                colors: [Colors.blue, Colors.lightBlueAccent])),
+        color: Colors.lightBlueAccent,
         child: FishOptions(filteredFish, _viewType, _reserveFish, _removeFish),
       ),
     );
