@@ -9,14 +9,14 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FishData {
-  String profilePicture;
+  final DocumentReference reference;
   String name;
   String favoriteMusic;
   String favoritePh;
+  String profilePicture;
   String reservedBy;
   final String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
-  final DocumentReference reference;
 
   FishData.data(this.reference,
       [this.name,
@@ -44,10 +44,10 @@ class FishData {
 
   Map<String, dynamic> serialize() {
     return {
-      'profilePicture': profilePicture,
       'name': name,
       'favoriteMusic': favoriteMusic,
       'phValue': favoritePh,
+      'profilePicture': profilePicture,
       'reservedBy': reservedBy,
     };
   }
