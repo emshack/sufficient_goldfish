@@ -111,7 +111,7 @@ class FishPageState extends State<FishPage> {
   }
 
   void _removeFish(FishData fishOfInterest) {
-    _undoData = fishOfInterest;
+    setState(() => _undoData = fishOfInterest);
     fishOfInterest.reservedBy = null;
     fishOfInterest.save();
   }
