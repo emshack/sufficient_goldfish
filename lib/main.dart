@@ -82,13 +82,13 @@ class FishPageState extends State<FishPage> {
   void _reserveFish(FishData fishOfInterest) {}
 }
 
-class FishOptionsView extends StatelessWidget {
+class FishOptions extends StatelessWidget {
   final List<FishData> fish;
   final Function onAddedCallback;
   final Function onRemovedCallback;
   final ViewType viewType;
 
-  FishOptionsView(
+  FishOptions(
       this.fish, this.viewType, this.onAddedCallback, this.onRemovedCallback);
 
   @override
