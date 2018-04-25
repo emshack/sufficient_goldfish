@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
           List<FishData> fish = documents.map((DocumentSnapshot snapshot) {
             return FishData.parseData(snapshot);
           }).toList();
-          return new FishPage(fish);
+          return FishPage(fish);
         });
   }
 }
@@ -64,9 +64,9 @@ class FishPageState extends State<FishPage> {
     List<FishData> filteredFish = widget.allFish;
     return Scaffold(
       appBar: AppBar(
-        title: new Text('Sufficient Goldfish'),
+        title: Text('Sufficient Goldfish'),
       ),
-      bottomNavigationBar: new BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _viewType == ViewType.available ? 0 : 1,
         onTap: (int index) {
           setState(() {
@@ -114,7 +114,7 @@ class FishOptionsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var fishOfInterest = fish.isEmpty ? new FishData.data(null) : fish[0];
+    var fishOfInterest = fish.isEmpty ? FishData.data(null) : fish[0];
     return ProfileCard(
       fishOfInterest,
       viewType,
@@ -171,7 +171,7 @@ class ProfileCard extends StatelessWidget {
   Widget _showData(String name, String music, String pH) {
     var subHeadingStyle =
         TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0);
-    var nameWidget = new Padding(
+    var nameWidget = Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
         name,
