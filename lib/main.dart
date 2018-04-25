@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         List<FishData> fish = documents.map((DocumentSnapshot snapshot) {
           return FishData.parseData(snapshot);
         }).toList();
-        return new FishPage(fish);
+        return FishPage(fish);
       },
     );
   }
@@ -83,9 +83,9 @@ class FishPageState extends State<FishPage> {
     }).toList();
     return Scaffold(
       appBar: AppBar(
-        title: new Text('Sufficient Goldfish'),
+        title: Text('Sufficient Goldfish'),
       ),
-      bottomNavigationBar: new BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _viewType == ViewType.available ? 0 : 1,
         onTap: (int index) {
           setState(() {
@@ -101,7 +101,7 @@ class FishPageState extends State<FishPage> {
         ],
       ),
       body: Container(
-        decoration: new BoxDecoration(
+        decoration: BoxDecoration(
             gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 colors: [Colors.blue, Colors.lightBlueAccent])),
@@ -141,8 +141,7 @@ class FishOptionsView extends StatelessWidget {
     return CoverFlow(
         dismissibleItems: viewType == ViewType.reserved,
         itemBuilder: (_, int index) {
-          var fishOfInterest =
-              fish.isEmpty ? new FishData.data(null) : fish[index];
+          var fishOfInterest = fish.isEmpty ? FishData.data(null) : fish[index];
           var isReserved = fishOfInterest.reservedBy == user.uid;
           return ProfileCard(
             fishOfInterest,
