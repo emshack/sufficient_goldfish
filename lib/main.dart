@@ -83,8 +83,8 @@ class FishPageState extends State<FishPage> {
       ),
       body: Container(
           color: Colors.lightBlueAccent,
-          child: FishOptionsView(
-              filteredFish, _viewType, _reserveFish, _removeFish)),
+          child:
+              FishOptions(filteredFish, _viewType, _reserveFish, _removeFish)),
     );
   }
 
@@ -99,13 +99,13 @@ class FishPageState extends State<FishPage> {
   }
 }
 
-class FishOptionsView extends StatelessWidget {
+class FishOptions extends StatelessWidget {
   final List<FishData> fish;
   final Function onAddedCallback;
   final Function onRemovedCallback;
   final ViewType viewType;
 
-  FishOptionsView(
+  FishOptions(
       this.fish, this.viewType, this.onAddedCallback, this.onRemovedCallback);
 
   @override
