@@ -27,7 +27,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new FishPage([]);
+    return FishPage([]);
   }
 }
 
@@ -56,9 +56,9 @@ class FishPageState extends State<FishPage> {
     List<FishData> filteredFish = widget.allFish;
     return Scaffold(
       appBar: AppBar(
-        title: new Text('Sufficient Goldfish'),
+        title: Text('Sufficient Goldfish'),
       ),
-      bottomNavigationBar: new BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _viewType == ViewType.available ? 0 : 1,
         onTap: (int index) {
           setState(() {
@@ -93,7 +93,7 @@ class FishOptionsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var fishOfInterest = new FishData.data(null);
+    var fishOfInterest = FishData.data(null);
     return ProfileCard(
       fishOfInterest,
       viewType,
