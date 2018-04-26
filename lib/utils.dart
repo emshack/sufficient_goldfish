@@ -13,8 +13,8 @@ class FishData {
   String name;
   String favoriteMusic;
   String favoritePh;
-  String profilePicture;
   String reservedBy;
+  String profilePicture;
   final String defaultImage =
       'https://firebasestorage.googleapis.com/v0/b/sufficientgoldfish.appspot.com/o/angelfish-silhouette.png?alt=media&token=76663301-d3d5-4c49-a7ea-db1f163d5c06';
 
@@ -22,8 +22,8 @@ class FishData {
       [this.name,
       this.favoriteMusic,
       this.favoritePh,
-      this.profilePicture,
-      this.reservedBy]) {
+      this.reservedBy,
+      this.profilePicture]) {
     // Set these rather than using the default value because Firebase returns
     // null if the value is not specified.
     this.name ??= 'Frank';
@@ -37,8 +37,8 @@ class FishData {
       document.data['name'],
       document.data['favoriteMusic'],
       document.data['phValue'],
-      document.data['profilePicture'],
-      document.data['reservedBy']);
+      document.data['reservedBy'],
+      document.data['profilePicture']);
 
   void save() {
     reference.setData(serialize());
@@ -56,11 +56,9 @@ class FishData {
 }
 
 class AudioTools {
-  final AudioPlayer _audioPlayer;
+  final AudioPlayer _audioPlayer = AudioPlayer();
   final Map<String, String> _nameToPath = {};
-
-  AudioTools() : _audioPlayer = AudioPlayer();
-
+  
   Future loadFile(String name) async {
     final bytes = await rootBundle.load('assets/$name');
     final dir = await getApplicationDocumentsDirectory();
