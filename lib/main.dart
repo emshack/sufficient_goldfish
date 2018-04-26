@@ -29,11 +29,12 @@ main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder(
       stream: Firestore.instance.collection('profiles').snapshots,
       builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
         var documents = snapshot.data?.documents ?? [];
-        var fish = documents.map((snapshot) => FishData.parseData(snapshot)).toList();
+        var fish =
+            documents.map((snapshot) => FishData.parseData(snapshot)).toList();
         return FishPage(fish);
       },
     );
