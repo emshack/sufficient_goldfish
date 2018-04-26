@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
           var documents = snapshot.data?.documents ?? [];
           var fish = documents
-              .map((DocumentSnapshot snapshot) => FishData.parseData(snapshot))
+              .map((snapshot) => FishData.parseData(snapshot))
               .toList();
           return FishPage(fish);
         });
