@@ -16,9 +16,7 @@ FirebaseUser user;
 
 Future<void> main() async {
   user = await FirebaseAuth.instance.signInAnonymously();
-  audioTools.loadFile(backgroundAudio).then((_) {
-    audioTools.initAudioLoop(backgroundAudio);
-  });
+  audioTools.loadFile(backgroundAudio).then((_) => audioTools.initAudioLoop(backgroundAudio));
   audioTools.loadFile(savedAudio);
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
@@ -145,12 +143,11 @@ class FishOptions extends StatelessWidget {
             isReserved,
           );
         },
-        dismissedCallback: (int card, DismissDirection direction) =>
-            onDismissed(card, direction),
+        dismissedCallback: (int card, _) => onDismissed(card),
         itemCount: fish.length);
   }
 
-  onDismissed(int card, _) {
+  onDismissed(int card) {
     FishData fishOfInterest = fish[card];
     onRemovedCallback(fishOfInterest);
   }
@@ -181,7 +178,7 @@ class ProfileCard extends StatelessWidget {
       children.add(Row(children: [
         Expanded(
             child: FlatButton(
-                padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 15.0),
+                padding: EdgeInsets.symmetric(vertical: 15.0),
                 color: isReserved ? Colors.red : Colors.green,
                 child:
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
