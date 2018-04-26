@@ -25,7 +25,7 @@ main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder(
         stream: Firestore.instance.collection('profiles').snapshots,
         builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
           var documents = snapshot.data?.documents ?? [];
