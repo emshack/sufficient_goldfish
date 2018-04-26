@@ -16,7 +16,9 @@ FirebaseUser user;
 
 Future<void> main() async {
   user = await FirebaseAuth.instance.signInAnonymously();
-  audioTools.loadFile(backgroundAudio).then((_) => audioTools.initAudioLoop(backgroundAudio));
+  audioTools
+      .loadFile(backgroundAudio)
+      .then((_) => audioTools.initAudioLoop(backgroundAudio));
   audioTools.loadFile(savedAudio);
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
