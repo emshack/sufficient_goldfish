@@ -64,7 +64,9 @@ class FishPageState extends State<FishPage> {
     List<FishData> filteredFish = widget.allFish;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sufficient Goldfish'),
+        title: Text(_viewType == ViewType.available
+            ? 'Sufficient Goldfish'
+            : 'Your Reserved Fish'),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _viewType == ViewType.available ? 0 : 1,
@@ -82,7 +84,7 @@ class FishPageState extends State<FishPage> {
         ],
       ),
       body: Container(
-          color: Colors.lightBlueAccent,
+          color: Colors.indigo[900],
           child:
               FishOptions(filteredFish, _viewType, _reserveFish, _removeFish)),
     );
@@ -135,12 +137,7 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: isReserved && viewType == ViewType.available
-          ? Colors.white30
-          : Colors.white,
-      child: _getCardContents(),
-    );
+    return Card(child: _getCardContents());
   }
 
   Widget _getCardContents() {
@@ -148,20 +145,25 @@ class ProfileCard extends StatelessWidget {
       _showProfilePicture(data),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
+    List<Widget> children = _wrapInScrimAndExpand(Column(children: contents));
     if (viewType == ViewType.available) {
-      contents.add(Row(children: [
+      children.add(Row(children: [
         Expanded(
-            child: FlatButton.icon(
+            child: FlatButton(
+          padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 15.0),
           color: isReserved ? Colors.red : Colors.green,
-          icon: Icon(isReserved ? Icons.not_interested : Icons.check),
-          label: Text(isReserved ? 'Remove' : 'Add'),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(isReserved ? Icons.not_interested : Icons.check),
+            Text(isReserved ? 'Remove' : 'Add',
+                style: TextStyle(fontSize: 16.0))
+          ]),
           onPressed: () {
             isReserved ? onRemovedCallback() : onAddedCallback();
           },
         ))
       ]));
     }
-    return Column(children: contents);
+    return Column(children: children);
   }
 
   Widget _showData(String name, String music, String pH) {
@@ -176,7 +178,9 @@ class ProfileCard extends StatelessWidget {
       ),
     );
     var musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
-    var phWidget = Text('Favorite pH: $pH', style: subHeadingStyle);
+    var phWidget = Padding(
+        child: Text('Favorite pH: $pH', style: subHeadingStyle),
+        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 16.0));
     List<Widget> children = [nameWidget, musicWidget, phWidget];
     return Column(children: children);
   }
@@ -187,5 +191,16 @@ class ProfileCard extends StatelessWidget {
       fishData.profilePicture,
       fit: BoxFit.cover,
     ));
+  }
+
+  List<Widget> _wrapInScrimAndExpand(Widget child) {
+    if (isReserved && viewType == ViewType.available) {
+      child = Container(
+          foregroundDecoration:
+              BoxDecoration(color: Color.fromARGB(150, 30, 30, 30)),
+          child: child);
+    }
+    child = Expanded(child: Row(children: [Expanded(child: child)]));
+    return [child];
   }
 }
