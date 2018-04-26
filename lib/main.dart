@@ -13,7 +13,6 @@ var audioTools = AudioTools();
 FirebaseUser user;
 
 main() async {
-  user = await FirebaseAuth.instance.signInAnonymously();
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
     theme: ThemeData(primarySwatch: Colors.indigo),
@@ -41,7 +40,6 @@ class FishPage extends StatefulWidget {
 }
 
 class FishPageState extends State<FishPage> {
-  FishData _undoData;
   ViewType _viewType = ViewType.available;
 
   @override
