@@ -56,7 +56,9 @@ class FishPageState extends State<FishPage> {
     List<FishData> filteredFish = widget.allFish;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sufficient Goldfish'),
+        title: Text(_viewType == ViewType.available
+            ? 'Sufficient Goldfish'
+            : 'Your Reserved Fish'),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _viewType == ViewType.available ? 0 : 1,
@@ -118,12 +120,7 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: isReserved && viewType == ViewType.available
-          ? Colors.white30
-          : Colors.white,
-      child: _getCardContents(),
-    );
+    return Card(child: _getCardContents());
   }
 
   Widget _getCardContents() {
@@ -131,18 +128,22 @@ class ProfileCard extends StatelessWidget {
       _showProfilePicture(data),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
+    List<Widget> children = _wrapInScrimAndExpand(Column(children: contents));
     if (viewType == ViewType.available) {
-      contents.add(Row(children: [
+      children.add(Row(children: [
         Expanded(
-            child: FlatButton.icon(
+            child: FlatButton(
+          padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 15.0),
           color: Colors.green,
-          icon: Icon(Icons.check),
-          label: Text('Add'),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.check),
+            Text('Add', style: TextStyle(fontSize: 16.0))
+          ]),
           onPressed: null,
         ))
       ]));
     }
-    return Column(children: contents);
+    return Column(children: children);
   }
 
   Widget _showData(String name, String music, String pH) {
@@ -154,11 +155,24 @@ class ProfileCard extends StatelessWidget {
       textAlign: TextAlign.center,
     );
     var musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
-    var phWidget = Text('Favorite pH: $pH', style: subHeadingStyle);
+    var phWidget = Padding(
+        child: Text('Favorite pH: $pH', style: subHeadingStyle),
+        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 16.0));
     return Container();
   }
 
   Widget _showProfilePicture(FishData fishData) {
     return Container();
+  }
+
+  List<Widget> _wrapInScrimAndExpand(Widget child) {
+    if (isReserved && viewType == ViewType.available) {
+      child = Container(
+          foregroundDecoration:
+              BoxDecoration(color: Color.fromARGB(150, 30, 30, 30)),
+          child: child);
+    }
+    child = Expanded(child: Row(children: [Expanded(child: child)]));
+    return [child];
   }
 }
