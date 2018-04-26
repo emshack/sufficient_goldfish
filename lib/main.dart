@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +9,10 @@ import 'utils.dart';
 const backgroundAudio = 'background.wav';
 const savedAudio = 'saved.mp3';
 
-AudioTools audioTools = AudioTools();
+var audioTools = AudioTools();
 FirebaseUser user;
 
-Future<void> main() async {
+main() async {
   user = await FirebaseAuth.instance.signInAnonymously();
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
@@ -53,7 +51,7 @@ class FishPageState extends State<FishPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<FishData> filteredFish = widget.allFish;
+    var filteredFish = widget.allFish;
     return Scaffold(
       appBar: AppBar(
         title: Text(_viewType == ViewType.available
@@ -68,7 +66,7 @@ class FishPageState extends State<FishPage> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
+        items: [
           BottomNavigationBarItem(
               title: Text('Available'), icon: Icon(Icons.home)),
           BottomNavigationBarItem(
@@ -124,11 +122,11 @@ class ProfileCard extends StatelessWidget {
   }
 
   Widget _getCardContents() {
-    List<Widget> contents = <Widget>[
+    var contents = [
       _showProfilePicture(data),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
-    List<Widget> children = _wrapInScrimAndExpand(Column(children: contents));
+    var children = _wrapInScrimAndExpand(Column(children: contents));
     if (viewType == ViewType.available) {
       children.add(Row(children: [
         Expanded(
