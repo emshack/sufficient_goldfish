@@ -210,7 +210,7 @@ class ProfileCard extends StatelessWidget {
     Widget musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
     Widget phWidget = Padding(
         child: Text('Favorite pH: $pH', style: subHeadingStyle),
-        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 16.0));
+        padding: EdgeInsets.only(bottom: 16.0));
     List<Widget> children = [nameWidget, musicWidget, phWidget];
     return Column(children: children);
   }
