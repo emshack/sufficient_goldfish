@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +9,10 @@ import 'utils.dart';
 const backgroundAudio = 'background.wav';
 const savedAudio = 'saved.mp3';
 
-AudioTools audioTools = AudioTools();
+var audioTools = AudioTools();
 FirebaseUser user;
 
-Future<void> main() async {
+main() async {
   user = await FirebaseAuth.instance.signInAnonymously();
   audioTools
       .loadFile(backgroundAudio)
@@ -33,11 +31,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance.collection('profiles').snapshots,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        List<DocumentSnapshot> documents = snapshot.data?.documents ?? [];
-        List<FishData> fish = documents.map((DocumentSnapshot snapshot) {
-          return FishData.parseData(snapshot);
-        }).toList();
+      builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
+        var documents = snapshot.data?.documents ?? [];
+        var fish = documents.map((snapshot) => FishData.parseData(snapshot)).toList();
         return FishPage(fish);
       },
     );
@@ -74,7 +70,7 @@ class FishPageState extends State<FishPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<FishData> filteredFish = widget.allFish.where((FishData data) {
+    var filteredFish = widget.allFish.where((FishData data) {
       if (_viewType == ViewType.available) {
         return data.reservedBy == null || data.reservedBy == user.uid;
       } else {
@@ -95,7 +91,7 @@ class FishPageState extends State<FishPage> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
+        items: [
           BottomNavigationBarItem(
               title: Text('Available'), icon: Icon(Icons.home)),
           BottomNavigationBarItem(
@@ -171,11 +167,11 @@ class ProfileCard extends StatelessWidget {
   }
 
   Widget _getCardContents() {
-    List<Widget> contents = <Widget>[
+    var contents = [
       _showProfilePicture(data),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
-    List<Widget> children = _wrapInScrimAndExpand(Column(children: contents));
+    var children = _wrapInScrimAndExpand(Column(children: contents));
     if (viewType == ViewType.available) {
       children.add(Row(children: [
         Expanded(
@@ -200,19 +196,18 @@ class ProfileCard extends StatelessWidget {
   Widget _showData(String name, String music, String pH) {
     var subHeadingStyle =
         TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0);
-    Widget nameWidget = Padding(
+    var nameWidget = Padding(
         padding: EdgeInsets.all(8.0),
         child: Text(
           name,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
           textAlign: TextAlign.center,
         ));
-    Widget musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
-    Widget phWidget = Padding(
+    var musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
+    var phWidget = Padding(
         child: Text('Favorite pH: $pH', style: subHeadingStyle),
         padding: EdgeInsets.only(bottom: 16.0));
-    List<Widget> children = [nameWidget, musicWidget, phWidget];
-    return Column(children: children);
+    return Column(children: [nameWidget, musicWidget, phWidget]);
   }
 
   Widget _showProfilePicture(FishData fishData) {
