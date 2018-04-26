@@ -73,7 +73,7 @@ class FishPageState extends State<FishPage> {
               title: Text('Reserved'), icon: Icon(Icons.shopping_basket)),
         ],
       ),
-      body: Container(),
+      body: FishOptions(filteredFish, _viewType, _reserveFish, _removeFish),
     );
   }
 
@@ -93,14 +93,7 @@ class FishOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var fishOfInterest = FishData.data(null);
-    return ProfileCard(
-      fishOfInterest,
-      viewType,
-      () => onAddedCallback(fishOfInterest),
-      () => onRemovedCallback(fishOfInterest),
-      fishOfInterest.reservedBy == user.uid,
-    );
+    return Container();
   }
 
   onDismissed(int card) {}
