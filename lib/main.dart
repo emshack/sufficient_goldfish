@@ -105,7 +105,7 @@ class FishOptions extends StatelessWidget {
     );
   }
 
-  onDismissed(int card, _) {}
+  onDismissed(int card) {}
 }
 
 class ProfileCard extends StatelessWidget {
@@ -133,7 +133,7 @@ class ProfileCard extends StatelessWidget {
       children.add(Row(children: [
         Expanded(
             child: FlatButton(
-          padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 15.0),
+          padding: EdgeInsets.symmetric(vertical: 15.0),
           color: Colors.green,
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.check),
@@ -157,7 +157,7 @@ class ProfileCard extends StatelessWidget {
     var musicWidget = Text('Favorite music: $music', style: subHeadingStyle);
     var phWidget = Padding(
         child: Text('Favorite pH: $pH', style: subHeadingStyle),
-        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 16.0));
+        padding: EdgeInsets.only(bottom: 16.0));
     return Container();
   }
 
