@@ -88,13 +88,13 @@ class FishPageState extends State<FishPage> {
     );
   }
 
-  void _removeFish(FishData fishOfInterest) {
-    fishOfInterest.reservedBy = null;
+  void _reserveFish(FishData fishOfInterest) {
+    fishOfInterest.reservedBy = user.uid;
     fishOfInterest.save();
   }
 
-  void _reserveFish(FishData fishOfInterest) {
-    fishOfInterest.reservedBy = user.uid;
+  void _removeFish(FishData fishOfInterest) {
+    fishOfInterest.reservedBy = null;
     fishOfInterest.save();
   }
 }
