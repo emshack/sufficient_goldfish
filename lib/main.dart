@@ -13,6 +13,7 @@ var audioTools = AudioTools();
 FirebaseUser user;
 
 main() async {
+  user = await FirebaseAuth.instance.signInAnonymously();
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
     theme: ThemeData(primarySwatch: Colors.indigo),
