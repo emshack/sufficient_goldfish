@@ -76,9 +76,9 @@ class FishPageState extends State<FishPage> {
     );
   }
 
-  void _removeFish(FishData fishOfInterest) {}
-
   void _reserveFish(FishData fishOfInterest) {}
+
+  void _removeFish(FishData fishOfInterest) {}
 }
 
 class FishOptions extends StatelessWidget {
