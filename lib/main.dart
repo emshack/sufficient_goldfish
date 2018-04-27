@@ -6,7 +6,7 @@ import 'package:sensors/sensors.dart';
 
 import 'utils.dart';
 
-const backgroundAudio = 'background.wav';
+const backgroundAudio = 'background.mp3';
 const savedAudio = 'saved.mp3';
 
 var audioTools = AudioTools();
