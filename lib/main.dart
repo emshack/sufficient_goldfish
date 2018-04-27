@@ -52,11 +52,6 @@ class FishPageState extends State<FishPage> {
   ViewType _viewType = ViewType.available;
 
   @override
-  initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     var filteredFish = widget.allFish;
     return Scaffold(
