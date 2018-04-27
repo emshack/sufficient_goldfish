@@ -49,7 +49,6 @@ class FishPage extends StatefulWidget {
 }
 
 class FishPageState extends State<FishPage> {
-  FishData _undoData;
   ViewType _viewType = ViewType.available;
 
   @override
