@@ -123,10 +123,10 @@ class ProfileCard extends StatelessWidget {
         Expanded(
             child: FlatButton(
           padding: EdgeInsets.symmetric(vertical: 15.0),
-          color: Colors.green,
+          color: isReserved ? Colors.red : Colors.green,
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(Icons.check),
-            Text('Add', style: TextStyle(fontSize: 16.0))
+            Icon(isReserved ? Icons.not_interested : Icons.check),
+            Text(isReserved ? 'Remove' : 'Add', style: TextStyle(fontSize: 16.0))
           ]),
           onPressed: null,
         ))
