@@ -18,7 +18,6 @@ dev_dependencies:
 
 flutter:
   assets:
-    - assets/fish-silhouette.png
     - assets/background.mp3
     - assets/saved.mp3
   uses-material-design: true
