@@ -9,7 +9,7 @@ import 'utils.dart';
 const backgroundAudio = 'background.mp3';
 const savedAudio = 'saved.mp3';
 
-var audioTools = AudioTools();
+var audioTools = LocalAudioTools();
 FirebaseUser user;
 
 main() async {

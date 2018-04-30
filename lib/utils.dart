@@ -53,7 +53,7 @@ class FishData {
   }
 }
 
-class AudioTools {
+class LocalAudioTools {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final Map<String, String> _nameToPath = {};
 
