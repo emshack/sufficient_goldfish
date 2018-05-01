@@ -13,8 +13,6 @@ PODS:
     - Firebase/Database
     - Firebase/Firestore
     - Flutter
-  - device_info (0.0.1):
-    - Flutter
   - Firebase/Auth (4.10.1):
     - Firebase/Core
     - FirebaseAuth (= 4.4.4)
@@ -27,18 +25,12 @@ PODS:
   - Firebase/Firestore (4.10.1):
     - Firebase/Core
     - FirebaseFirestore (= 0.10.3)
-  - Firebase/Storage (4.10.1):
-    - Firebase/Core
-    - FirebaseStorage (= 2.1.3)
   - firebase_auth (0.0.1):
     - Firebase/Auth
     - Firebase/Core
     - Flutter
   - firebase_core (0.0.1):
     - Firebase/Core
-    - Flutter
-  - firebase_storage (0.0.1):
-    - Firebase/Storage
     - Flutter
   - FirebaseAnalytics (4.1.0):
     - FirebaseCore (~> 4.0)
@@ -63,10 +55,6 @@ PODS:
     - Protobuf (~> 3.5)
   - FirebaseInstanceID (2.0.9):
     - FirebaseCore (~> 4.0)
-  - FirebaseStorage (2.1.3):
-    - FirebaseAnalytics (~> 4.1)
-    - FirebaseCore (~> 4.0)
-    - GTMSessionFetcher/Core (~> 1.1)
   - Flutter (1.0.0)
   - GoogleToolboxForMac/DebugUtils (2.1.3):
     - GoogleToolboxForMac/Defines (= 2.1.3)
@@ -98,8 +86,6 @@ PODS:
     - gRPC-Core (= 1.10.0)
     - gRPC-RxLibrary (= 1.10.0)
   - GTMSessionFetcher/Core (1.1.14)
-  - image_picker (0.0.1):
-    - Flutter
   - leveldb-library (1.20)
   - nanopb (0.3.8):
     - nanopb/decode (= 0.3.8)
@@ -115,12 +101,9 @@ PODS:
 DEPENDENCIES:
   - audioplayer (from `Pods/.symlinks/plugins/audioplayer-0.4.0/ios`)
   - cloud_firestore (from `Pods/.symlinks/plugins/cloud_firestore-0.6.3/ios`)
-  - device_info (from `Pods/.symlinks/plugins/device_info-0.2.0/ios`)
   - firebase_auth (from `Pods/.symlinks/plugins/firebase_auth-0.5.5/ios`)
   - firebase_core (from `Pods/.symlinks/plugins/firebase_core-0.2.3/ios`)
-  - firebase_storage (from `Pods/.symlinks/plugins/firebase_storage-0.2.4/ios`)
   - Flutter (from `Pods/.symlinks/flutter/ios`)
-  - image_picker (from `Pods/.symlinks/plugins/image_picker-0.4.1/ios`)
   - path_provider (from `Pods/.symlinks/plugins/path_provider-0.4.0/ios`)
   - sensors (from `Pods/.symlinks/plugins/sensors-0.3.1/ios`)
 
@@ -129,18 +112,12 @@ EXTERNAL SOURCES:
     :path: Pods/.symlinks/plugins/audioplayer-0.4.0/ios
   cloud_firestore:
     :path: Pods/.symlinks/plugins/cloud_firestore-0.6.3/ios
-  device_info:
-    :path: Pods/.symlinks/plugins/device_info-0.2.0/ios
   firebase_auth:
     :path: Pods/.symlinks/plugins/firebase_auth-0.5.5/ios
   firebase_core:
     :path: Pods/.symlinks/plugins/firebase_core-0.2.3/ios
-  firebase_storage:
-    :path: Pods/.symlinks/plugins/firebase_storage-0.2.4/ios
   Flutter:
     :path: Pods/.symlinks/flutter/ios
-  image_picker:
-    :path: Pods/.symlinks/plugins/image_picker-0.4.1/ios
   path_provider:
     :path: Pods/.symlinks/plugins/path_provider-0.4.0/ios
   sensors:
@@ -150,18 +127,15 @@ SPEC CHECKSUMS:
   audioplayer: 3cc64e4f5f3e231c715c8923a9bc26a19dc5da3b
   BoringSSL: 32764dbaf5f5888cf51fbaa172a010126b41bcd4
   cloud_firestore: a2d49d9c7219fce31033eb1a2ee953d7733c91d6
-  device_info: 76ce0b32e13034d1883be4a382433648f9dcee63
   Firebase: 92c6ba593e32db0defde464a9adc981d5cb49f97
   firebase_auth: 27a5a77a032d557c18f8e223aaf8ec1368f6cdbc
   firebase_core: c96aa8b2fcf7f5167d32f22034f502f9304952b8
-  firebase_storage: e34d30ff8bb57e691191b70e9d255ec2eba2351f
   FirebaseAnalytics: 3dfae28d4a5e06f86c4fae830efc2ad3fadb19bc
   FirebaseAuth: d040bb7a9db6dfc29d0e7ec82d48be51352b2581
   FirebaseCore: 872307b001bbefda1dfa0dbfffa50a6919023d4a
   FirebaseDatabase: 5f0bc6134c5c237cf55f9e1249d406770a75eafd
   FirebaseFirestore: 41d1ec1f37963b63f8bbbcdb94d8545d4c6c1b42
   FirebaseInstanceID: d2058a35e9bebda1b6dd42486b84917bde552a9d
-  FirebaseStorage: 9a863a2bb96c406958eeff7c2f1dfa9f44c44a13
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
   GoogleToolboxForMac: 2501e2ad72a52eb3dfe7bd9aee7dad11b858bd20
   gRPC: f54f0e6d603052b4562447da442ce2ff30bcdacc
@@ -169,7 +143,6 @@ SPEC CHECKSUMS:
   gRPC-ProtoRPC: 22712b23eb1bda656a59715fa5c1da0ea1493ea4
   gRPC-RxLibrary: a41a4652d220f230ba1c0491a94ce2ee04c6180a
   GTMSessionFetcher: 390ea358e5a0d0133153806f744662dad933d06b
-  image_picker: ee00aab0487cedc80a304085219503cc6d0f2e22
   leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
   nanopb: 5601e6bca2dbf1ed831b519092ec110f66982ca3
   path_provider: 09407919825bfe3c2deae39453b7a5b44f467873
