@@ -7,7 +7,7 @@ import 'package:sensors/sensors.dart';
 import 'utils.dart';
 
 const backgroundAudio = 'background.mp3';
-const savedAudio = 'saved.mp3';
+const removedAudio = 'removed.mp3';
 
 var audioTools = LocalAudioTools();
 FirebaseUser user;
