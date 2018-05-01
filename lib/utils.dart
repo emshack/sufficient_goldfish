@@ -55,7 +55,7 @@ class FishData {
   }
 }
 
-class AudioTools {
+class LocalAudioTools {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final Map<String, String> _nameToPath = {};
   
@@ -68,7 +68,7 @@ class AudioTools {
     if (await file.exists()) _nameToPath[name] = file.path;
   }
 
-  void initAudioLoop(String name) {}
-
   Future<Null> playAudio(String name) async {}
+
+  void initAudioLoop(String name) {}
 }

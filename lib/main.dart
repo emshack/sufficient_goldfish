@@ -9,7 +9,7 @@ import 'utils.dart';
 const backgroundAudio = 'background.mp3';
 const savedAudio = 'saved.mp3';
 
-var audioTools = AudioTools();
+var audioTools = LocalAudioTools();
 FirebaseUser user;
 
 main() async {
@@ -49,13 +49,7 @@ class FishPage extends StatefulWidget {
 }
 
 class FishPageState extends State<FishPage> {
-  FishData _undoData;
   ViewType _viewType = ViewType.available;
-
-  @override
-  initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
