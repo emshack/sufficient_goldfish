@@ -40,15 +40,17 @@ class FishData {
       document.data['reservedBy'],
       document.data['profilePicture']);
 
-  void save() {}
+  void save() {
+    reference.setData(serialize());
+  }
 
   Map<String, dynamic> serialize() {
     return {
       'name': name,
       'favoriteMusic': favoriteMusic,
       'phValue': favoritePh,
-      'profilePicture': profilePicture,
       'reservedBy': reservedBy,
+      'profilePicture': profilePicture,
     };
   }
 }
@@ -66,7 +68,14 @@ class LocalAudioTools {
     if (await file.exists()) _nameToPath[name] = file.path;
   }
 
-  Future<Null> playAudio(String name) async {}
+  void initAudioLoop(String name) {
+    // restart audio if it has finished
+    _audioPlayer.setCompletionHandler(() => playAudio(name));
+    playAudio(name);
+  }
 
-  void initAudioLoop(String name) {}
+  Future<Null> playAudio(String name) async {
+    await _audioPlayer.stop();
+    await _audioPlayer.play(_nameToPath[name], isLocal: true);
+  }
 }
