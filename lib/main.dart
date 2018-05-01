@@ -7,7 +7,7 @@ import 'package:sensors/sensors.dart';
 import 'utils.dart';
 
 const backgroundAudio = 'background.mp3';
-const savedAudio = 'saved.mp3';
+const removedAudio = 'removed.mp3';
 
 var audioTools = LocalAudioTools();
 FirebaseUser user;
@@ -17,7 +17,7 @@ main() async {
   audioTools
       .loadFile(backgroundAudio)
       .then((_) => audioTools.initAudioLoop(backgroundAudio));
-  audioTools.loadFile(savedAudio);
+  audioTools.loadFile(removedAudio);
   runApp(MaterialApp(
     title: 'Sufficient Goldfish',
     theme: ThemeData(primarySwatch: Colors.indigo),
@@ -112,6 +112,7 @@ class FishPageState extends State<FishPage> {
   }
 
   void _removeFish(FishData fishOfInterest) {
+    audioTools.playAudio(removedAudio);
     setState(() => _undoData = fishOfInterest);
     fishOfInterest.reservedBy = null;
     fishOfInterest.save();
@@ -186,7 +187,6 @@ class ProfileCard extends StatelessWidget {
                       style: TextStyle(fontSize: 16.0))
                 ]),
                 onPressed: () {
-                  audioTools.playAudio(savedAudio);
                   isReserved ? onRemovedCallback() : onAddedCallback();
                 }))
       ]));

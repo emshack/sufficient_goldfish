@@ -19,5 +19,5 @@ dev_dependencies:
 flutter:
   assets:
     - assets/background.mp3
-    - assets/saved.mp3
+    - assets/removed.mp3
   uses-material-design: true
