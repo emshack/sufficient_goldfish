@@ -182,7 +182,7 @@ class ProfileCard extends StatelessWidget {
                 child:
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(isReserved ? Icons.not_interested : Icons.check),
-                  Text(isReserved ? 'Remove' : 'Add',
+                  Text(isReserved ? 'Release' : 'Catch',
                       style: TextStyle(fontSize: 16.0))
                 ]),
                 onPressed: () {
