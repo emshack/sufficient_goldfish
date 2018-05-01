@@ -49,8 +49,8 @@ class FishData {
       'name': name,
       'favoriteMusic': favoriteMusic,
       'phValue': favoritePh,
-      'profilePicture': profilePicture,
       'reservedBy': reservedBy,
+      'profilePicture': profilePicture,
     };
   }
 }
@@ -58,7 +58,7 @@ class FishData {
 class LocalAudioTools {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final Map<String, String> _nameToPath = {};
-  
+
   Future loadFile(String name) async {
     final bytes = await rootBundle.load('assets/$name');
     final dir = await getApplicationDocumentsDirectory();
@@ -68,7 +68,14 @@ class LocalAudioTools {
     if (await file.exists()) _nameToPath[name] = file.path;
   }
 
-  Future<Null> playAudio(String name) async {}
+  void initAudioLoop(String name) {
+    // restart audio if it has finished
+    _audioPlayer.setCompletionHandler(() => playAudio(name));
+    playAudio(name);
+  }
 
-  void initAudioLoop(String name) {}
+  Future<Null> playAudio(String name) async {
+    await _audioPlayer.stop();
+    await _audioPlayer.play(_nameToPath[name], isLocal: true);
+  }
 }
