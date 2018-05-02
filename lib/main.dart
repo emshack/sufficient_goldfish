@@ -143,13 +143,12 @@ class FishOptions extends StatelessWidget {
             isReserved,
           );
         },
-        dismissedCallback: (int card, _) => onDismissed(card),
+        dismissedCallback: (int index, _) => onDismissed(index),
         itemCount: fish.length);
   }
 
-  onDismissed(int card) {
-    FishData fishOfInterest = fish[card];
-    onRemovedCallback(fishOfInterest);
+  onDismissed(int index) {
+    onRemovedCallback(fish[index]);
   }
 }
 
