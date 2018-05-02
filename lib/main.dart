@@ -90,7 +90,7 @@ class FishOptions extends StatelessWidget {
     return Container();
   }
 
-  onDismissed(int card) {}
+  onDismissed(int index) {}
 }
 
 class ProfileCard extends StatelessWidget {
