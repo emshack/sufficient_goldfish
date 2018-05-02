@@ -32,7 +32,7 @@ class FishData {
     this.profilePicture ??= defaultImage;
   }
 
-  factory FishData.parseData(DocumentSnapshot document) => FishData.data(
+  factory FishData.from(DocumentSnapshot document) => FishData.data(
       document.reference,
       document.data['name'],
       document.data['favoriteMusic'],
