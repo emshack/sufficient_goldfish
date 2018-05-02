@@ -41,10 +41,10 @@ class FishData {
       document.data['profilePicture']);
 
   void save() {
-    reference.setData(serialize());
+    reference.setData(toMap());
   }
 
-  Map<String, dynamic> serialize() {
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
       'favoriteMusic': favoriteMusic,
