@@ -32,7 +32,7 @@ class FishData {
     this.profilePicture ??= defaultImage;
   }
 
-  factory FishData.parseData(DocumentSnapshot document) => FishData.data(
+  factory FishData.from(DocumentSnapshot document) => FishData.data(
       document.reference,
       document.data['name'],
       document.data['favoriteMusic'],
@@ -40,15 +40,17 @@ class FishData {
       document.data['reservedBy'],
       document.data['profilePicture']);
 
-  void save() {}
+  void save() {
+    reference.setData(toMap());
+  }
 
-  Map<String, dynamic> serialize() {
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
       'favoriteMusic': favoriteMusic,
       'phValue': favoritePh,
-      'profilePicture': profilePicture,
       'reservedBy': reservedBy,
+      'profilePicture': profilePicture,
     };
   }
 }
@@ -66,7 +68,14 @@ class LocalAudioTools {
     if (await file.exists()) _nameToPath[name] = file.path;
   }
 
-  Future<Null> playAudio(String name) async {}
+  void initAudioLoop(String name) {
+    // restart audio if it has finished
+    _audioPlayer.setCompletionHandler(() => playAudio(name));
+    playAudio(name);
+  }
 
-  void initAudioLoop(String name) {}
+  Future<Null> playAudio(String name) async {
+    await _audioPlayer.stop();
+    await _audioPlayer.play(_nameToPath[name], isLocal: true);
+  }
 }
