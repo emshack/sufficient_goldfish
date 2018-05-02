@@ -114,7 +114,7 @@ class FishOptions extends StatelessWidget {
     );
   }
 
-  onDismissed(int card) {}
+  onDismissed(int index) {}
 }
 
 class ProfileCard extends StatelessWidget {
