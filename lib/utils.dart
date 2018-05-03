@@ -41,7 +41,6 @@ class FishData {
       document.data['profilePicture']);
 
   void save() {
-    reference.setData(toMap());
   }
 
   Map<String, dynamic> toMap() {
