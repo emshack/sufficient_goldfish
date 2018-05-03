@@ -67,7 +67,7 @@ class LocalAudioTools {
     if (await file.exists()) _nameToPath[name] = file.path;
   }
 
-  void initAudioLoop(String name) {
+  void playAudioLoop(String name) {
     // restart audio if it has finished
     _audioPlayer.setCompletionHandler(() => playAudio(name));
     playAudio(name);
