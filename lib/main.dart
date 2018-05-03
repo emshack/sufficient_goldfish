@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_coverflow/simple_coverflow.dart';
 import 'package:sensors/sensors.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 import 'utils.dart';
 
@@ -110,7 +111,7 @@ class ProfileCard extends StatelessWidget {
 
   Widget _getCardContents() {
     var contents = [
-      _showProfilePicture(data),
+      Expanded(child: _showProfilePicture(data)),
       _showData(data.name, data.favoriteMusic, data.favoritePh),
     ];
     var children = _wrapInScrimAndExpand(Column(children: contents));
