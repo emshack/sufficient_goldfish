@@ -109,14 +109,16 @@ class FishPageState extends State<FishPage> {
 
   void _reserveFish(FishData fishOfInterest) {
     fishOfInterest.reservedBy = user.uid;
-    fishOfInterest.save();
+    setState(() => fishOfInterest.save());
   }
 
   void _removeFish(FishData fishOfInterest) {
     audioTools.playAudio(removedAudio);
-    setState(() => _undoData = fishOfInterest);
     fishOfInterest.reservedBy = null;
-    fishOfInterest.save();
+    setState(() {
+      _undoData = fishOfInterest;
+      fishOfInterest.save();
+    });
   }
 }
 
@@ -144,12 +146,8 @@ class FishOptions extends StatelessWidget {
             isReserved,
           );
         },
-        dismissedCallback: (int index, _) => onDismissed(index),
+        dismissedCallback: (int index, _) => onRemovedCallback(fish[index]),
         itemCount: fish.length);
-  }
-
-  onDismissed(int index) {
-    onRemovedCallback(fish[index]);
   }
 }
 
@@ -213,10 +211,10 @@ class ProfileCard extends StatelessWidget {
 
   Widget _showProfilePicture(FishData fishData) {
     return FadeInImage.memoryNetwork(
-        placeholder: kTransparentImage,
-        image: fishData.profilePicture,
-        fit: BoxFit.cover,
-      );
+      placeholder: kTransparentImage,
+      image: fishData.profilePicture,
+      fit: BoxFit.cover,
+    );
   }
 
   List<Widget> _wrapInScrimAndExpand(Widget child) {
