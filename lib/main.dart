@@ -84,13 +84,17 @@ class FishPageState extends State<FishPage> {
   }
 
   void _reserveFish(FishData fishOfInterest) {
-    fishOfInterest.reservedBy = user.uid;
-    fishOfInterest.save();
+    setState(() {
+      fishOfInterest.reservedBy = user.uid;
+      fishOfInterest.save();
+    });
   }
 
   void _removeFish(FishData fishOfInterest) {
-    fishOfInterest.reservedBy = null;
-    fishOfInterest.save();
+    setState(() {
+      fishOfInterest.reservedBy = null;
+      fishOfInterest.save();
+    });
   }
 }
 
@@ -114,8 +118,6 @@ class FishOptions extends StatelessWidget {
       fishOfInterest.reservedBy == user.uid,
     );
   }
-
-  onDismissed(int index) {}
 }
 
 class ProfileCard extends StatelessWidget {
