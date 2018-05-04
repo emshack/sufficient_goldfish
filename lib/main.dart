@@ -84,17 +84,13 @@ class FishPageState extends State<FishPage> {
   }
 
   void _reserveFish(FishData fishOfInterest) {
-    setState(() {
-      fishOfInterest.reservedBy = user.uid;
-      fishOfInterest.save();
-    });
+    fishOfInterest.reservedBy = user.uid;
+    setState(() => fishOfInterest.save());
   }
 
   void _removeFish(FishData fishOfInterest) {
-    setState(() {
-      fishOfInterest.reservedBy = null;
-      fishOfInterest.save();
-    });
+    fishOfInterest.reservedBy = null;
+    setState(() => fishOfInterest.save());
   }
 }
 
