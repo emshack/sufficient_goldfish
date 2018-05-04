@@ -90,8 +90,6 @@ class FishOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container();
   }
-
-  onDismissed(int index) {}
 }
 
 class ProfileCard extends StatelessWidget {
