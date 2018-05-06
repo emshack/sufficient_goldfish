@@ -2,14 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Let us tell you when you're close to your date!</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Let us find matches nearby!</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Let us select a photo for your profile from your photo album!</string>
-    <key>NSCameraUsageDescription</key>
-    <string>Use the camera to update your profile!</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
@@ -30,6 +22,14 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Use the camera to update your profile!</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Let us tell you when you're close to your date!</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Let us find matches nearby!</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Let us select a photo for your profile from your photo album!</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
