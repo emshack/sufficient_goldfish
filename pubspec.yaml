@@ -4,7 +4,7 @@ description: The fish shopping app you've been waiting for.
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore: '^0.6.2'
+  cloud_firestore: '^0.7.0'
   audioplayer: '^0.4.0'
   path_provider: '^0.4.0'
   firebase_auth: '^0.5.5'
