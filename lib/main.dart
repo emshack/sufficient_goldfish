@@ -173,21 +173,7 @@ class ProfileCard extends StatelessWidget {
     ];
     var children = _wrapInScrimAndExpand(Column(children: contents));
     if (viewType == ViewType.available) {
-      children.add(Row(children: [
-        Expanded(
-            child: FlatButton(
-                padding: EdgeInsets.symmetric(vertical: 15.0),
-                color: isReserved ? Colors.red : Colors.green,
-                child:
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(isReserved ? Icons.not_interested : Icons.check),
-                  Text(isReserved ? 'Release' : 'Catch',
-                      style: TextStyle(fontSize: 16.0))
-                ]),
-                onPressed: () {
-                  isReserved ? onRemovedCallback() : onAddedCallback();
-                }))
-      ]));
+      children.add(_showButton());
     }
     return Column(children: children);
   }
@@ -215,6 +201,24 @@ class ProfileCard extends StatelessWidget {
       image: fishData.profilePicture,
       fit: BoxFit.cover,
     );
+  }
+
+  Widget _showButton() {
+    return Row(children: [
+      Expanded(
+          child: FlatButton(
+              padding: EdgeInsets.symmetric(vertical: 15.0),
+              color: isReserved ? Colors.red : Colors.green,
+              child:
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(isReserved ? Icons.not_interested : Icons.check),
+                Text(isReserved ? 'Release' : 'Catch',
+                    style: TextStyle(fontSize: 16.0))
+              ]),
+              onPressed: () {
+                isReserved ? onRemovedCallback() : onAddedCallback();
+              }))
+    ]);
   }
 
   List<Widget> _wrapInScrimAndExpand(Widget child) {
