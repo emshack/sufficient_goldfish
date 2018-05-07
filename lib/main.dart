@@ -61,7 +61,7 @@ class FishPageState extends State<FishPage> {
   initState() {
     super.initState();
     accelerometerEvents.listen((AccelerometerEvent event) {
-      if (event.y.abs() >= 20 &&
+      if (event.x.abs() >= 2 &&
           _undoData != null &&
           _viewType == ViewType.reserved) {
         _reserveFish(_undoData);
