@@ -100,7 +100,7 @@ PODS:
 
 DEPENDENCIES:
   - audioplayer (from `Pods/.symlinks/plugins/audioplayer-0.4.0/ios`)
-  - cloud_firestore (from `Pods/.symlinks/plugins/cloud_firestore-0.6.3/ios`)
+  - cloud_firestore (from `Pods/.symlinks/plugins/cloud_firestore-0.7.0+1/ios`)
   - firebase_auth (from `Pods/.symlinks/plugins/firebase_auth-0.5.5/ios`)
   - firebase_core (from `Pods/.symlinks/plugins/firebase_core-0.2.3/ios`)
   - Flutter (from `Pods/.symlinks/flutter/ios`)
@@ -111,7 +111,7 @@ EXTERNAL SOURCES:
   audioplayer:
     :path: Pods/.symlinks/plugins/audioplayer-0.4.0/ios
   cloud_firestore:
-    :path: Pods/.symlinks/plugins/cloud_firestore-0.6.3/ios
+    :path: Pods/.symlinks/plugins/cloud_firestore-0.7.0+1/ios
   firebase_auth:
     :path: Pods/.symlinks/plugins/firebase_auth-0.5.5/ios
   firebase_core:

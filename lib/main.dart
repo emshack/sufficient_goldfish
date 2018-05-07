@@ -180,7 +180,7 @@ class ProfileCard extends StatelessWidget {
 
   Widget _showData(String name, String music, String pH) {
     var subHeadingStyle =
-        TextStyle(fontStyle: FontStyle.italic, fontSize: 24.0);
+        TextStyle(fontStyle: FontStyle.italic, fontSize: 16.0);
     var nameWidget = Padding(
         padding: EdgeInsets.all(8.0),
         child: Text(
@@ -213,7 +213,7 @@ class ProfileCard extends StatelessWidget {
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Icon(isReserved ? Icons.not_interested : Icons.check),
                 Text(isReserved ? 'Release' : 'Catch',
-                    style: TextStyle(fontSize: 24.0))
+                    style: TextStyle(fontSize: 16.0))
               ]),
               onPressed: () {
                 isReserved ? onRemovedCallback() : onAddedCallback();
