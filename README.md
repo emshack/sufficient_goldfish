@@ -8,5 +8,5 @@ Audio and image assets are licensed under the
 imply endorsement.
 
 * https://freesound.org/people/Polytest/sounds/274448/
-* https://freesound.org/people/tec%20studios/sounds/232186/
+* https://freesound.org/people/YoloSwaggings/sounds/406623/
 * https://pixabay.com/en/angelfish-fish-silhouette-303159/
